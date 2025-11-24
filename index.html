@@ -18,26 +18,17 @@
     <style>
         @import url('https://fonts.fonts.google.com/specimen/Inter:wght@300;400;600;700;800');
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; overscroll-behavior-y: none; }
-        
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .transition-all-300 { transition: all 0.3s ease-in-out; }
-        
-        /* Animaciones Sidebar */
         #sidebar { transition: transform 0.3s ease-in-out; }
         .sidebar-closed { transform: translateX(-100%); }
         .sidebar-open { transform: translateX(0); }
-
-        /* Inputs y Selects */
         .table-select { appearance: none; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; }
         input, select, textarea { font-size: 16px !important; }
         input:disabled, select:disabled { background-color: #f9fafb; color: #9ca3af; cursor: not-allowed; }
-
-        /* Pull Refresh Spinner */
         #refresh-spinner { transition: transform 0.3s; transform: translateY(-100%); }
         #refresh-spinner.visible { transform: translateY(60px); }
-
-        /* Estilo Pantalla de Carga */
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -50,35 +41,20 @@
                 <img src="logo.png" alt="Papelera Rosato" class="h-24 object-contain drop-shadow-sm" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
                 <h1 class="text-4xl font-bold text-red-700 tracking-tighter hidden">ROSATO</h1>
             </div>
-            
-            <div>
-                <h2 class="text-2xl font-bold text-gray-800">Portal del Empleado</h2>
-                <p class="text-gray-500 mt-2">Gestiona tus turnos y calcula tu salario.</p>
-            </div>
-
+            <div><h2 class="text-2xl font-bold text-gray-800">Portal del Empleado</h2><p class="text-gray-500 mt-2">Gestiona tus turnos y calcula tu salario.</p></div>
             <div class="space-y-4 w-full">
-                <button id="btn-login-google" class="w-full py-3.5 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5">
-                    Ingresar con Google
-                </button>
-                
-                <div class="relative flex py-2 items-center">
-                    <div class="flex-grow border-t border-gray-200"></div>
-                    <span class="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase">O continuar como</span>
-                    <div class="flex-grow border-t border-gray-200"></div>
-                </div>
-
-                <button id="btn-login-guest" class="w-full py-3.5 px-4 bg-red-600 text-white rounded-xl font-bold shadow-md hover:bg-red-700 transition active:scale-95">
-                    Invitado (Sin Guardar)
-                </button>
+                <button id="btn-login-google" class="w-full py-3.5 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"> Ingresar con Google</button>
+                <div class="relative flex py-2 items-center"><div class="flex-grow border-t border-gray-200"></div><span class="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase">O continuar como</span><div class="flex-grow border-t border-gray-200"></div></div>
+                <button id="btn-login-guest" class="w-full py-3.5 px-4 bg-red-600 text-white rounded-xl font-bold shadow-md hover:bg-red-700 transition active:scale-95">Invitado (Sin Guardar)</button>
             </div>
-            
-            <p class="text-xs text-gray-400 mt-8">Versión 5.0 &copy; 2025</p>
+            <div class="mt-12 text-center">
+                <p class="text-xs text-gray-400">Desarrollado por</p>
+                <p class="text-sm font-bold text-gray-600">Braian Gomez</p>
+            </div>
         </div>
     </div>
 
     <div id="app-layout" class="flex h-full hidden">
-        
         <div id="profile-modal" class="fixed inset-0 z-[100] bg-black/90 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
             <button id="close-modal-btn" class="absolute top-6 right-6 text-white text-4xl z-[101]">&times;</button>
             <img id="modal-img" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl transform scale-95 transition-transform duration-300">
@@ -95,11 +71,11 @@
             </div>
             <nav class="flex-1 overflow-y-auto py-4">
                 <ul class="space-y-1 px-3">
-                    <li><button class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="home-view"><i class="fa-solid fa-house w-5 text-center"></i><span>Inicio</span></button></li>
-                    <li><button class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="monthly-history-view"><i class="fa-solid fa-calendar-days w-5 text-center"></i><span>Mi Gestión</span></button></li>
-                    <li><button class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="treasury-view"><i class="fa-solid fa-wallet w-5 text-center"></i><span>Tesorería</span></button></li>
-                    <li><button class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="ranking-view"><i class="fa-solid fa-trophy w-5 text-center"></i><span>Ranking</span></button></li>
-                    <li><button class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="config-view"><i class="fa-solid fa-gear w-5 text-center"></i><span>Configuración</span></button></li>
+                    <li><button onclick="window.navigateTo('home-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 bg-red-600 text-white shadow-md" data-target="home-view"><i class="fa-solid fa-house w-5 text-center"></i><span>Inicio</span></button></li>
+                    <li><button onclick="window.navigateTo('monthly-history-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="monthly-history-view"><i class="fa-solid fa-calendar-days w-5 text-center"></i><span>Mi Gestión</span></button></li>
+                    <li><button onclick="window.navigateTo('treasury-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="treasury-view"><i class="fa-solid fa-wallet w-5 text-center"></i><span>Tesorería</span></button></li>
+                    <li><button onclick="window.navigateTo('ranking-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="ranking-view"><i class="fa-solid fa-trophy w-5 text-center"></i><span>Ranking</span></button></li>
+                    <li><button onclick="window.navigateTo('config-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="config-view"><i class="fa-solid fa-gear w-5 text-center"></i><span>Configuración</span></button></li>
                 </ul>
             </nav>
             <div class="p-4 border-t border-gray-100 bg-gray-50">
@@ -110,9 +86,13 @@
                         <div id="user-info-email" class="text-xs text-gray-400 truncate">Modo lectura</div>
                     </div>
                 </div>
-                <button id="auth-action-btn" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2">
-                    <i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>
-                </button>
+                <button id="auth-action-btn" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span></button>
+                
+                <div class="mt-4 pt-3 border-t border-gray-200 text-center">
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wider">Desarrollado por</p>
+                    <p class="text-xs font-bold text-gray-700 mt-0.5">Braian Gomez</p>
+                    <a href="mailto:braianezequielgomez00@gmail.com" class="text-[10px] text-red-500 hover:underline block mt-0.5">braianezequielgomez00@gmail.com</a>
+                </div>
             </div>
         </aside>
 
@@ -266,9 +246,13 @@
             historicalCache: {}
         };
 
-        // EXPOSE GLOBALS FOR HTML HANDLERS
-        window.navigateTo = navigateTo; window.openImageModal = openImageModal;
-        window.updateExtra = updateExtra; window.updateHoliday = updateHoliday; window.updateLateness = updateLateness; window.updateTurnOverride = updateTurnOverride;
+        // --- EXPOSE GLOBALS FOR HTML HANDLERS (CRITICAL FIX) ---
+        window.navigateTo = navigateTo; 
+        window.openImageModal = openImageModal;
+        window.updateExtra = updateExtra; 
+        window.updateHoliday = updateHoliday; 
+        window.updateLateness = updateLateness; 
+        window.updateTurnOverride = updateTurnOverride;
 
         window.onload = () => {
             initFirebaseSystem();
