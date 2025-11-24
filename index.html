@@ -86,7 +86,9 @@
                         <div id="user-info-email" class="text-xs text-gray-400 truncate">Modo lectura</div>
                     </div>
                 </div>
-                <button id="auth-action-btn" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span></button>
+                <button id="auth-action-btn" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>
+                </button>
                 
                 <div class="mt-4 pt-3 border-t border-gray-200 text-center">
                     <p class="text-[10px] text-gray-400 uppercase tracking-wider">Desarrollado por</p>
@@ -263,7 +265,10 @@
             
             document.getElementById('btn-login-google').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
             document.getElementById('btn-login-guest').onclick = () => enterAsGuest();
-            document.getElementById('auth-action-btn').onclick = () => signOut(auth);
+            
+            // MODIFICACIÓN CRÍTICA: Ahora llama a la nueva función
+            document.getElementById('auth-action-btn').onclick = handleLogout;
+            
             document.getElementById('btn-save-config').addEventListener('click', saveConfigHandler);
             document.getElementById('btn-toggle-edit').addEventListener('click', toggleConfigEdit);
             
@@ -271,10 +276,41 @@
             if (fileInput) fileInput.onchange = (e) => { if(e.target.files[0]) compressAndUpload(e.target.files[0]); };
         };
 
+        // --- NEW FUNCTIONS FOR LOGIN/LOGOUT HANDLING ---
+        function showLoginView() {
+            // Limpia el estado de usuario y la UI para la pantalla de login
+            userId = null;
+            document.getElementById('login-view').style.transform = 'translateY(0)';
+            document.getElementById('app-layout').classList.add('hidden');
+            document.getElementById('auth-action-btn').innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>'; // Reset default
+        }
+        
+        async function handleLogout() {
+            if (userId === null) {
+                // Modo invitado: Volver a la pantalla de login
+                showLoginView();
+            } else {
+                // Usuario autenticado: Cerrar sesión de Firebase
+                await signOut(auth);
+            }
+        }
+        // --- END NEW FUNCTIONS ---
+
         function enterAsGuest() {
             userId = null;
             document.getElementById('login-view').style.transform = 'translateY(-100%)';
             document.getElementById('app-layout').classList.remove('hidden');
+
+            // ACTUALIZA BOTÓN PARA MODO INVITADO
+            const authBtn = document.getElementById('auth-action-btn');
+            authBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> <span>Volver al Login</span>';
+            authBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300', 'hover:bg-red-50', 'hover:text-red-600', 'hover:border-red-200');
+            authBtn.classList.add('bg-red-600', 'text-white', 'border-red-600', 'hover:bg-red-700');
+            
+            // Actualiza info en sidebar
+            document.getElementById('user-info-name').textContent = 'Invitado';
+            document.getElementById('user-info-email').textContent = 'Modo lectura';
+
             renderHome();
         }
 
@@ -521,7 +557,7 @@
             });
             const {month, year} = appState.treasuryViewMonth;
             const calc = getCalculationFor(month, year);
-            const c = (t, a, d, dt) => `<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden"><div class="p-6 border-b border-gray-50 flex justify-between items-start bg-white"><div><h3 class="text-lg font-bold text-gray-700">${t}</h3><p class="text-sm text-emerald-600 mt-1">Cobro: ${d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</p></div><div class="text-right"><p class="text-3xl font-extrabold text-gray-800 truncate">${formatCurrency(a)}</p><p class="text-xs text-gray-400">Neto</p></div></div><div class="p-6 grid grid-cols-2 gap-4 text-sm"><div><p class="text-gray-400">Bruto</p><p class="font-semibold">${formatCurrency(dt.bruto)}</p></div><div><p class="text-gray-400">Desc.</p><p class="font-semibold text-red-500">-${formatCurrency(dt.desc)}</p></div><div><p class="text-gray-400">Viáticos</p><p class="font-semibold text-orange-500">+${formatCurrency(dt.viaticos)}</p></div>${dt.feriados>0?`<div><p class="text-gray-400">Feriados</p><p class="font-semibold text-red-600">+${formatCurrency(dt.feriados)}</p></div>`:''}</div></div>`;
+            const c = (t, a, d, dt) => `<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden"><div class="p-6 border-b border-gray-50 flex justify-between items-start bg-white"><div><h3 class="text-lg font-bold text-gray-700">${t}</h3><p class="text-sm text-emerald-600 mt-1">Cobro: ${d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long')}</p></div><div class="text-right"><p class="text-3xl font-extrabold text-gray-800 truncate">${formatCurrency(a)}</p><p class="text-xs text-gray-400">Neto</p></div></div><div class="p-6 grid grid-cols-2 gap-4 text-sm"><div><p class="text-gray-400">Bruto</p><p class="font-semibold">${formatCurrency(dt.bruto)}</p></div><div><p class="text-gray-400">Desc.</p><p class="font-semibold text-red-500">-${formatCurrency(dt.desc)}</p></div><div><p class="text-gray-400">Viáticos</p><p class="font-semibold text-orange-500">+${formatCurrency(dt.viaticos)}</p></div>${dt.feriados>0?`<div><p class="text-gray-400">Feriados</p><p class="font-semibold text-red-600">+${formatCurrency(dt.feriados)}</p></div>`:''}</div></div>`;
             const d1 = calculatePaymentDate(year, month, 15), d2 = calculatePaymentDate(year, month, new Date(year, month, 0).getDate());
             cont.innerHTML = c('1ª Quincena', calc.quincenas.q1.neto, d1, calc.quincenas.q1) + c('2ª Quincena', calc.quincenas.q2.neto, d2, calc.quincenas.q2);
         }
@@ -552,13 +588,21 @@
         async function initFirebaseSystem() {
             app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
             onAuthStateChanged(auth, (u) => {
+                const authBtn = document.getElementById('auth-action-btn');
                 if (u) { 
                     userId = u.uid; document.getElementById('user-info-email').textContent = u.email; 
                     document.getElementById('login-view').classList.add('-translate-y-full');
                     document.getElementById('app-layout').classList.remove('hidden');
                     if(u.displayName) { appState.config.userName = u.displayName; document.getElementById('user-info-name').textContent = u.displayName; }
                     loadUserData(); 
+
+                    // ACTUALIZA BOTÓN PARA USUARIO LOGUEADO
+                    authBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>';
+                    authBtn.classList.add('bg-white', 'text-gray-700', 'border-gray-300', 'hover:bg-red-50', 'hover:text-red-600', 'hover:border-red-200');
+                    authBtn.classList.remove('bg-red-600', 'text-white', 'border-red-600', 'hover:bg-red-700');
+
                 } else { 
+                    // Cuando se desloguea, vuelve a la pantalla de login
                     userId = null; 
                     document.getElementById('login-view').classList.remove('-translate-y-full');
                     document.getElementById('app-layout').classList.add('hidden');
