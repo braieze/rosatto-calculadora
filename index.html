@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Portal Rosato</title>
     
     <link rel="icon" type="image/png" href="logo.png">
@@ -15,7 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        @import url('https://fonts.fonts.google.com/specimen/Inter:wght@300;400;600;700;800');
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; overscroll-behavior-y: none; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
@@ -46,36 +47,67 @@
                 <div class="relative flex py-2 items-center"><div class="flex-grow border-t border-gray-200"></div><span class="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase">O continuar como</span><div class="flex-grow border-t border-gray-200"></div></div>
                 <button id="btn-login-guest" class="w-full py-3.5 px-4 bg-red-600 text-white rounded-xl font-bold shadow-md hover:bg-red-700 transition active:scale-95">Invitado (Sin Guardar)</button>
             </div>
-            <div class="mt-12 text-center"><p class="text-xs text-gray-400">Desarrollado por</p><p class="text-sm font-bold text-gray-600">Braian Gomez</p></div>
+            <div class="mt-12 text-center">
+                <p class="text-xs text-gray-400">Desarrollado por</p>
+                <p class="text-sm font-bold text-gray-600">Braian Gomez</p>
+            </div>
         </div>
     </div>
 
     <div id="app-layout" class="flex h-full hidden">
-        <div id="profile-modal" class="fixed inset-0 z-[100] bg-black/90 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0"><button id="close-modal-btn" class="absolute top-6 right-6 text-white text-4xl z-[101]">&times;</button><img id="modal-img" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl transform scale-95 transition-transform duration-300"></div>
-        <div id="refresh-spinner" class="fixed top-0 left-0 w-full flex justify-center z-[60] pointer-events-none"><div class="bg-white p-3 rounded-full shadow-xl border border-gray-100"><i class="fa-solid fa-arrows-rotate fa-spin text-red-600 text-2xl"></i></div></div>
+        <div id="profile-modal" class="fixed inset-0 z-[100] bg-black/90 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+            <button id="close-modal-btn" class="absolute top-6 right-6 text-white text-4xl z-[101]">&times;</button>
+            <img id="modal-img" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl transform scale-95 transition-transform duration-300">
+        </div>
+
+        <div id="refresh-spinner" class="fixed top-0 left-0 w-full flex justify-center z-[60] pointer-events-none">
+            <div class="bg-white p-3 rounded-full shadow-xl border border-gray-100"><i class="fa-solid fa-arrows-rotate fa-spin text-red-600 text-2xl"></i></div>
+        </div>
 
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 text-gray-700 sidebar-closed md:relative md:translate-x-0 flex flex-col shadow-2xl md:shadow-none">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center"><img src="logo.png" alt="Logo" class="h-10 object-contain"><button id="close-sidebar-btn" class="md:hidden text-gray-400 hover:text-red-600 p-2"><i class="fa-solid fa-times text-xl"></i></button></div>
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <img src="logo.png" alt="Logo" class="h-10 object-contain">
+                <button id="close-sidebar-btn" class="md:hidden text-gray-400 hover:text-red-600 p-2"><i class="fa-solid fa-times text-xl"></i></button>
+            </div>
             <nav class="flex-1 overflow-y-auto py-4">
                 <ul class="space-y-1 px-3">
-                    <li><button id="nav-home" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 bg-red-600 text-white shadow-md" data-target="home-view"><i class="fa-solid fa-house w-5 text-center"></i><span>Inicio</span></button></li>
-                    <li><button id="nav-gest" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="monthly-history-view"><i class="fa-solid fa-calendar-days w-5 text-center"></i><span>Mi Gestión</span></button></li>
-                    <li><button id="nav-treas" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="treasury-view"><i class="fa-solid fa-wallet w-5 text-center"></i><span>Tesorería</span></button></li>
-                    <li><button id="nav-rank" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="ranking-view"><i class="fa-solid fa-trophy w-5 text-center"></i><span>Ranking</span></button></li>
-                    <li><button id="nav-conf" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="config-view"><i class="fa-solid fa-gear w-5 text-center"></i><span>Configuración</span></button></li>
+                    <li><button onclick="window.navigateTo('home-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 bg-red-600 text-white shadow-md" data-target="home-view"><i class="fa-solid fa-house w-5 text-center"></i><span>Inicio</span></button></li>
+                    <li><button onclick="window.navigateTo('monthly-history-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="monthly-history-view"><i class="fa-solid fa-calendar-days w-5 text-center"></i><span>Mi Gestión</span></button></li>
+                    <li><button onclick="window.navigateTo('treasury-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="treasury-view"><i class="fa-solid fa-wallet w-5 text-center"></i><span>Tesorería</span></button></li>
+                    <li><button onclick="window.navigateTo('ranking-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="ranking-view"><i class="fa-solid fa-trophy w-5 text-center"></i><span>Ranking</span></button></li>
+                    <li><button onclick="window.navigateTo('config-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="config-view"><i class="fa-solid fa-gear w-5 text-center"></i><span>Configuración</span></button></li>
                 </ul>
             </nav>
             <div class="p-4 border-t border-gray-100 bg-gray-50">
-                <div id="user-info-container" class="mb-3"><div id="user-info-name" class="text-sm font-bold text-gray-800 truncate">Invitado</div><div class="flex items-center gap-2 mt-1"><span id="user-info-team" class="text-[10px] font-bold bg-red-600 text-white px-1.5 py-0.5 rounded">Eq. A</span><div id="user-info-email" class="text-xs text-gray-400 truncate">Modo lectura</div></div></div>
+                <div id="user-info-container" class="mb-3">
+                    <div id="user-info-name" class="text-sm font-bold text-gray-800 truncate">Invitado</div>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span id="user-info-team" class="text-[10px] font-bold bg-red-600 text-white px-1.5 py-0.5 rounded">Eq. A</span>
+                        <div id="user-info-email" class="text-xs text-gray-400 truncate">Modo lectura</div>
+                    </div>
+                </div>
                 <button id="auth-action-btn" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span></button>
-                <div class="mt-4 pt-3 border-t border-gray-200 text-center"><p class="text-[10px] text-gray-400 uppercase tracking-wider">Desarrollado por</p><p class="text-xs font-bold text-gray-700 mt-0.5">Braian Gomez</p><a href="mailto:braianezequielgomez00@gmail.com" class="text-[10px] text-red-500 hover:underline block mt-0.5">braianezequielgomez00@gmail.com</a></div>
+                
+                <div class="mt-4 pt-3 border-t border-gray-200 text-center">
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wider">Desarrollado por</p>
+                    <p class="text-xs font-bold text-gray-700 mt-0.5">Braian Gomez</p>
+                    <a href="mailto:braianezequielgomez00@gmail.com" class="text-[10px] text-red-500 hover:underline block mt-0.5">braianezequielgomez00@gmail.com</a>
+                </div>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50">
             <header class="bg-white shadow-sm px-4 py-3 flex justify-between items-center md:hidden sticky top-0 z-40 w-full h-16 border-b border-gray-100">
-                <div class="flex items-center"><button id="open-sidebar-btn" class="text-gray-600 focus:outline-none p-2 active:bg-gray-100 rounded-lg mr-3"><i class="fa-solid fa-bars text-xl"></i></button><img src="logo.png" class="h-8 object-contain"></div>
-                <div class="flex items-center cursor-pointer" id="header-profile-trigger"><div class="w-9 h-9 rounded-full bg-gray-200 overflow-hidden border border-gray-200 shadow-sm"><img id="header-profile-pic" src="" class="w-full h-full object-cover hidden"><div id="header-profile-placeholder" class="w-full h-full flex items-center justify-center text-gray-400"><i class="fa-solid fa-user"></i></div></div></div>
+                <div class="flex items-center">
+                    <button id="open-sidebar-btn" class="text-gray-600 focus:outline-none p-2 active:bg-gray-100 rounded-lg mr-3"><i class="fa-solid fa-bars text-xl"></i></button>
+                    <img src="logo.png" class="h-8 object-contain">
+                </div>
+                <div class="flex items-center cursor-pointer" onclick="window.openImageModal()">
+                    <div class="w-9 h-9 rounded-full bg-gray-200 overflow-hidden border border-gray-200 shadow-sm">
+                        <img id="header-profile-pic" src="" class="w-full h-full object-cover hidden">
+                        <div id="header-profile-placeholder" class="w-full h-full flex items-center justify-center text-gray-400"><i class="fa-solid fa-user"></i></div>
+                    </div>
+                </div>
             </header>
             <div id="sidebar-backdrop" class="fixed inset-0 bg-black/20 z-40 md:hidden hidden transition-opacity backdrop-blur-sm"></div>
 
@@ -85,22 +117,49 @@
                 <div id="home-view" class="view-section max-w-5xl mx-auto">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                         <div class="flex items-center gap-5">
-                            <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-100 overflow-hidden border-4 border-white shadow-md cursor-pointer" id="home-profile-trigger">
-                                <img id="home-profile-pic" src="" class="w-full h-full object-cover hidden"><div id="home-profile-placeholder" class="w-full h-full flex items-center justify-center text-gray-300 text-3xl"><i class="fa-solid fa-user"></i></div>
+                            <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-100 overflow-hidden border-4 border-white shadow-md cursor-pointer" onclick="window.openImageModal()">
+                                <img id="home-profile-pic" src="" class="w-full h-full object-cover hidden">
+                                <div id="home-profile-placeholder" class="w-full h-full flex items-center justify-center text-gray-300 text-3xl"><i class="fa-solid fa-user"></i></div>
                             </div>
-                            <div><h1 class="text-2xl font-bold text-gray-800">Hola, <span id="welcome-user-name" class="text-red-600">Usuario</span></h1><div class="flex items-center gap-2 mt-1"><span id="welcome-user-team" class="text-xs font-bold bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-100">Equipo A</span><p class="text-sm text-gray-400">Bienvenido al portal.</p></div></div>
+                            <div>
+                                <h1 class="text-2xl font-bold text-gray-800">Hola, <span id="welcome-user-name" class="text-red-600">Usuario</span></h1>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span id="welcome-user-team" class="text-xs font-bold bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-100">Equipo A</span>
+                                    <p class="text-sm text-gray-400">Bienvenido al portal.</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-right hidden md:block border-l pl-6 border-gray-200"><p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Hoy es</p><p id="header-current-date" class="text-2xl font-bold text-gray-700">...</p></div>
+                        <div class="text-right hidden md:block border-l pl-6 border-gray-200">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Hoy es</p>
+                            <p id="header-current-date" class="text-2xl font-bold text-gray-700">...</p>
+                        </div>
                     </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group hover:shadow-md transition-all"><div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-money-bill-wave text-6xl text-emerald-600"></i></div><h3 class="text-gray-500 font-semibold text-xs uppercase tracking-wider mb-1">Próxima Quincena (Estimada)</h3><div class="flex items-baseline gap-2"><span class="text-3xl font-extrabold text-emerald-600 truncate" id="home-next-quincena">$ 0</span></div><p id="home-payment-date" class="text-xs text-emerald-700 font-bold mt-3 bg-emerald-50 inline-block px-2 py-1 rounded-md">Calculando...</p></div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group hover:shadow-md transition-all"><div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-chart-pie text-6xl text-red-600"></i></div><h3 class="text-gray-500 font-semibold text-xs uppercase tracking-wider mb-1">Mes Actual (Proyectado)</h3><p class="text-xs text-red-600 font-bold mb-1 uppercase" id="home-current-month-label">...</p><div class="flex items-baseline"><span class="text-3xl font-extrabold text-gray-800 truncate" id="home-month-net">$ 0</span></div></div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group hover:shadow-md transition-all">
+                            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-money-bill-wave text-6xl text-emerald-600"></i></div>
+                            <h3 class="text-gray-500 font-semibold text-xs uppercase tracking-wider mb-1">Próxima Quincena (Estimada)</h3>
+                            <div class="flex items-baseline gap-2"><span class="text-3xl font-extrabold text-emerald-600 truncate" id="home-next-quincena">$ 0</span></div>
+                            <p id="home-payment-date" class="text-xs text-emerald-700 font-bold mt-3 bg-emerald-50 inline-block px-2 py-1 rounded-md">Calculando...</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group hover:shadow-md transition-all">
+                            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-chart-pie text-6xl text-red-600"></i></div>
+                            <h3 class="text-gray-500 font-semibold text-xs uppercase tracking-wider mb-1">Mes Actual (Proyectado)</h3>
+                            <p class="text-xs text-red-600 font-bold mb-1 uppercase" id="home-current-month-label">...</p>
+                            <div class="flex items-baseline"><span class="text-3xl font-extrabold text-gray-800 truncate" id="home-month-net">$ 0</span></div>
+                        </div>
                     </div>
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6"><h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-regular fa-calendar-check text-red-500"></i> Próximos Francos</h3><div id="home-next-francos-container" class="flex space-x-4 overflow-x-auto hide-scroll pb-2"></div></div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-regular fa-calendar-check text-red-500"></i> Próximos Francos</h3>
+                        <div id="home-next-francos-container" class="flex space-x-4 overflow-x-auto hide-scroll pb-2"></div>
+                    </div>
                 </div>
 
                 <div id="monthly-history-view" class="view-section hidden max-w-6xl mx-auto">
-                    <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-gray-800">Gestión de Turnos</h2><button id="btn-generate-new" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> Mes Siguiente</button></div>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Gestión de Turnos</h2>
+                        <button id="btn-generate-new" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> Mes Siguiente</button>
+                    </div>
                     <div class="mb-6"><div id="months-chips-container" class="flex space-x-2 overflow-x-auto hide-scroll py-1"></div></div>
                     <div id="dashboard-content" class="hidden animate-fade-in space-y-6">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -111,8 +170,12 @@
                         </div>
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                             <div class="p-4 border-b border-gray-100 bg-white sticky top-0 z-20 flex justify-between items-center">
-                                <div><h3 class="font-bold text-gray-700">Detalle <span id="dash-detail-month-label" class="text-red-600"></span></h3><p class="text-xs text-slate-400">Controla llegadas tarde y feriados.</p></div>
-                                <div class="flex gap-2"><button id="btn-delete-month" class="p-2 text-gray-400 hover:text-red-600 transition"><i class="fa-solid fa-trash"></i></button><button id="btn-recalculate" class="px-3 py-1.5 bg-gray-800 text-white rounded-lg text-xs font-bold hover:bg-black"><i class="fa-solid fa-save mr-1"></i> Guardar</button><button id="btn-download-pdf" class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700"><i class="fa-solid fa-file-pdf"></i></button></div>
+                                <h3 class="font-bold text-gray-700">Detalle <span id="dash-detail-month-label" class="text-red-600"></span></h3>
+                                <div class="flex gap-2">
+                                    <button id="btn-delete-month" class="p-2 text-gray-400 hover:text-red-600 transition"><i class="fa-solid fa-trash"></i></button>
+                                    <button id="btn-recalculate" class="px-3 py-1.5 bg-gray-800 text-white rounded-lg text-xs font-bold hover:bg-black"><i class="fa-solid fa-save mr-1"></i> Guardar</button>
+                                    <button id="btn-download-pdf" class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700"><i class="fa-solid fa-file-pdf"></i></button>
+                                </div>
                             </div>
                             <div class="overflow-x-auto max-h-[500px]"><table class="w-full text-sm text-left"><thead class="text-xs text-gray-500 uppercase bg-gray-50 sticky-header"><tr><th class="px-4 py-3">Fecha</th><th class="px-4 py-3">Turno</th><th class="px-4 py-3 text-center">Fer.</th><th class="px-4 py-3 text-center text-red-600">Tarde</th><th class="px-4 py-3 text-right">H.Eq</th><th class="px-4 py-3 text-center">Ext</th><th class="px-4 py-3 text-right">Bruto</th></tr></thead><tbody id="daily-detail-tbody" class="divide-y divide-gray-100"></tbody></table></div>
                         </div>
@@ -120,15 +183,24 @@
                 </div>
 
                 <div id="treasury-view" class="view-section hidden max-w-5xl mx-auto"><h2 class="text-2xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-wallet text-emerald-500 mr-2"></i> Tesorería</h2><div class="mb-6 bg-white p-2 rounded-xl border border-gray-200"><div id="treasury-chips-container" class="flex space-x-2 overflow-x-auto hide-scroll"></div></div><div id="treasury-container" class="space-y-6 animate-fade-in"></div></div>
-                <div id="ranking-view" class="view-section hidden max-w-4xl mx-auto"><h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i> Ranking de Ganancias</h2><div id="ranking-list" class="space-y-4"></div></div>
+                <div id="ranking-view" class="view-section hidden max-w-4xl mx-auto"><h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i> Ranking</h2><div id="ranking-list" class="space-y-4"></div></div>
 
                 <div id="config-view" class="view-section hidden max-w-3xl mx-auto">
-                    <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-gray-800">Ajustes</h2><button id="btn-toggle-edit" class="text-red-600 font-bold text-sm bg-red-50 px-4 py-2 rounded-lg border border-red-100 hover:bg-red-100 transition"><i class="fa-solid fa-pencil mr-2"></i> Editar Valores</button></div>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Ajustes</h2>
+                        <button id="btn-toggle-edit" class="text-red-600 font-bold text-sm bg-red-50 px-4 py-2 rounded-lg border border-red-100 hover:bg-red-100 transition"><i class="fa-solid fa-pencil mr-2"></i> Editar Valores</button>
+                    </div>
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8 space-y-6 mb-12">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="col-span-1 md:col-span-2 border-b border-gray-100 pb-6 flex items-center gap-4">
-                                <div class="w-16 h-16 rounded-full bg-gray-100 border-2 border-gray-200 overflow-hidden"><img id="profile-pic-preview" src="" class="w-full h-full object-cover hidden"><div id="profile-icon-preview" class="w-full h-full flex items-center justify-center text-gray-400"><i class="fa-solid fa-user text-2xl"></i></div></div>
-                                <div><input type="file" id="cfg-profilePicture" accept="image/*" class="hidden"><button onclick="document.getElementById('cfg-profilePicture').click()" class="bg-gray-800 text-white py-2 px-4 rounded-lg text-xs font-bold hover:bg-black"><i class="fa-solid fa-camera mr-2"></i> Subir Foto</button></div>
+                                <div class="w-16 h-16 rounded-full bg-gray-100 border-2 border-gray-200 overflow-hidden">
+                                    <img id="profile-pic-preview" src="" class="w-full h-full object-cover hidden">
+                                    <div id="profile-icon-preview" class="w-full h-full flex items-center justify-center text-gray-400"><i class="fa-solid fa-user text-2xl"></i></div>
+                                </div>
+                                <div>
+                                    <input type="file" id="cfg-profilePicture" accept="image/*" class="hidden">
+                                    <button onclick="document.getElementById('cfg-profilePicture').click()" class="bg-gray-800 text-white py-2 px-4 rounded-lg text-xs font-bold hover:bg-black"><i class="fa-solid fa-camera mr-2"></i> Subir Foto</button>
+                                </div>
                             </div>
                             <div class="col-span-1 md:col-span-2"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre (Gmail)</label><input type="text" id="cfg-userName" class="w-full p-3 border rounded-lg bg-gray-50 text-gray-500 font-medium" disabled></div>
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tu Equipo</label><select id="cfg-teamLetter" class="w-full p-3 border rounded-lg bg-white" disabled><option value="A">Equipo A</option><option value="B">Equipo B</option><option value="C">Equipo C</option><option value="D">Equipo D</option></select></div>
@@ -174,6 +246,14 @@
             historicalCache: {}
         };
 
+        // --- EXPOSE GLOBALS FOR HTML HANDLERS (CRITICAL FIX) ---
+        window.navigateTo = navigateTo; 
+        window.openImageModal = openImageModal;
+        window.updateExtra = updateExtra; 
+        window.updateHoliday = updateHoliday; 
+        window.updateLateness = updateLateness; 
+        window.updateTurnOverride = updateTurnOverride;
+
         window.onload = () => {
             initFirebaseSystem();
             setupUI();
@@ -181,64 +261,20 @@
             const d = new Date();
             document.getElementById('header-current-date').textContent = `${d.getDate()} ${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][d.getMonth()]}`;
             
-            // Attach events via JS only - no inline HTML onclick
-            document.getElementById('btn-login-google').addEventListener('click', () => signInWithPopup(auth, new GoogleAuthProvider()));
-            document.getElementById('btn-login-guest').addEventListener('click', enterAsGuest);
-            document.getElementById('auth-action-btn').addEventListener('click', handleLogout);
-            
+            document.getElementById('btn-login-google').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
+            document.getElementById('btn-login-guest').onclick = () => enterAsGuest();
+            document.getElementById('auth-action-btn').onclick = () => signOut(auth);
             document.getElementById('btn-save-config').addEventListener('click', saveConfigHandler);
             document.getElementById('btn-toggle-edit').addEventListener('click', toggleConfigEdit);
             
-            document.getElementById('btn-download-pdf').addEventListener('click', generatePdfReport);
-            document.getElementById('btn-generate-new').addEventListener('click', generateNextMonthData);
-            document.getElementById('btn-delete-month').addEventListener('click', deleteCurrentMonthData);
-            document.getElementById('btn-recalculate').addEventListener('click', saveCurrentData); // Critical fix
-
-            // Profile Modals
-            document.getElementById('header-profile-trigger').addEventListener('click', openImageModal);
-            document.getElementById('home-profile-trigger').addEventListener('click', openImageModal);
-            document.getElementById('close-modal-btn').addEventListener('click', closeModal);
-            document.getElementById('profile-modal').addEventListener('click', (e) => { if(e.target.id === 'profile-modal') closeModal(); });
-            
             const fileInput = document.getElementById('cfg-profilePicture');
             if (fileInput) fileInput.onchange = (e) => { if(e.target.files[0]) compressAndUpload(e.target.files[0]); };
-            
-            // Navigation Buttons (Cleanest way)
-            document.getElementById('nav-home').addEventListener('click', () => navigateTo('home-view'));
-            document.getElementById('nav-gest').addEventListener('click', () => navigateTo('monthly-history-view'));
-            document.getElementById('nav-treas').addEventListener('click', () => navigateTo('treasury-view'));
-            document.getElementById('nav-rank').addEventListener('click', () => navigateTo('ranking-view'));
-            document.getElementById('nav-conf').addEventListener('click', () => navigateTo('config-view'));
         };
-
-        // --- LOGIC START ---
-        function showLoginView() {
-            userId = null;
-            document.getElementById('login-view').style.transform = 'translateY(0)';
-            document.getElementById('app-layout').classList.add('hidden');
-            document.getElementById('auth-action-btn').innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>';
-        }
-        
-        async function handleLogout() {
-            if (userId === null) { showLoginView(); } else { await signOut(auth); }
-        }
 
         function enterAsGuest() {
             userId = null;
             document.getElementById('login-view').style.transform = 'translateY(-100%)';
             document.getElementById('app-layout').classList.remove('hidden');
-            const authBtn = document.getElementById('auth-action-btn');
-            authBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> <span>Volver al Login</span>';
-            authBtn.className = "w-full py-2 px-4 bg-red-600 text-white border-red-600 hover:bg-red-700 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2";
-            
-            document.getElementById('user-info-name').textContent = 'Invitado';
-            document.getElementById('user-info-email').textContent = 'Modo lectura';
-            updateProfilePictureUI('');
-            
-            const now = new Date();
-            appState.viewingMonth = { month: now.getMonth() + 1, year: now.getFullYear() };
-            appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, calculation: getCalculationFor(now.getMonth()+1, now.getFullYear(), true) };
-            appState.historicalCache = {};
             renderHome();
         }
 
@@ -251,24 +287,25 @@
             if(isEditingConfig) {
                 saveBtn.classList.remove('hidden');
                 editBtn.innerHTML = '<i class="fa-solid fa-times mr-2"></i> Cancelar';
-                editBtn.className = "text-gray-600 font-bold text-sm bg-gray-100 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-200 transition";
+                editBtn.classList.replace('text-red-600', 'text-gray-600'); editBtn.classList.replace('bg-red-50', 'bg-gray-100');
             } else {
                 saveBtn.classList.add('hidden');
                 editBtn.innerHTML = '<i class="fa-solid fa-pencil mr-2"></i> Editar Valores';
-                editBtn.className = "text-red-600 font-bold text-sm bg-red-50 px-4 py-2 rounded-lg border border-red-100 hover:bg-red-100 transition";
+                editBtn.classList.replace('text-gray-600', 'text-red-600'); editBtn.classList.replace('bg-gray-100', 'bg-red-50');
                 fillConfigInputs();
             }
         }
 
         function openImageModal() {
             const src = document.getElementById('header-profile-pic').src;
-            if(!src || src.includes('hidden')) return;
+            if(!src) return;
             const modal = document.getElementById('profile-modal');
             const img = document.getElementById('modal-img');
             img.src = src; modal.classList.remove('hidden');
             setTimeout(() => { modal.classList.remove('opacity-0'); img.classList.remove('scale-95'); }, 10);
         }
-
+        document.getElementById('close-modal-btn').onclick = closeModal;
+        document.getElementById('profile-modal').onclick = (e) => { if(e.target.id === 'profile-modal') closeModal(); };
         function closeModal() { const modal = document.getElementById('profile-modal'); const img = document.getElementById('modal-img'); modal.classList.add('opacity-0'); img.classList.add('scale-95'); setTimeout(() => modal.classList.add('hidden'), 300); }
 
         function setupUI() {
@@ -289,19 +326,15 @@
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(viewId).classList.remove('hidden');
             document.querySelectorAll('.nav-btn').forEach(btn => { 
-                if(btn.dataset.target === viewId) { 
-                    btn.classList.remove('text-gray-700','hover:bg-red-50','hover:text-red-600'); 
-                    btn.classList.add('bg-red-600', 'text-white', 'shadow-md'); 
-                } else { 
-                    btn.classList.add('text-gray-700','hover:bg-red-50','hover:text-red-600'); 
-                    btn.classList.remove('bg-red-600', 'text-white', 'shadow-md'); 
-                } 
+                if(btn.dataset.target === viewId) { btn.classList.remove('text-gray-700','hover:bg-red-50'); btn.classList.add('bg-red-600', 'text-white', 'shadow-md'); } 
+                else { btn.classList.add('text-gray-700','hover:bg-red-50'); btn.classList.remove('bg-red-600', 'text-white', 'shadow-md'); } 
             });
             if (viewId === 'home-view') renderHome();
             if (viewId === 'monthly-history-view') renderDashboard();
             if (viewId === 'ranking-view') renderRanking();
             if (viewId === 'treasury-view') renderTreasury();
             if (viewId === 'config-view') fillConfigInputs();
+            
             if(window.innerWidth < 768) { document.getElementById('sidebar').classList.add('sidebar-closed'); document.getElementById('sidebar').classList.remove('sidebar-open'); document.getElementById('sidebar-backdrop').classList.add('hidden'); }
         }
 
@@ -382,51 +415,39 @@
             if (isHome || (appState.viewingMonth.month === m && appState.viewingMonth.year === y)) {
                 const key = `${y}-${String(m).padStart(2,'0')}`;
                 const cached = appState.historicalCache[key];
-                return performCalculation(m, y, cached?.extras||{}, cached?.manualHolidays||{}, cached?.shiftOverrides||{}, cached?.lateness||{}, appState.config);
+                return performCalculation(m, y, cached?.extras||{}, cached?.holidayFlags||{}, cached?.shiftOverrides||{}, cached?.lateness||{}, appState.config);
             }
             const key = `${y}-${String(m).padStart(2,'0')}`;
             const cached = appState.historicalCache[key];
-            return performCalculation(m, y, cached?.extras||{}, cached?.manualHolidays||{}, cached?.shiftOverrides||{}, cached?.lateness||{}, cached?.configSnapshot||appState.config);
+            return performCalculation(m, y, cached?.extras||{}, cached?.holidayFlags||{}, cached?.shiftOverrides||{}, cached?.lateness||{}, cached?.configSnapshot||appState.config);
         }
 
-        async function deleteCurrentMonthData() {
-            if (!userId) { showMessage('No puedes borrar datos en modo Invitado.', 'error'); return; }
-            if(!confirm("¿Estás seguro de que quieres borrar todos los datos de este mes?")) return;
+        document.getElementById('btn-delete-month').onclick = async () => {
+            if(!confirm("¿Borrar este mes?")) return;
             const { month, year } = appState.viewingMonth; const docId = `${year}-${String(month).padStart(2, '0')}`;
-            try { await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId)); delete appState.historicalCache[docId]; 
-                const keys = Object.keys(appState.historicalCache).sort(); 
-                if (keys.length > 0) { const [ly, lm] = keys[keys.length - 1].split('-'); switchDashboardMonth(parseInt(lm), parseInt(ly)); } 
-                else { const now = new Date(); appState.viewingMonth = { month: now.getMonth() + 1, year: now.getFullYear() }; appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, calculation: getCalculationFor(now.getMonth()+1, now.getFullYear(), true) }; renderDashboard(); } 
-                showMessage('Datos del mes eliminados.', 'success'); 
-            } catch(e) { console.error(e); showMessage('Error al borrar los datos.', 'error'); }
-        }
+            try { if(userId) await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId)); delete appState.historicalCache[docId]; const keys = Object.keys(appState.historicalCache).sort(); if (keys.length > 0) { const [ly, lm] = keys[keys.length - 1].split('-'); switchDashboardMonth(parseInt(lm), parseInt(ly)); } else { const now = new Date(); appState.viewingMonth = { month: now.getMonth() + 1, year: now.getFullYear() }; appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {} }; renderDashboard(); } showMessage('Eliminado.', 'success'); } catch(e) { console.error(e); showMessage('Error.', 'error'); }
+        };
 
-        function generateNextMonthData() {
-            const keys = Object.keys(appState.historicalCache).sort();
-            let m, y;
-            if(keys.length > 0) { const [ly, lm] = keys[keys.length-1].split('-'); m = parseInt(lm) + 1; y = parseInt(ly); if(m > 12) { m = 1; y++; } } 
-            else { const now = new Date(); m = now.getMonth() + 1; y = now.getFullYear(); }
-            generateMonth(m, y); 
-        }
+        document.getElementById('btn-generate-new').onclick = async () => { 
+            const keys = Object.keys(appState.historicalCache).sort(); let m, y;
+            if(keys.length > 0) { const [ly, lm] = keys[keys.length-1].split('-'); m = parseInt(lm) + 1; y = parseInt(ly); if(m > 12) { m = 1; y++; } } else { const now = new Date(); m = now.getMonth() + 1; y = now.getFullYear(); }
+            await generateMonth(m, y); 
+        };
 
         async function generateMonth(m, y) {
             appState.viewingMonth = { month: m, year: y }; appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {} };
-            // Force calculation
-            appState.activeData.calculation = performCalculation(m, y, {}, {}, {}, {}, appState.config);
-            await saveCurrentData();
-            if(!appState.treasuryViewMonth) appState.treasuryViewMonth = { month: m, year: y };
-            showMessage(`Mes ${m}/${y} generado.`);
+            triggerLocalRecalculate(); await saveCurrentData(); if(!appState.treasuryViewMonth) appState.treasuryViewMonth = { month: m, year: y }; showMessage(`Mes ${m}/${y} generado.`);
         }
 
         function updateProfilePictureUI(url) {
             const els = ['profile-pic-preview', 'home-profile-pic', 'header-profile-pic'];
             els.forEach(id => {
                 const el = document.getElementById(id);
-                if(el) { 
-                    if(url) { el.src = url; el.classList.remove('hidden'); if(el.nextElementSibling) el.nextElementSibling.classList.add('hidden'); } 
-                    else { el.src = ''; el.classList.add('hidden'); if(el.nextElementSibling) el.nextElementSibling.classList.remove('hidden'); } 
-                }
+                if(el) { if(url) { el.src = url; el.classList.remove('hidden'); if(el.nextElementSibling) el.nextElementSibling.classList.add('hidden'); } else { el.src = ''; el.classList.add('hidden'); if(el.nextElementSibling) el.nextElementSibling.classList.remove('hidden'); } }
             });
+            const hw = document.getElementById('home-profile-wrapper'); if(hw) hw.classList.toggle('hidden', !url);
+            const headerWrapper = document.getElementById('header-profile-wrapper'); if(headerWrapper) headerWrapper.classList.toggle('hidden', !url);
+            const headerIcon = document.getElementById('header-profile-icon'); if(headerIcon) headerIcon.classList.toggle('hidden', !!url);
         }
 
         function renderHome() {
@@ -476,17 +497,10 @@
                 if(calc.hasLateness) { pEl.classList.add('text-red-500', 'line-through'); pEl.classList.remove('text-blue-600'); } else { pEl.classList.add('text-blue-600'); pEl.classList.remove('text-red-500', 'line-through'); }
                 document.getElementById('dash-neto-final').textContent = formatCurrency(calc.netoFinal);
                 const tbody = document.getElementById('daily-detail-tbody'); tbody.innerHTML = '';
-                calc.dailyResults.forEach(day => {
-                    const tr = document.createElement('tr'); if(day.isFranco && !day.isHoliday) tr.className="bg-yellow-50/50"; if(day.isHoliday) tr.className="bg-red-50/50";
-                    let sel = appState.activeData.shiftOverrides[day.key] || 'Original';
-                    tr.innerHTML = `
-                        <td class="px-4 py-3 text-gray-700 whitespace-nowrap font-medium">${day.date.split('/')[0]} <span class="text-xs text-gray-400">${day.dayName}</span></td>
-                        <td class="px-4 py-3"><select class="table-select bg-transparent border-none text-xs font-bold ${day.isFranco?'text-yellow-600':'text-red-600'}" onchange="window.updateTurnOverride('${day.key}', this.value)"><option value="Original" ${sel==='Original'?'selected':''}>Auto</option><option value="Mañana" ${sel==='Mañana'?'selected':''}>Mañana</option><option value="Tarde" ${sel==='Tarde'?'selected':''}>Tarde</option><option value="Noche" ${sel==='Noche'?'selected':''}>Noche</option><option value="Franco" ${sel==='Franco'?'selected':''}>Franco</option><option value="Licencia" ${sel==='Licencia'?'selected':''}>Licencia</option><option value="Vacaciones" ${sel==='Vacaciones'?'selected':''}>Vacaciones</option></select><div class="text-[10px] text-gray-400">${day.turn}</div></td>
-                        <td class="px-4 py-3 text-center"><input type="checkbox" class="w-4 h-4 text-red-600 rounded focus:ring-red-500" ${day.isHoliday?'checked':''} onchange="window.updateHoliday('${day.date}', this.checked)"></td>
-                        <td class="px-4 py-3 text-center"><input type="checkbox" class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" ${day.isLate?'checked':''} onchange="window.updateLateness('${day.date}', this.checked)"></td>
-                        <td class="px-4 py-3 text-right text-gray-500">${formatNumber(day.equivBase)}</td>
-                        <td class="px-4 py-3 text-center"><input type="number" value="${day.extraReal||''}" class="w-16 text-center border rounded py-1 text-xs" placeholder="-" step="0.5" min="0" onchange="window.updateExtra('${day.date}', this.value)"></td>
-                        <td class="px-4 py-3 text-right text-xs text-gray-500">${formatCurrency(day.bruto)}</td>`;
+                calc.dailyResults.forEach(d => {
+                    const tr = document.createElement('tr'); if(d.isFranco && !d.isHoliday) tr.className="bg-yellow-50/50"; if(d.isHoliday) tr.className="bg-red-50/50";
+                    let sel = appState.activeData.shiftOverrides[d.key] || 'Original';
+                    tr.innerHTML = `<td class="px-4 py-3 text-gray-700 whitespace-nowrap font-medium">${d.date.split('/')[0]} <span class="text-xs text-gray-400">${d.dayName}</span></td><td class="px-4 py-3"><select class="table-select bg-transparent border-none text-xs font-bold ${d.isFranco?'text-yellow-600':'text-red-600'}" onchange="window.updateTurnOverride('${d.key}', this.value)"><option value="Original" ${sel==='Original'?'selected':''}>Auto</option><option value="Mañana" ${sel==='Mañana'?'selected':''}>Mañana</option><option value="Tarde" ${sel==='Tarde'?'selected':''}>Tarde</option><option value="Noche" ${sel==='Noche'?'selected':''}>Noche</option><option value="Franco" ${sel==='Franco'?'selected':''}>Franco</option><option value="Licencia" ${sel==='Licencia'?'selected':''}>Licencia</option><option value="Vacaciones" ${sel==='Vacaciones'?'selected':''}>Vacaciones</option></select><div class="text-[10px] text-gray-400">${d.turn}</div></td><td class="px-4 py-3 text-center"><input type="checkbox" class="w-4 h-4 text-red-600 rounded focus:ring-red-500" ${d.isHoliday?'checked':''} onchange="window.updateHoliday('${d.date}', this.checked)"></td><td class="px-4 py-3 text-center"><input type="checkbox" class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" ${d.isLate?'checked':''} onchange="window.updateLateness('${d.date}', this.checked)"></td><td class="px-4 py-3 text-right text-gray-500">${formatNumber(d.equivBase)}</td><td class="px-4 py-3 text-center"><input type="number" value="${d.extraReal||''}" class="w-16 text-center border rounded py-1 text-xs" placeholder="-" step="0.5" min="0" onchange="window.updateExtra('${d.date}', this.value)"></td><td class="px-4 py-3 text-right text-xs text-gray-500">${formatCurrency(d.bruto)}</td>`;
                     tbody.appendChild(tr);
                 });
             }
@@ -507,7 +521,7 @@
             });
             const {month, year} = appState.treasuryViewMonth;
             const calc = getCalculationFor(month, year);
-            const c = (t, a, d, dt) => `<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden"><div class="p-6 border-b border-gray-50 flex justify-between items-start bg-white"><div><h3 class="text-lg font-bold text-gray-700">${t}</h3><p class="text-sm text-emerald-600 mt-1">Cobro: ${d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</p></div><div class="text-right"><p class="text-3xl font-extrabold text-slate-800 truncate">${formatCurrency(a)}</p><p class="text-xs text-gray-400">Neto</p></div></div><div class="p-6 grid grid-cols-2 gap-4 text-sm"><div><p class="text-gray-400">Bruto</p><p class="font-semibold">${formatCurrency(dt.bruto)}</p></div><div><p class="text-gray-400">Desc.</p><p class="font-semibold text-red-500">-${formatCurrency(dt.desc)}</p></div><div><p class="text-gray-400">Viáticos</p><p class="font-semibold text-orange-500">+${formatCurrency(dt.viaticos)}</p></div>${dt.feriados>0?`<div><p class="text-slate-400">Feriados</p><p class="font-semibold text-red-600">+${formatCurrency(dt.feriados)}</p></div>`:''}</div></div>`;
+            const c = (t, a, d, dt) => `<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden"><div class="p-6 border-b border-gray-50 flex justify-between items-start bg-white"><div><h3 class="text-lg font-bold text-gray-700">${t}</h3><p class="text-sm text-emerald-600 mt-1">Cobro: ${d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</p></div><div class="text-right"><p class="text-3xl font-extrabold text-gray-800 truncate">${formatCurrency(a)}</p><p class="text-xs text-gray-400">Neto</p></div></div><div class="p-6 grid grid-cols-2 gap-4 text-sm"><div><p class="text-gray-400">Bruto</p><p class="font-semibold">${formatCurrency(dt.bruto)}</p></div><div><p class="text-gray-400">Desc.</p><p class="font-semibold text-red-500">-${formatCurrency(dt.desc)}</p></div><div><p class="text-gray-400">Viáticos</p><p class="font-semibold text-orange-500">+${formatCurrency(dt.viaticos)}</p></div>${dt.feriados>0?`<div><p class="text-gray-400">Feriados</p><p class="font-semibold text-red-600">+${formatCurrency(dt.feriados)}</p></div>`:''}</div></div>`;
             const d1 = calculatePaymentDate(year, month, 15), d2 = calculatePaymentDate(year, month, new Date(year, month, 0).getDate());
             cont.innerHTML = c('1ª Quincena', calc.quincenas.q1.neto, d1, calc.quincenas.q1) + c('2ª Quincena', calc.quincenas.q2.neto, d2, calc.quincenas.q2);
         }
@@ -526,55 +540,30 @@
         function updateHoliday(d, c) { if(c) appState.activeData.manualHolidays[d]=true; else delete appState.activeData.manualHolidays[d]; triggerLocalRecalculate(); }
         function updateLateness(d, c) { if(c) appState.activeData.lateness[d]=true; else delete appState.activeData.lateness[d]; triggerLocalRecalculate(); }
         function updateTurnOverride(k, v) { if(v==='Original') delete appState.activeData.shiftOverrides[k]; else appState.activeData.shiftOverrides[k]=v; triggerLocalRecalculate(); }
-        function triggerLocalRecalculate() { const {month, year} = appState.viewingMonth; appState.activeData.calculation = performCalculation(month, year, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.config); renderDashboardDetails(); renderHome(); }
+        function triggerLocalRecalculate() { const {month, year} = appState.viewingMonth; appState.activeData.calculation = performCalculation(month, year, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.config); renderDashboard(); renderHome(); }
         async function switchDashboardMonth(m, y) { appState.viewingMonth = { month: m, year: y }; const key = `${y}-${String(m).padStart(2, '0')}`; const cached = appState.historicalCache[key]; if(cached) { appState.activeData = { extras: cached.extras||{}, manualHolidays: cached.holidayFlags||{}, shiftOverrides: cached.shiftOverrides||{}, lateness: cached.lateness||{} }; appState.activeData.calculation = performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, cached.configSnapshot || null); } renderDashboard(); const now = new Date(); if(m===now.getMonth()+1 && y===now.getFullYear()) renderHome(); }
-        
-        async function saveCurrentData() { 
-            if(!userId) { showMessage('Modo invitado: No se guarda.', 'error'); return; }
-            const { month, year } = appState.viewingMonth; 
-            const docId = `${year}-${String(month).padStart(2, '0')}`; 
-            
-            // Perform calculation first to ensure results exist
-            const calculation = performCalculation(month, year, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.config);
-            appState.activeData.calculation = calculation;
-
-            const data = { extras: appState.activeData.extras, holidayFlags: appState.activeData.manualHolidays, shiftOverrides: appState.activeData.shiftOverrides, lateness: appState.activeData.lateness, results: calculation, configSnapshot: { ...appState.config } }; 
-            
-            appState.historicalCache[docId] = data; // Update cache immediately
-            renderDashboard(); 
-            
-            await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId), data); 
-            showMessage('Guardado.', 'success');
-        }
-        
+        async function saveCurrentData() { if(!userId) return; const { month, year } = appState.viewingMonth; const docId = `${year}-${String(month).padStart(2, '0')}`; const data = { extras: appState.activeData.extras, holidayFlags: appState.activeData.manualHolidays, shiftOverrides: appState.activeData.shiftOverrides, lateness: appState.activeData.lateness, results: appState.activeData.calculation, configSnapshot: { ...appState.config } }; appState.historicalCache[docId] = data; await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId), data); renderDashboard(); }
         function formatCurrency(v) { return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(v||0); }
         function formatNumber(v) { return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2 }).format(v||0); }
-        function showMessage(m, t='info') { const el = document.getElementById('status-message'); el.textContent = m; el.className = `mb-6 p-4 rounded-xl shadow-sm border-l-4 transition-all-300 ${t === 'error' ? 'bg-red-100 text-red-700 border-red-500' : 'bg-indigo-100 text-indigo-700 border-indigo-500'}`; el.classList.remove('hidden'); setTimeout(() => el.classList.add('hidden'), 3000); }
+        function showMessage(m, t='info') { const el = document.getElementById('status-message'); el.textContent = m; el.className = `mb-6 p-4 rounded-xl shadow-md border-l-4 transition-all-300 ${t === 'error' ? 'bg-red-100 text-red-700 border-red-500' : 'bg-indigo-100 text-indigo-700 border-indigo-500'}`; el.classList.remove('hidden'); setTimeout(() => el.classList.add('hidden'), 3000); }
         function calculatePaymentDate(y, m, d) { const b = new Date(y, m-1, d); let p = new Date(b), c = 0; while(c<4) { p.setDate(p.getDate()+1); if(p.getDay()!==0 && p.getDay()!==6) c++; } return p; }
 
+        // INIT & AUTH
         async function initFirebaseSystem() {
-            try {
-                app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
-                onAuthStateChanged(auth, (u) => {
-                    const authBtn = document.getElementById('auth-action-btn');
-                    if (u) { 
-                        userId = u.uid; document.getElementById('user-info-email').textContent = u.email; 
-                        document.getElementById('login-view').classList.add('-translate-y-full');
-                        document.getElementById('app-layout').classList.remove('hidden');
-                        if(u.displayName) { appState.config.userName = u.displayName; document.getElementById('user-info-name').textContent = u.displayName; }
-                        loadUserData(); 
-                        authBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>';
-                        authBtn.className = "w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2";
-                    } else { 
-                        userId = null; 
-                        document.getElementById('login-view').classList.remove('-translate-y-full');
-                        document.getElementById('app-layout').classList.add('hidden');
-                    }
-                });
-            } catch (e) {
-                console.error("Error initializing Firebase:", e);
-                // Fallback or alert? For now, silent fail allows Guest Mode to work if button connected
-            }
+            app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
+            onAuthStateChanged(auth, (u) => {
+                if (u) { 
+                    userId = u.uid; document.getElementById('user-info-email').textContent = u.email; 
+                    document.getElementById('login-view').classList.add('-translate-y-full');
+                    document.getElementById('app-layout').classList.remove('hidden');
+                    if(u.displayName) { appState.config.userName = u.displayName; document.getElementById('user-info-name').textContent = u.displayName; }
+                    loadUserData(); 
+                } else { 
+                    userId = null; 
+                    document.getElementById('login-view').classList.remove('-translate-y-full');
+                    document.getElementById('app-layout').classList.add('hidden');
+                }
+            });
         }
 
         async function loadUserData() {
@@ -587,7 +576,6 @@
             });
             const snap = await getDocs(collection(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data'));
             appState.historicalCache = {}; snap.forEach(d => appState.historicalCache[d.id] = d.data());
-            renderDashboardChips();
             const k = Object.keys(appState.historicalCache).sort().reverse();
             if(k.length > 0) { const [y, m] = k[0].split('-'); switchDashboardMonth(parseInt(m), parseInt(y)); appState.treasuryViewMonth = { month: parseInt(m), year: parseInt(y) }; }
         }
@@ -604,7 +592,7 @@
             document.getElementById('cfg-initialTurn').value = appState.config.initialTurn;
         }
 
-        function generatePdfReport() {
+        document.getElementById('btn-download-pdf').onclick = () => {
             const { jsPDF } = window.jspdf; const doc = new jsPDF(); const calc = appState.activeData.calculation; if(!calc) return;
             const ml = new Date(appState.viewingMonth.year, appState.viewingMonth.month-1).toLocaleDateString('es-AR', {month:'long', year:'numeric'}).toUpperCase();
             doc.setFillColor(220, 38, 38); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(255, 255, 255); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text(`PAPELERA ROSATO S.A.`, 15, 20); doc.setFontSize(12); doc.setFont("helvetica", "normal"); doc.text(`${ml}`, 15, 30); doc.text(`Empleado: ${appState.config.userName}`, 195, 30, { align: 'right' });
