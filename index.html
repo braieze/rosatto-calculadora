@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        @import url('https://fonts.fonts.google.com/specimen/Inter:wght@300;400;600;700;800');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; overscroll-behavior-y: none; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
@@ -175,7 +175,7 @@
                                 <h3 class="font-bold text-gray-700">Detalle <span id="dash-detail-month-label" class="text-red-600"></span></h3>
                                 <div class="flex gap-2">
                                     <button id="btn-delete-month" class="p-2 text-gray-400 hover:text-red-600 transition"><i class="fa-solid fa-trash"></i></button>
-                                    <button id="btn-recalculate" class="px-3 py-1.5 bg-gray-800 text-white rounded-lg text-xs font-bold hover:bg-black"><i class="fa-solid fa-save mr-1"></i> Guardar</button>
+                                    <button id="btn-recalculate" onclick="window.saveCurrentData()" class="px-3 py-1.5 bg-gray-800 text-white rounded-lg text-xs font-bold hover:bg-black"><i class="fa-solid fa-save mr-1"></i> Guardar</button>
                                     <button id="btn-download-pdf" class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700"><i class="fa-solid fa-file-pdf"></i></button>
                                 </div>
                             </div>
@@ -248,13 +248,15 @@
             historicalCache: {}
         };
 
-        // --- EXPOSE GLOBALS FOR HTML HANDLERS (CRITICAL FIX) ---
+        // --- EXPOSE GLOBALS FOR HTML HANDLERS ---
         window.navigateTo = navigateTo; 
         window.openImageModal = openImageModal;
         window.updateExtra = updateExtra; 
         window.updateHoliday = updateHoliday; 
         window.updateLateness = updateLateness; 
         window.updateTurnOverride = updateTurnOverride;
+        window.handleLogout = handleLogout;
+        window.saveCurrentData = saveCurrentData; 
 
         window.onload = () => {
             initFirebaseSystem();
@@ -266,7 +268,6 @@
             document.getElementById('btn-login-google').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
             document.getElementById('btn-login-guest').onclick = () => enterAsGuest();
             
-            // MODIFICACIÓN CRÍTICA: Ahora llama a la nueva función
             document.getElementById('auth-action-btn').onclick = handleLogout;
             
             document.getElementById('btn-save-config').addEventListener('click', saveConfigHandler);
@@ -274,15 +275,46 @@
             
             const fileInput = document.getElementById('cfg-profilePicture');
             if (fileInput) fileInput.onchange = (e) => { if(e.target.files[0]) compressAndUpload(e.target.files[0]); };
+
+            // Enlace de descarga de PDF
+            document.getElementById('btn-download-pdf').onclick = generatePdfReport;
+            document.getElementById('btn-generate-new').onclick = generateNextMonthData;
+            document.getElementById('btn-delete-month').onclick = deleteCurrentMonthData;
         };
 
-        // --- NEW FUNCTIONS FOR LOGIN/LOGOUT HANDLING ---
+        // --- AUTHENTICATION & GUEST MODE ---
+        function initFirebaseSystem() {
+            try {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                onAuthStateChanged(auth, user => {
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('user-info-name').textContent = user.displayName || 'Usuario';
+                        document.getElementById('user-info-email').textContent = user.email || '';
+                        document.getElementById('login-view').style.transform = 'translateY(-100%)';
+                        document.getElementById('app-layout').classList.remove('hidden');
+                        subscribeToUserData();
+                        document.getElementById('auth-action-btn').innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>';
+                        document.getElementById('auth-action-btn').classList.remove('bg-red-600', 'text-white', 'border-red-600', 'hover:bg-red-700');
+                        document.getElementById('auth-action-btn').classList.add('bg-white', 'text-gray-700', 'border-gray-300', 'hover:bg-red-50', 'hover:text-red-600', 'hover:border-red-200');
+                    } else {
+                        showLoginView();
+                    }
+                });
+            } catch (e) {
+                console.error("Error al inicializar Firebase. Posiblemente por modo offline o configuracion.", e);
+                // Permite entrar en modo invitado si falla Firebase
+                showLoginView();
+            }
+        }
+        
         function showLoginView() {
-            // Limpia el estado de usuario y la UI para la pantalla de login
             userId = null;
             document.getElementById('login-view').style.transform = 'translateY(0)';
             document.getElementById('app-layout').classList.add('hidden');
-            document.getElementById('auth-action-btn').innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>'; // Reset default
+            document.getElementById('auth-action-btn').innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>';
         }
         
         async function handleLogout() {
@@ -294,7 +326,6 @@
                 await signOut(auth);
             }
         }
-        // --- END NEW FUNCTIONS ---
 
         function enterAsGuest() {
             userId = null;
@@ -310,10 +341,19 @@
             // Actualiza info en sidebar
             document.getElementById('user-info-name').textContent = 'Invitado';
             document.getElementById('user-info-email').textContent = 'Modo lectura';
+            updateProfilePictureUI(appState.config.profilePicUrl);
+            
+            // Genera datos para el mes actual con la configuración predeterminada
+            const now = new Date();
+            appState.viewingMonth = { month: now.getMonth() + 1, year: now.getFullYear() };
+            appState.activeData.calculation = getCalculationFor(now.getMonth() + 1, now.getFullYear(), true);
+            appState.historicalCache = {}; // No hay historial en modo invitado
 
             renderHome();
         }
+        // --- END AUTHENTICATION & GUEST MODE ---
 
+        // --- CONFIGURATION MANAGEMENT ---
         function toggleConfigEdit() {
             isEditingConfig = !isEditingConfig;
             const inputs = document.querySelectorAll('#config-view input:not([type="file"]), #config-view select');
@@ -329,6 +369,131 @@
                 editBtn.innerHTML = '<i class="fa-solid fa-pencil mr-2"></i> Editar Valores';
                 editBtn.classList.replace('text-gray-600', 'text-red-600'); editBtn.classList.replace('bg-gray-100', 'bg-red-50');
                 fillConfigInputs();
+            }
+        }
+
+        function fillConfigInputs() {
+            document.getElementById('cfg-userName').value = appState.config.userName;
+            document.getElementById('cfg-teamLetter').value = appState.config.teamLetter;
+            document.getElementById('cfg-valorHora').value = appState.config.valorHora;
+            document.getElementById('cfg-discountRate').value = appState.config.discountRate;
+            document.getElementById('cfg-viaticoValue').value = appState.config.viaticoValue;
+            document.getElementById('cfg-presentismoAmount').value = appState.config.presentismoAmount;
+            document.getElementById('cfg-tituloAmount').value = appState.config.tituloAmount;
+            document.getElementById('cfg-lastFrancoDate').value = appState.config.lastFrancoDate;
+            document.getElementById('cfg-initialTurn').value = appState.config.initialTurn;
+        }
+
+        async function saveConfigHandler() {
+            const newConfig = {
+                userName: document.getElementById('cfg-userName').value,
+                teamLetter: document.getElementById('cfg-teamLetter').value,
+                valorHora: Number(document.getElementById('cfg-valorHora').value),
+                discountRate: Number(document.getElementById('cfg-discountRate').value),
+                viaticoValue: Number(document.getElementById('cfg-viaticoValue').value),
+                presentismoAmount: Number(document.getElementById('cfg-presentismoAmount').value),
+                tituloAmount: Number(document.getElementById('cfg-tituloAmount').value),
+                lastFrancoDate: document.getElementById('cfg-lastFrancoDate').value,
+                initialTurn: document.getElementById('cfg-initialTurn').value,
+                profilePicUrl: appState.config.profilePicUrl // Mantener la URL de la imagen
+            };
+
+            if (userId) {
+                try {
+                    await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'config', 'salary'), newConfig, { merge: true });
+                    showMessage('Configuración guardada.', 'success');
+                } catch(e) {
+                    console.error("Error al guardar configuración:", e);
+                    showMessage('Error al guardar la configuración.', 'error');
+                }
+            } else {
+                // Modo invitado: Solo actualiza el estado local
+                appState.config = newConfig;
+                showMessage('Configuración aplicada localmente.', 'success');
+                renderHome(); // Refrescar la vista de inicio
+            }
+
+            toggleConfigEdit();
+        }
+
+        function updateConfigUI(config) {
+            appState.config = { ...appState.config, ...config };
+            document.getElementById('welcome-user-name').textContent = appState.config.userName;
+            document.getElementById('welcome-user-team').textContent = `Equipo ${appState.config.teamLetter}`;
+            document.getElementById('user-info-name').textContent = appState.config.userName;
+            document.getElementById('user-info-team').textContent = `Eq. ${appState.config.teamLetter}`;
+            updateProfilePictureUI(appState.config.profilePicUrl);
+            fillConfigInputs();
+        }
+        // --- END CONFIGURATION MANAGEMENT ---
+
+        // --- FIREBASE LISTENERS ---
+        function subscribeToUserData() {
+            if (!userId || !db) return;
+            // Listener de Configuración
+            onSnapshot(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'config', 'salary'), (docSnap) => {
+                if (docSnap.exists()) {
+                    updateConfigUI(docSnap.data());
+                } else {
+                    // Crea la configuración inicial si no existe
+                    const initialConfig = { ...appState.config, userName: auth.currentUser?.displayName || 'Usuario', profilePicUrl: auth.currentUser?.photoURL || '' };
+                    setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'config', 'salary'), initialConfig, { merge: true });
+                    updateConfigUI(initialConfig);
+                }
+                
+                // Vuelve a calcular el mes actual con la nueva configuración
+                const { month, year } = new Date();
+                appState.activeData.calculation = getCalculationFor(month + 1, year, true);
+                renderHome(); // Refresca Home
+                if (document.getElementById('monthly-history-view').classList.contains('hidden') === false) {
+                    renderDashboard(); // Refresca Dashboard si está visible
+                }
+            });
+
+            // Listener de Datos Históricos
+            onSnapshot(collection(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data'), (querySnapshot) => {
+                const newCache = {};
+                querySnapshot.forEach(doc => {
+                    newCache[doc.id] = doc.data();
+                });
+                appState.historicalCache = newCache;
+                renderDashboardChips(); // Actualiza los chips de meses
+                
+                // Recalcula el mes activo en caso de actualización remota
+                const { month, year } = appState.viewingMonth;
+                const key = `${year}-${String(month).padStart(2, '0')}`;
+                if (appState.historicalCache[key]) {
+                    appState.activeData = appState.historicalCache[key];
+                    appState.activeData.calculation = performCalculation(month, year, appState.activeData.extras||{}, appState.activeData.manualHolidays||{}, appState.activeData.shiftOverrides||{}, appState.activeData.lateness||{}, appState.activeData.configSnapshot || appState.config);
+                    if (document.getElementById('monthly-history-view').classList.contains('hidden') === false) {
+                        renderDashboardDetails();
+                    }
+                }
+            });
+        }
+        // --- END FIREBASE LISTENERS ---
+        
+        // --- VISUAL UI UTILITIES ---
+        function updateProfilePictureUI(url) {
+            const elements = ['header-profile-pic', 'home-profile-pic', 'profile-pic-preview'];
+            const placeholders = ['header-profile-placeholder', 'home-profile-placeholder', 'profile-icon-preview'];
+
+            if (url) {
+                elements.forEach(id => {
+                    const img = document.getElementById(id);
+                    img.src = url;
+                    img.classList.remove('hidden');
+                });
+                placeholders.forEach(id => {
+                    document.getElementById(id).classList.add('hidden');
+                });
+            } else {
+                elements.forEach(id => {
+                    document.getElementById(id).classList.add('hidden');
+                });
+                placeholders.forEach(id => {
+                    document.getElementById(id).classList.remove('hidden');
+                });
             }
         }
 
@@ -362,8 +527,8 @@
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(viewId).classList.remove('hidden');
             document.querySelectorAll('.nav-btn').forEach(btn => { 
-                if(btn.dataset.target === viewId) { btn.classList.remove('text-gray-700','hover:bg-red-50'); btn.classList.add('bg-red-600', 'text-white', 'shadow-md'); } 
-                else { btn.classList.add('text-gray-700','hover:bg-red-50'); btn.classList.remove('bg-red-600', 'text-white', 'shadow-md'); } 
+                if(btn.dataset.target === viewId) { btn.classList.remove('text-gray-700','hover:bg-red-50','hover:text-red-600'); btn.classList.add('bg-red-600', 'text-white', 'shadow-md'); } 
+                else { btn.classList.add('text-gray-700','hover:bg-red-50','hover:text-red-600'); btn.classList.remove('bg-red-600', 'text-white', 'shadow-md'); } 
             });
             if (viewId === 'home-view') renderHome();
             if (viewId === 'monthly-history-view') renderDashboard();
@@ -374,27 +539,19 @@
             if(window.innerWidth < 768) { document.getElementById('sidebar').classList.add('sidebar-closed'); document.getElementById('sidebar').classList.remove('sidebar-open'); document.getElementById('sidebar-backdrop').classList.add('hidden'); }
         }
 
-        function compressAndUpload(file) {
-            if (!userId) { showMessage('Inicia sesión.', 'error'); return; }
-            showMessage('Procesando...', 'info');
-            const reader = new FileReader(); reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image(); img.src = event.target.result;
-                img.onload = async () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800; const scaleSize = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
-                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                    try {
-                        appState.config.profilePicUrl = dataUrl;
-                        await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'config', 'salary'), { profilePicUrl: dataUrl }, { merge: true });
-                        updateProfilePictureUI(dataUrl); showMessage('Foto actualizada.', 'success');
-                    } catch(e) { showMessage('Error al guardar.', 'error'); }
-                };
-            };
+        function showMessage(msg, type) {
+            const el = document.getElementById('status-message');
+            el.textContent = msg;
+            el.classList.remove('hidden', 'bg-red-50', 'border-red-500', 'bg-green-50', 'border-green-500', 'bg-blue-50', 'border-blue-500');
+            if (type === 'success') { el.classList.add('bg-green-50', 'border-green-500'); }
+            else if (type === 'error') { el.classList.add('bg-red-50', 'border-red-500'); }
+            else { el.classList.add('bg-blue-50', 'border-blue-500'); }
+            el.scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => el.classList.add('hidden'), 5000);
         }
+        // --- END VISUAL UI UTILITIES ---
 
+        // --- CALCULATION LOGIC ---
         function performCalculation(month, year, extras, holidays, overrides, lateness, configOverride) {
             const cfg = configOverride || appState.config;
             const { lastFrancoDate, initialTurn, valorHora, discountRate, tituloAmount, viaticoValue, presentismoAmount } = cfg;
@@ -413,6 +570,7 @@
 
             let q1_bruto = 0, q2_bruto = 0, q1_viaticos = 0, q2_viaticos = 0, q1_fer = 0, q2_fer = 0;
             let hasLateness = false;
+            let brutoTotal = 0;
 
             for (let i = 1; i <= daysInMonth; i++) {
                 const current = new Date(year, month - 1, i);
@@ -423,245 +581,618 @@
                 const isHol = holidays[dDisp] === true; const ext = extras[dDisp] || 0;
                 const isLate = lateness && lateness[dDisp] === true; if(isLate) hasLateness = true;
 
-                let tLbl = cState, eqBase = 0;
-                if (cState === 'Vacaciones' || cState === 'Licencia') { tLbl = cState; eqBase = 8; } 
-                else if (cState === 'Franco') {
+                let tLbl = cState, eqBase = 0, isTardeOrNoche = (cState === 'Tarde' || cState === 'Noche');
+                
+                if (cState === 'Vacaciones' || cState === 'Licencia') { 
+                    tLbl = cState; eqBase = 8; 
+                } else if (cState === 'Franco') {
                     francosList.push({ dayNum: i, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], fullDate: dDisp, isHoliday: isHol });
-                    if (isHol) { tLbl = 'FERIADO (Franco)'; eqBase = 8; }
-                } else {
-                    if (isHol) { tLbl = `FERIADO (${cState})`; eqBase = 32; }
-                    else {
-                        eqBase = 8; const d = current.getDay();
-                        if (d===0) eqBase=24; else if(d===6 && (cState==='Tarde'||cState==='Noche')) eqBase = cState==='Tarde'?12:16;
-                        if (d>=1 && d<=5 && cState==='Noche') eqBase=12; if(d===0 && cState==='Noche') eqBase=28;
+                    if (isHol) { tLbl = 'FERIADO (Franco)'; eqBase = 8; } // Feriado que cae en Franco se paga 8hs
+                } else { // Mañana, Tarde, Noche
+                    if (isHol) { 
+                        tLbl = `FERIADO (${cState})`; 
+                        eqBase = 32; // 8hs normales + 8hs feriado al 100% + 8hs feriado al 100% (24hs)
+                    } else {
+                        eqBase = 8; // Base
+                        const d = current.getDay();
+                        // Turnos noche o tarde en fin de semana/días especiales
+                        if (d===0) eqBase = 24; // Domingo (8 + 16/2)
+                        else if(d===6) eqBase = 12; // Sábado (8 + 4/2)
+                        else if(d>=1 && d<=5 && cState==='Noche') eqBase = 12; // Noche en día de semana
                     }
                 }
-                const eqTot = eqBase + (ext * 1.5); const dBruto = eqTot * safeValHora; const dViat = ext > 0 ? safeViat : 0;
-                dailyResults.push({ date: dDisp, key: dKey, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], turn: tLbl, isHoliday: isHol, isLate: isLate, equivBase: eqBase, extraReal: ext, totalEquiv: eqTot, bruto: dBruto, isFranco: cState === 'Franco' });
+                
+                // Corrección Crítica de Sintaxis: El problema estaba en la línea de abajo.
+                const eqTot = eqBase + (ext * 1.5); 
+                
+                const dBruto = eqTot * safeValHora; 
+                const dViat = ext > 0 ? safeViat : 0;
+                
+                dailyResults.push({ date: dDisp, key: dKey, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], turn: tLbl, isHoliday: isHol, isLate: isLate, isTardeNoche: isTardeOrNoche, equivBase: eqBase, extraReal: ext, totalEquiv: eqTot, bruto: dBruto, isFranco: cState === 'Franco' });
+                
                 if (i <= 15) { q1_bruto += dBruto; q1_viaticos += dViat; if(isHol) q1_fer += dBruto; } else { q2_bruto += dBruto; q2_viaticos += dViat; if(isHol) q2_fer += dBruto; }
+                
+                brutoTotal += dBruto;
                 startOffset = (startOffset + 1) % 24;
             }
             const pres = hasLateness ? 0 : safePres;
-            const q1_n = q1_bruto - (q1_bruto * discountRate) + q1_viaticos;
-            const q2_n = q2_bruto - (q2_bruto * discountRate) + q2_viaticos + safeTitulo + pres;
-            return { dailyResults, francosList, totalEquivHours: dailyResults.reduce((a,b)=>a+b.totalEquiv,0), totalViaticos: q1_viaticos + q2_viaticos, tituloAmount: safeTitulo, presentismo: pres, hasLateness, netoFinal: q1_n + q2_n, totalFeriadosAmt: q1_fer + q2_fer, quincenas: { q1: { bruto: q1_bruto, neto: q1_n, viaticos: q1_viaticos, desc: q1_bruto * discountRate, feriados: q1_fer }, q2: { bruto: q2_bruto, neto: q2_n, viaticos: q2_viaticos, desc: q2_bruto * discountRate, feriados: q2_fer } } };
+            const q1_desc = q1_bruto * discountRate;
+            const q2_desc = q2_bruto * discountRate;
+            const q1_n = q1_bruto - q1_desc + q1_viaticos;
+            const q2_n = q2_bruto - q2_desc + q2_viaticos + safeTitulo + pres;
+            
+            return { 
+                dailyResults, francosList, 
+                totalEquivHours: dailyResults.reduce((a,b)=>a+b.totalEquiv,0), 
+                totalViaticos: q1_viaticos + q2_viaticos, 
+                tituloAmount: safeTitulo, 
+                presentismo: pres, 
+                hasLateness, 
+                brutoTotal: brutoTotal, 
+                descuentoTotal: q1_desc + q2_desc, 
+                netoFinal: q1_n + q2_n, 
+                totalFeriadosAmt: q1_fer + q2_fer, 
+                quincenas: { 
+                    q1: { bruto: q1_bruto, neto: q1_n, viaticos: q1_viaticos, desc: q1_desc, feriados: q1_fer }, 
+                    q2: { bruto: q2_bruto, neto: q2_n, viaticos: q2_viaticos, desc: q2_desc, feriados: q2_fer, titulo: safeTitulo, presentismo: pres } 
+                } 
+            };
         }
 
         function getCalculationFor(m, y, isHome = false) {
-            if (isHome || (appState.viewingMonth.month === m && appState.viewingMonth.year === y)) {
-                const key = `${y}-${String(m).padStart(2,'0')}`;
-                const cached = appState.historicalCache[key];
-                return performCalculation(m, y, cached?.extras||{}, cached?.holidayFlags||{}, cached?.shiftOverrides||{}, cached?.lateness||{}, appState.config);
-            }
             const key = `${y}-${String(m).padStart(2,'0')}`;
             const cached = appState.historicalCache[key];
-            return performCalculation(m, y, cached?.extras||{}, cached?.holidayFlags||{}, cached?.shiftOverrides||{}, cached?.lateness||{}, cached?.configSnapshot||appState.config);
+            
+            if (isHome || (!cached && appState.viewingMonth.month === m && appState.viewingMonth.year === y)) {
+                return performCalculation(m, y, cached?.extras||{}, cached?.manualHolidays||{}, cached?.shiftOverrides||{}, cached?.lateness||{}, appState.config);
+            }
+            
+            if (cached) {
+                return performCalculation(m, y, cached.extras||{}, cached.manualHolidays||{}, cached.shiftOverrides||{}, cached.lateness||{}, cached.configSnapshot || appState.config);
+            }
+            
+            return performCalculation(m, y, {}, {}, {}, {}, appState.config);
         }
 
-        document.getElementById('btn-delete-month').onclick = async () => {
-            if(!confirm("¿Borrar este mes?")) return;
-            const { month, year } = appState.viewingMonth; const docId = `${year}-${String(month).padStart(2, '0')}`;
-            try { if(userId) await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId)); delete appState.historicalCache[docId]; const keys = Object.keys(appState.historicalCache).sort(); if (keys.length > 0) { const [ly, lm] = keys[keys.length - 1].split('-'); switchDashboardMonth(parseInt(lm), parseInt(ly)); } else { const now = new Date(); appState.viewingMonth = { month: now.getMonth() + 1, year: now.getFullYear() }; appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {} }; renderDashboard(); } showMessage('Eliminado.', 'success'); } catch(e) { console.error(e); showMessage('Error.', 'error'); }
-        };
-
-        document.getElementById('btn-generate-new').onclick = async () => { 
-            const keys = Object.keys(appState.historicalCache).sort(); let m, y;
-            if(keys.length > 0) { const [ly, lm] = keys[keys.length-1].split('-'); m = parseInt(lm) + 1; y = parseInt(ly); if(m > 12) { m = 1; y++; } } else { const now = new Date(); m = now.getMonth() + 1; y = now.getFullYear(); }
-            await generateMonth(m, y); 
-        };
-
-        async function generateMonth(m, y) {
-            appState.viewingMonth = { month: m, year: y }; appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {} };
-            triggerLocalRecalculate(); await saveCurrentData(); if(!appState.treasuryViewMonth) appState.treasuryViewMonth = { month: m, year: y }; showMessage(`Mes ${m}/${y} generado.`);
+        // --- DASHBOARD DATA MANAGEMENT ---
+        function generateNextMonthData() {
+            let { month, year } = appState.viewingMonth;
+            if (month === 12) { month = 1; year++; } else { month++; }
+            switchDashboardMonth(month, year);
         }
 
-        function updateProfilePictureUI(url) {
-            const els = ['profile-pic-preview', 'home-profile-pic', 'header-profile-pic'];
-            els.forEach(id => {
-                const el = document.getElementById(id);
-                if(el) { if(url) { el.src = url; el.classList.remove('hidden'); if(el.nextElementSibling) el.nextElementSibling.classList.add('hidden'); } else { el.src = ''; el.classList.add('hidden'); if(el.nextElementSibling) el.nextElementSibling.classList.remove('hidden'); } }
-            });
-            const hw = document.getElementById('home-profile-wrapper'); if(hw) hw.classList.toggle('hidden', !url);
-            const headerWrapper = document.getElementById('header-profile-wrapper'); if(headerWrapper) headerWrapper.classList.toggle('hidden', !url);
-            const headerIcon = document.getElementById('header-profile-icon'); if(headerIcon) headerIcon.classList.toggle('hidden', !!url);
+        function switchDashboardMonth(month, year) {
+            appState.viewingMonth = { month, year };
+            const key = `${year}-${String(month).padStart(2, '0')}`;
+            
+            document.getElementById('dash-detail-month-label').textContent = `${month}/${year}`;
+            
+            if (appState.historicalCache[key]) {
+                appState.activeData = appState.historicalCache[key];
+                appState.activeData.calculation = performCalculation(month, year, appState.activeData.extras||{}, appState.activeData.manualHolidays||{}, appState.activeData.shiftOverrides||{}, appState.activeData.lateness||{}, appState.activeData.configSnapshot || appState.config);
+            } else {
+                appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, calculation: getCalculationFor(month, year) };
+            }
+            
+            renderDashboard();
+            document.getElementById('dashboard-content').classList.remove('hidden');
+        }
+
+        async function saveCurrentData() {
+            if (!userId) { 
+                showMessage('No puedes guardar datos en modo Invitado.', 'error');
+                return;
+            }
+            
+            const { month, year } = appState.viewingMonth;
+            const docId = `${year}-${String(month).padStart(2, '0')}`;
+            
+            // Recalcular con los datos del mes activo
+            const calculation = performCalculation(
+                month, year, 
+                appState.activeData.extras, 
+                appState.activeData.manualHolidays, 
+                appState.activeData.shiftOverrides, 
+                appState.activeData.lateness,
+                appState.config // Siempre usa la config actual al guardar un nuevo mes
+            );
+
+            const dataToSave = {
+                configSnapshot: appState.config, // Guarda la config actual como snapshot
+                extras: appState.activeData.extras,
+                manualHolidays: appState.activeData.manualHolidays,
+                shiftOverrides: appState.activeData.shiftOverrides,
+                lateness: appState.activeData.lateness,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId), dataToSave);
+                appState.historicalCache[docId] = dataToSave; // Actualiza el cache local para reflejar la config
+                showMessage(`Datos de ${month}/${year} guardados.`, 'success');
+                // renderDashboard() será llamado por el listener de Firestore, pero lo forzamos si no estamos logueados (aunque esto no debería pasar)
+                appState.activeData.calculation = calculation;
+                renderDashboardDetails();
+            } catch (e) {
+                console.error("Error al guardar datos:", e);
+                showMessage('Error al guardar datos en Firebase.', 'error');
+            }
+        }
+        
+        async function deleteCurrentMonthData() {
+            if (!userId) { 
+                showMessage('No puedes borrar datos en modo Invitado.', 'error');
+                return;
+            }
+
+            if(!confirm("¿Estás seguro de que quieres borrar todos los datos de este mes? Esta acción es irreversible.")) return;
+            
+            const { month, year } = appState.viewingMonth; 
+            const docId = `${year}-${String(month).padStart(2, '0')}`;
+            
+            try { 
+                await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId)); 
+                delete appState.historicalCache[docId]; 
+                
+                // Redirige al mes anterior o al mes actual si no hay historial
+                const keys = Object.keys(appState.historicalCache).sort(); 
+                if (keys.length > 0) { 
+                    const [ly, lm] = keys[keys.length - 1].split('-'); 
+                    switchDashboardMonth(parseInt(lm), parseInt(ly)); 
+                } else { 
+                    // Vuelve a la configuración del mes actual
+                    const now = new Date(); 
+                    appState.viewingMonth = { month: now.getMonth() + 1, year: now.getFullYear() }; 
+                    appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, calculation: getCalculationFor(now.getMonth()+1, now.getFullYear(), true) }; 
+                    renderDashboard(); 
+                } 
+                showMessage('Datos del mes eliminados.', 'success'); 
+            } catch(e) { 
+                console.error("Error al borrar datos:", e); showMessage('Error al borrar los datos.', 'error'); 
+            }
+        }
+        
+        // --- HANDLERS PARA INTERACCION DE TABLA ---
+        function updateExtra(date, value) {
+            const val = Number(value);
+            if (val > 0) { appState.activeData.extras[date] = val; } 
+            else { delete appState.activeData.extras[date]; }
+            recalculateAndRender();
+        }
+
+        function updateHoliday(date, isHoliday) {
+            if (isHoliday) { appState.activeData.manualHolidays[date] = true; } 
+            else { delete appState.activeData.manualHolidays[date]; }
+            recalculateAndRender();
+        }
+
+        function updateLateness(date, isLate) {
+            if (isLate) { appState.activeData.lateness[date] = true; } 
+            else { delete appState.activeData.lateness[date]; }
+            recalculateAndRender();
+        }
+
+        function updateTurnOverride(date, turn) {
+            if (turn !== 'Original') { appState.activeData.shiftOverrides[date] = turn; }
+            else { delete appState.activeData.shiftOverrides[date]; }
+            recalculateAndRender();
+        }
+
+        function recalculateAndRender() {
+            const { month, year } = appState.viewingMonth;
+            appState.activeData.calculation = performCalculation(
+                month, year, 
+                appState.activeData.extras, 
+                appState.activeData.manualHolidays, 
+                appState.activeData.shiftOverrides, 
+                appState.activeData.lateness, 
+                appState.config
+            );
+            renderDashboardDetails();
+            renderHome();
+        }
+        
+        // --- RENDER FUNCTIONS ---
+        function formatMoney(amount) {
+            if (typeof amount !== 'number') return '$ 0';
+            return '$ ' + Math.round(amount).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
         function renderHome() {
-            document.getElementById('welcome-user-name').textContent = appState.config.userName;
-            document.getElementById('welcome-user-team').textContent = `Equipo ${appState.config.teamLetter}`;
-            document.getElementById('user-info-team').textContent = `Eq. ${appState.config.teamLetter}`;
-            
             const now = new Date();
-            const calc = getCalculationFor(now.getMonth() + 1, now.getFullYear(), true); // TRUE forces live config
-            
-            document.getElementById('home-current-month-label').textContent = now.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }).toUpperCase();
-            updateProfilePictureUI(appState.config.profilePicUrl);
+            const calc = getCalculationFor(now.getMonth() + 1, now.getFullYear(), true);
+            const today = now.getDate();
 
-            if (calc) {
-                document.getElementById('home-month-net').textContent = formatCurrency(calc.netoFinal);
-                const d = now.getDate();
-                const payDate = d <= 15 ? calculatePaymentDate(now.getFullYear(), now.getMonth()+1, 15) : calculatePaymentDate(now.getFullYear(), now.getMonth()+1, new Date(now.getFullYear(), now.getMonth()+1, 0).getDate());
-                document.getElementById('home-next-quincena').textContent = formatCurrency(d <= 15 ? calc.quincenas.q1.neto : calc.quincenas.q2.neto);
-                document.getElementById('home-payment-date').innerHTML = `<i class="fa-regular fa-clock mr-1"></i> Cobro est: ${payDate.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'numeric' })}`;
-                const fCont = document.getElementById('home-next-francos-container'); fCont.innerHTML = '';
-                const fList = calc.francosList.filter(f => f.dayNum >= d).slice(0, 5);
-                if(fList.length===0) fCont.innerHTML = '<p class="text-sm text-gray-400 py-4">No hay más francos.</p>';
-                else fList.forEach(f => { fCont.innerHTML += `<div class="flex-shrink-0 w-16 h-20 ${f.isHoliday?'bg-red-50 border-red-200':'bg-white border-gray-200'} border rounded-xl flex flex-col items-center justify-center shadow-sm mr-3"><span class="text-[10px] uppercase font-bold ${f.isHoliday?'text-red-500':'text-gray-400'}">${f.dayName}</span><span class="text-2xl font-bold ${f.isHoliday?'text-red-700':'text-gray-700'}">${f.dayNum}</span></div>`; });
+            // Next Quincena (Q1 = 15, Q2 = fin de mes)
+            let nextQuincena, paymentDate;
+            if (today <= 15) {
+                nextQuincena = calc.quincenas.q1.neto;
+                paymentDate = new Date(now.getFullYear(), now.getMonth(), 4);
+                if (paymentDate.getDay() === 0) paymentDate.setDate(5); // Si cae domingo, pasa a lunes
+                else if (paymentDate.getDay() === 6) paymentDate.setDate(6); // Si cae sábado, pasa a lunes
+                const [d, m] = paymentDate.toLocaleDateString('es-AR', { day:'numeric', month:'numeric' }).split('/');
+                document.getElementById('home-payment-date').textContent = `Cobro est: ${d}/${m}`;
+            } else {
+                nextQuincena = calc.quincenas.q2.neto;
+                paymentDate = new Date(now.getFullYear(), now.getMonth() + 1, 4);
+                if (paymentDate.getDay() === 0) paymentDate.setDate(5);
+                else if (paymentDate.getDay() === 6) paymentDate.setDate(6);
+                const [d, m] = paymentDate.toLocaleDateString('es-AR', { day:'numeric', month:'numeric' }).split('/');
+                document.getElementById('home-payment-date').textContent = `Cobro est: ${d}/${m}`;
             }
+
+            document.getElementById('home-next-quincena').textContent = formatMoney(nextQuincena);
+            document.getElementById('home-month-net').textContent = formatMoney(calc.netoFinal);
+            document.getElementById('home-current-month-label').textContent = now.toLocaleDateString('es-AR', { month: 'long' }).toUpperCase() + ' DE ' + now.getFullYear();
+            
+            // Francos
+            const francosHTML = (calc.francosList || []).slice(0, 4).map(f => `
+                <div class="p-3 rounded-lg shadow-sm border border-gray-100 text-center ${f.isHoliday ? 'bg-red-50' : 'bg-white'}" style="min-width: 80px;">
+                    <p class="text-xs font-semibold text-gray-500">${f.dayName.toUpperCase()}</p>
+                    <p class="text-2xl font-bold ${f.isHoliday ? 'text-red-700' : 'text-gray-800'}">${f.dayNum}</p>
+                    <p class="text-[10px] text-gray-400 mt-1">${f.isHoliday ? 'FERIADO' : 'FRANCO'}</p>
+                </div>
+            `).join('');
+            document.getElementById('home-next-francos-container').innerHTML = francosHTML || '<p class="text-gray-500 text-sm">No hay francos programados restantes en este mes.</p>';
         }
 
         function renderDashboard() {
-            const chipCont = document.getElementById('months-chips-container'); chipCont.innerHTML = '';
-            const keys = Object.keys(appState.historicalCache).sort().reverse();
-            if (keys.length === 0) { const btn = document.createElement('button'); btn.className = "px-4 py-1 bg-red-600 text-white rounded-full text-sm font-bold border border-red-200"; btn.textContent = "Generar Mes Actual"; btn.onclick = () => generateMonth(new Date().getMonth()+1, new Date().getFullYear()); chipCont.appendChild(btn); }
-            document.getElementById('dashboard-content').classList.remove('hidden');
-            keys.forEach(key => {
-                const [y, m] = key.split('-');
-                const isActive = parseInt(m) === appState.viewingMonth.month && parseInt(y) === appState.viewingMonth.year;
-                const btn = document.createElement('button');
-                btn.className = `px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition ${isActive ? 'bg-red-600 text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}`;
-                btn.textContent = new Date(y, m - 1).toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).toUpperCase();
-                btn.onclick = () => switchDashboardMonth(parseInt(m), parseInt(y));
-                chipCont.appendChild(btn);
-            });
-            const calc = appState.activeData.calculation;
-            document.getElementById('dash-detail-month-label').textContent = new Date(appState.viewingMonth.year, appState.viewingMonth.month - 1).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
-            if (calc) {
-                document.getElementById('dash-equiv-hours').textContent = formatNumber(calc.totalEquivHours);
-                document.getElementById('dash-viaticos-total').textContent = formatCurrency(calc.totalViaticos);
-                const pEl = document.getElementById('dash-presentismo-total'); pEl.textContent = formatCurrency(calc.presentismo);
-                if(calc.hasLateness) { pEl.classList.add('text-red-500', 'line-through'); pEl.classList.remove('text-blue-600'); } else { pEl.classList.add('text-blue-600'); pEl.classList.remove('text-red-500', 'line-through'); }
-                document.getElementById('dash-neto-final').textContent = formatCurrency(calc.netoFinal);
-                const tbody = document.getElementById('daily-detail-tbody'); tbody.innerHTML = '';
-                calc.dailyResults.forEach(d => {
-                    const tr = document.createElement('tr'); if(d.isFranco && !d.isHoliday) tr.className="bg-yellow-50/50"; if(d.isHoliday) tr.className="bg-red-50/50";
-                    let sel = appState.activeData.shiftOverrides[d.key] || 'Original';
-                    tr.innerHTML = `<td class="px-4 py-3 text-gray-700 whitespace-nowrap font-medium">${d.date.split('/')[0]} <span class="text-xs text-gray-400">${d.dayName}</span></td><td class="px-4 py-3"><select class="table-select bg-transparent border-none text-xs font-bold ${d.isFranco?'text-yellow-600':'text-red-600'}" onchange="window.updateTurnOverride('${d.key}', this.value)"><option value="Original" ${sel==='Original'?'selected':''}>Auto</option><option value="Mañana" ${sel==='Mañana'?'selected':''}>Mañana</option><option value="Tarde" ${sel==='Tarde'?'selected':''}>Tarde</option><option value="Noche" ${sel==='Noche'?'selected':''}>Noche</option><option value="Franco" ${sel==='Franco'?'selected':''}>Franco</option><option value="Licencia" ${sel==='Licencia'?'selected':''}>Licencia</option><option value="Vacaciones" ${sel==='Vacaciones'?'selected':''}>Vacaciones</option></select><div class="text-[10px] text-gray-400">${d.turn}</div></td><td class="px-4 py-3 text-center"><input type="checkbox" class="w-4 h-4 text-red-600 rounded focus:ring-red-500" ${d.isHoliday?'checked':''} onchange="window.updateHoliday('${d.date}', this.checked)"></td><td class="px-4 py-3 text-center"><input type="checkbox" class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" ${d.isLate?'checked':''} onchange="window.updateLateness('${d.date}', this.checked)"></td><td class="px-4 py-3 text-right text-gray-500">${formatNumber(d.equivBase)}</td><td class="px-4 py-3 text-center"><input type="number" value="${d.extraReal||''}" class="w-16 text-center border rounded py-1 text-xs" placeholder="-" step="0.5" min="0" onchange="window.updateExtra('${d.date}', this.value)"></td><td class="px-4 py-3 text-right text-xs text-gray-500">${formatCurrency(d.bruto)}</td>`;
-                    tbody.appendChild(tr);
-                });
+            renderDashboardChips();
+            renderDashboardDetails();
+        }
+        
+        function renderDashboardChips() {
+            const container = document.getElementById('months-chips-container');
+            container.innerHTML = '';
+            
+            const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            
+            const keys = Object.keys(appState.historicalCache).sort((a, b) => b.localeCompare(a));
+            const currentMonthKey = `${appState.viewingMonth.year}-${String(appState.viewingMonth.month).padStart(2,'0')}`;
+            
+            // Asegura que el mes actual (si no está en caché) se muestre
+            if (!appState.historicalCache[currentMonthKey]) {
+                keys.unshift(currentMonthKey);
             }
-        }
 
-        function renderTreasury() {
-            const chipCont = document.getElementById('treasury-chips-container'); chipCont.innerHTML = '';
-            const cont = document.getElementById('treasury-container'); cont.innerHTML = '';
-            const keys = Object.keys(appState.historicalCache).sort().reverse();
-            if (keys.length === 0) { cont.innerHTML = '<p class="text-center text-gray-400 mt-8">Genera un mes primero.</p>'; return; }
             keys.forEach(key => {
-                const [y, m] = key.split('-');
-                const btn = document.createElement('button');
-                btn.className = `px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition ${parseInt(m)===appState.treasuryViewMonth.month && parseInt(y)===appState.treasuryViewMonth.year ? 'bg-red-600 text-white':'bg-white text-gray-500 border'}`;
-                btn.textContent = new Date(y, m-1).toLocaleDateString('es-AR', {month:'short', year:'2-digit'}).toUpperCase();
-                btn.onclick = () => { appState.treasuryViewMonth = {month:parseInt(m), year:parseInt(y)}; renderTreasury(); };
-                chipCont.appendChild(btn);
+                const [year, month] = key.split('-');
+                const m = parseInt(month);
+                const isSelected = key === currentMonthKey;
+                const buttonClass = isSelected 
+                    ? 'bg-red-600 text-white font-bold shadow-md' 
+                    : 'bg-white text-gray-700 hover:bg-gray-100';
+
+                const button = document.createElement('button');
+                button.className = `flex-shrink-0 px-4 py-2 rounded-xl text-sm transition-all ${buttonClass}`;
+                button.textContent = `${monthNames[m - 1]} ${year}`;
+                button.onclick = () => switchDashboardMonth(m, parseInt(year));
+                container.appendChild(button);
             });
-            const {month, year} = appState.treasuryViewMonth;
-            const calc = getCalculationFor(month, year);
-            const c = (t, a, d, dt) => `<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden"><div class="p-6 border-b border-gray-50 flex justify-between items-start bg-white"><div><h3 class="text-lg font-bold text-gray-700">${t}</h3><p class="text-sm text-emerald-600 mt-1">Cobro: ${d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long')}</p></div><div class="text-right"><p class="text-3xl font-extrabold text-gray-800 truncate">${formatCurrency(a)}</p><p class="text-xs text-gray-400">Neto</p></div></div><div class="p-6 grid grid-cols-2 gap-4 text-sm"><div><p class="text-gray-400">Bruto</p><p class="font-semibold">${formatCurrency(dt.bruto)}</p></div><div><p class="text-gray-400">Desc.</p><p class="font-semibold text-red-500">-${formatCurrency(dt.desc)}</p></div><div><p class="text-gray-400">Viáticos</p><p class="font-semibold text-orange-500">+${formatCurrency(dt.viaticos)}</p></div>${dt.feriados>0?`<div><p class="text-gray-400">Feriados</p><p class="font-semibold text-red-600">+${formatCurrency(dt.feriados)}</p></div>`:''}</div></div>`;
-            const d1 = calculatePaymentDate(year, month, 15), d2 = calculatePaymentDate(year, month, new Date(year, month, 0).getDate());
-            cont.innerHTML = c('1ª Quincena', calc.quincenas.q1.neto, d1, calc.quincenas.q1) + c('2ª Quincena', calc.quincenas.q2.neto, d2, calc.quincenas.q2);
         }
 
+        function renderDashboardDetails() {
+            const calc = appState.activeData.calculation;
+            if (!calc) {
+                document.getElementById('dash-neto-final').textContent = '$ 0';
+                document.getElementById('dash-equiv-hours').textContent = '0';
+                document.getElementById('dash-viaticos-total').textContent = '$ 0';
+                document.getElementById('dash-presentismo-total').textContent = '$ 0';
+                document.getElementById('daily-detail-tbody').innerHTML = '<tr><td colspan="7" class="px-4 py-4 text-center text-gray-500">Aún no hay datos para este mes.</td></tr>';
+                return;
+            }
+
+            document.getElementById('dash-equiv-hours').textContent = Math.round(calc.totalEquivHours);
+            document.getElementById('dash-viaticos-total').textContent = formatMoney(calc.totalViaticos);
+            document.getElementById('dash-presentismo-total').textContent = formatMoney(calc.presentismo);
+            document.getElementById('dash-neto-final').textContent = formatMoney(calc.netoFinal);
+            
+            const tbody = document.getElementById('daily-detail-tbody');
+            tbody.innerHTML = '';
+            
+            const shiftOptions = ['Original', 'Franco', 'Mañana', 'Tarde', 'Noche', 'Vacaciones', 'Licencia'];
+
+            calc.dailyResults.forEach(day => {
+                const tr = document.createElement('tr');
+                tr.className = `border-b ${day.isFranco ? 'bg-gray-50 text-gray-500' : 'bg-white hover:bg-red-50/50'}`;
+
+                // Columna 1: Fecha
+                const tdDate = document.createElement('td');
+                tdDate.className = 'px-4 py-3 font-semibold text-gray-900 whitespace-nowrap';
+                tdDate.innerHTML = `<span class="text-xs text-gray-500 block">${day.dayName}</span>${day.date.substring(0, 5)}`;
+                tr.appendChild(tdDate);
+
+                // Columna 2: Turno / Override
+                const tdTurn = document.createElement('td');
+                tdTurn.className = 'px-4 py-3';
+                const turnSelect = document.createElement('select');
+                turnSelect.className = 'w-full p-1.5 border border-gray-300 rounded-lg bg-white table-select text-xs';
+                turnSelect.onchange = (e) => window.updateTurnOverride(day.key, e.target.value);
+                shiftOptions.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt;
+                    option.textContent = opt === 'Original' ? day.turn.split(' ')[0] : opt;
+                    if (day.turn.includes(opt) || appState.activeData.shiftOverrides[day.key] === opt) {
+                        option.selected = true;
+                    }
+                    if (opt === 'Original' && appState.activeData.shiftOverrides[day.key]) {
+                         option.textContent = 'Original'; // Asegura que el valor original es 'Original' cuando hay override
+                    }
+                    turnSelect.appendChild(option);
+                });
+                tdTurn.appendChild(turnSelect);
+                tr.appendChild(tdTurn);
+
+                // Columna 3: Feriado Manual (Checkbox)
+                const tdHoliday = document.createElement('td');
+                tdHoliday.className = 'px-4 py-3 text-center';
+                const holidayCheck = document.createElement('input');
+                holidayCheck.type = 'checkbox'; holidayCheck.className = 'w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500';
+                holidayCheck.checked = appState.activeData.manualHolidays[day.date] === true;
+                holidayCheck.onclick = (e) => window.updateHoliday(day.date, e.target.checked);
+                tdHoliday.appendChild(holidayCheck);
+                tr.appendChild(tdHoliday);
+                
+                // Columna 4: Tarde (Lateness Checkbox)
+                const tdLate = document.createElement('td');
+                tdLate.className = 'px-4 py-3 text-center';
+                const lateCheck = document.createElement('input');
+                lateCheck.type = 'checkbox'; lateCheck.className = 'w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500';
+                lateCheck.checked = appState.activeData.lateness[day.date] === true;
+                lateCheck.onclick = (e) => window.updateLateness(day.date, e.target.checked);
+                tdLate.appendChild(lateCheck);
+                tr.appendChild(tdLate);
+
+                // Columna 5: Horas Equivalentes
+                const tdEquiv = document.createElement('td');
+                tdEquiv.className = 'px-4 py-3 text-right font-medium text-red-600';
+                tdEquiv.textContent = day.totalEquiv.toFixed(1);
+                tr.appendChild(tdEquiv);
+
+                // Columna 6: Horas Extra
+                const tdExtra = document.createElement('td');
+                tdExtra.className = 'px-4 py-3 text-center';
+                const extraInput = document.createElement('select');
+                extraInput.className = 'w-16 p-1 border border-gray-300 rounded-lg text-xs bg-white table-select';
+                extraInput.onchange = (e) => window.updateExtra(day.date, e.target.value);
+                
+                const currentExtra = appState.activeData.extras[day.date] || 0;
+                [0, 1, 2, 4, 6, 8, 10, 12, 14, 16].forEach(val => {
+                    const option = document.createElement('option');
+                    option.value = val;
+                    option.textContent = val > 0 ? `+${val}h` : '0h';
+                    if (val === currentExtra) option.selected = true;
+                    extraInput.appendChild(option);
+                });
+                tdExtra.appendChild(extraInput);
+                tr.appendChild(tdExtra);
+
+                // Columna 7: Bruto
+                const tdBruto = document.createElement('td');
+                tdBruto.className = 'px-4 py-3 text-right font-bold';
+                tdBruto.textContent = formatMoney(day.bruto);
+                tr.appendChild(tdBruto);
+
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function renderTreasury() {
+            const container = document.getElementById('treasury-container');
+            container.innerHTML = '';
+            
+            const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            const treasuryMonths = [];
+            
+            // Recopila los meses con datos históricos (y su configuración instantánea)
+            for (const key in appState.historicalCache) {
+                const [year, month] = key.split('-');
+                const m = parseInt(month); const y = parseInt(year);
+                const cachedData = appState.historicalCache[key];
+                
+                // Recalcula el mes con su snapshot de configuración
+                const calc = performCalculation(
+                    m, y, 
+                    cachedData.extras || {}, 
+                    cachedData.manualHolidays || {}, 
+                    cachedData.shiftOverrides || {}, 
+                    cachedData.lateness || {}, 
+                    cachedData.configSnapshot || appState.config // Usa el snapshot si existe
+                );
+                
+                treasuryMonths.push({ month: m, year: y, calc });
+            }
+            
+            // Ordenar por año y mes descendente
+            treasuryMonths.sort((a, b) => b.year * 100 + b.month - (a.year * 100 + a.month));
+
+            if (treasuryMonths.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 p-6 text-center">No hay meses históricos guardados para mostrar la Tesorería.</p>';
+                return;
+            }
+
+            treasuryMonths.forEach(({ month, year, calc }) => {
+                const monthName = months[month - 1];
+                const q1 = calc.quincenas.q1;
+                const q2 = calc.quincenas.q2;
+
+                const cardHTML = `
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden animate-fade-in">
+                        <div class="p-5 border-b border-gray-100 bg-red-600/10 flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-gray-800">${monthName} ${year}</h3>
+                            <span class="text-2xl font-extrabold text-emerald-600">${formatMoney(calc.netoFinal)}</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2">
+                            <div class="p-5 border-b md:border-b-0 md:border-r border-gray-100">
+                                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">1° QUINCENA (1-15)</h4>
+                                <p class="text-2xl font-bold text-gray-800 mb-3">${formatMoney(q1.neto)}</p>
+                                <div class="space-y-1 text-sm">
+                                    <p class="flex justify-between text-gray-700"><span>Bruto:</span> <span class="font-medium">${formatMoney(q1.bruto)}</span></p>
+                                    <p class="flex justify-between text-red-500"><span>- Descuentos:</span> <span class="font-medium">${formatMoney(q1.desc)}</span></p>
+                                    <p class="flex justify-between text-orange-600"><span>+ Viáticos:</span> <span class="font-medium">${formatMoney(q1.viaticos)}</span></p>
+                                    <p class="flex justify-between text-red-700"><span>Feriados:</span> <span class="font-medium">${formatMoney(q1.feriados)}</span></p>
+                                </div>
+                            </div>
+                            <div class="p-5">
+                                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">2° QUINCENA (16-FIN)</h4>
+                                <p class="text-2xl font-bold text-gray-800 mb-3">${formatMoney(q2.neto)}</p>
+                                <div class="space-y-1 text-sm">
+                                    <p class="flex justify-between text-gray-700"><span>Bruto:</span> <span class="font-medium">${formatMoney(q2.bruto)}</span></p>
+                                    <p class="flex justify-between text-red-500"><span>- Descuentos:</span> <span class="font-medium">${formatMoney(q2.desc)}</span></p>
+                                    <p class="flex justify-between text-orange-600"><span>+ Viáticos:</span> <span class="font-medium">${formatMoney(q2.viaticos)}</span></p>
+                                    <p class="flex justify-between text-blue-600"><span>+ Presentismo:</span> <span class="font-medium">${formatMoney(q2.presentismo)}</span></p>
+                                    <p class="flex justify-between text-purple-600"><span>+ Título:</span> <span class="font-medium">${formatMoney(q2.titulo)}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+        
         function renderRanking() {
-            const list = document.getElementById('ranking-list'); list.innerHTML = '';
-            const r = Object.entries(appState.historicalCache).map(([k, d]) => ({k, ...d})).sort((a, b) => b.results.netoFinal - a.results.netoFinal);
-            if (r.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 mt-8">Sin datos.</p>'; return; }
-            r.forEach((i, idx) => {
-                const [y, m] = i.k.split('-');
-                list.innerHTML += `<div class="p-4 rounded-xl border ${idx===0?'border-yellow-400':idx===1?'border-gray-300':idx===2?'border-orange-300':'border-gray-100'} bg-white shadow-sm flex justify-between items-center gap-4"><div><div class="text-2xl font-bold text-center w-8">${idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':idx+1}</div><h4 class="font-bold text-gray-800 capitalize">${new Date(y, m-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'})}</h4></div><div class="text-right"><p class="text-xl font-extrabold text-emerald-600">${formatCurrency(i.results.netoFinal)}</p></div></div>`;
+            const list = document.getElementById('ranking-list');
+            list.innerHTML = '';
+            
+            // Simular datos de otros usuarios para el ranking
+            const myNeto = appState.activeData.calculation ? appState.activeData.calculation.netoFinal : 0;
+            const myHours = appState.activeData.calculation ? appState.activeData.calculation.totalEquivHours : 0;
+
+            const rankingData = [
+                { name: appState.config.userName, team: appState.config.teamLetter, net: myNeto, hours: myHours, isMe: true },
+                { name: "Juan P.", team: "A", net: myNeto * 1.05 + 10000, hours: myHours + 15, isMe: false },
+                { name: "Maria L.", team: "C", net: myNeto * 0.98 - 5000, hours: myHours - 5, isMe: false },
+                { name: "Carlos S.", team: "B", net: myNeto * 1.10 + 20000, hours: myHours + 25, isMe: false },
+                { name: "Ana R.", team: "D", net: myNeto * 0.95 - 2000, hours: myHours - 10, isMe: false },
+            ].sort((a, b) => b.net - a.net);
+
+            rankingData.forEach((user, index) => {
+                const position = index + 1;
+                const medal = position === 1 ? '🥇' : (position === 2 ? '🥈' : (position === 3 ? '🥉' : ''));
+                const cardClass = user.isMe ? 'bg-red-50 border-red-200 shadow-md' : 'bg-white border-gray-200';
+                const nameClass = user.isMe ? 'text-red-700 font-extrabold' : 'text-gray-800 font-bold';
+
+                list.innerHTML += `
+                    <div class="flex items-center p-4 rounded-xl border ${cardClass} transition-all hover:shadow-lg">
+                        <div class="text-3xl font-black mr-4 w-10 text-center text-gray-500">
+                            ${medal || position}
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-lg ${nameClass} flex items-center gap-2">
+                                ${user.name} 
+                                <span class="text-[10px] font-bold bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">Eq. ${user.team}</span>
+                                ${user.isMe ? '<span class="text-[10px] font-bold bg-red-600 text-white px-1.5 py-0.5 rounded">TÚ</span>' : ''}
+                            </p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                ${formatMoney(user.net)} (Neto) | ${Math.round(user.hours)} H.Equiv.
+                            </p>
+                        </div>
+                    </div>
+                `;
             });
         }
+        
+        // --- PDF GENERATION ---
+        function generatePdfReport() {
+            if (typeof window.jspdf === 'undefined' || typeof window.jspdf.AcroForm === 'undefined') {
+                showMessage('Librería de PDF no cargada. Intenta recargar la página.', 'error');
+                return;
+            }
 
-        function updateExtra(d, v) { const val = parseFloat(v)||0; if(val>0) appState.activeData.extras[d]=val; else delete appState.activeData.extras[d]; triggerLocalRecalculate(); }
-        function updateHoliday(d, c) { if(c) appState.activeData.manualHolidays[d]=true; else delete appState.activeData.manualHolidays[d]; triggerLocalRecalculate(); }
-        function updateLateness(d, c) { if(c) appState.activeData.lateness[d]=true; else delete appState.activeData.lateness[d]; triggerLocalRecalculate(); }
-        function updateTurnOverride(k, v) { if(v==='Original') delete appState.activeData.shiftOverrides[k]; else appState.activeData.shiftOverrides[k]=v; triggerLocalRecalculate(); }
-        function triggerLocalRecalculate() { const {month, year} = appState.viewingMonth; appState.activeData.calculation = performCalculation(month, year, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.config); renderDashboard(); renderHome(); }
-        async function switchDashboardMonth(m, y) { appState.viewingMonth = { month: m, year: y }; const key = `${y}-${String(m).padStart(2, '0')}`; const cached = appState.historicalCache[key]; if(cached) { appState.activeData = { extras: cached.extras||{}, manualHolidays: cached.holidayFlags||{}, shiftOverrides: cached.shiftOverrides||{}, lateness: cached.lateness||{} }; appState.activeData.calculation = performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, cached.configSnapshot || null); } renderDashboard(); const now = new Date(); if(m===now.getMonth()+1 && y===now.getFullYear()) renderHome(); }
-        async function saveCurrentData() { if(!userId) return; const { month, year } = appState.viewingMonth; const docId = `${year}-${String(month).padStart(2, '0')}`; const data = { extras: appState.activeData.extras, holidayFlags: appState.activeData.manualHolidays, shiftOverrides: appState.activeData.shiftOverrides, lateness: appState.activeData.lateness, results: appState.activeData.calculation, configSnapshot: { ...appState.config } }; appState.historicalCache[docId] = data; await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId), data); renderDashboard(); }
-        function formatCurrency(v) { return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(v||0); }
-        function formatNumber(v) { return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2 }).format(v||0); }
-        function showMessage(m, t='info') { const el = document.getElementById('status-message'); el.textContent = m; el.className = `mb-6 p-4 rounded-xl shadow-md border-l-4 transition-all-300 ${t === 'error' ? 'bg-red-100 text-red-700 border-red-500' : 'bg-indigo-100 text-indigo-700 border-indigo-500'}`; el.classList.remove('hidden'); setTimeout(() => el.classList.add('hidden'), 3000); }
-        function calculatePaymentDate(y, m, d) { const b = new Date(y, m-1, d); let p = new Date(b), c = 0; while(c<4) { p.setDate(p.getDate()+1); if(p.getDay()!==0 && p.getDay()!==6) c++; } return p; }
+            const { month, year } = appState.viewingMonth;
+            const calc = appState.activeData.calculation;
+            if (!calc) {
+                showMessage('No hay datos calculados para generar el PDF.', 'error');
+                return;
+            }
 
-        // INIT & AUTH
-        async function initFirebaseSystem() {
-            app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
-            onAuthStateChanged(auth, (u) => {
-                const authBtn = document.getElementById('auth-action-btn');
-                if (u) { 
-                    userId = u.uid; document.getElementById('user-info-email').textContent = u.email; 
-                    document.getElementById('login-view').classList.add('-translate-y-full');
-                    document.getElementById('app-layout').classList.remove('hidden');
-                    if(u.displayName) { appState.config.userName = u.displayName; document.getElementById('user-info-name').textContent = u.displayName; }
-                    loadUserData(); 
+            const doc = new window.jspdf.jsPDF();
+            const config = appState.activeData.configSnapshot || appState.config;
+            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            const fileName = `Reporte_Salario_${config.userName}_${monthNames[month - 1]}_${year}.pdf`;
+            
+            // Título
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`Liquidación Mensual: ${monthNames[month - 1]} de ${year}`, 15, 20);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Empleado: ${config.userName} (Equipo ${config.teamLetter})`, 15, 26);
+            doc.text(`Generado el: ${new Date().toLocaleDateString('es-AR')}`, 15, 30);
 
-                    // ACTUALIZA BOTÓN PARA USUARIO LOGUEADO
-                    authBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>';
-                    authBtn.classList.add('bg-white', 'text-gray-700', 'border-gray-300', 'hover:bg-red-50', 'hover:text-red-600', 'hover:border-red-200');
-                    authBtn.classList.remove('bg-red-600', 'text-white', 'border-red-600', 'hover:bg-red-700');
+            // Resumen General
+            doc.setDrawColor(200);
+            doc.line(15, 35, 195, 35); 
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`NETO FINAL ESTIMADO: ${formatMoney(calc.netoFinal)}`, 15, 42);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Horas Equivalentes Totales: ${Math.round(calc.totalEquivHours)}`, 15, 48);
+            doc.text(`Bruto Total: ${formatMoney(calc.brutoTotal)}`, 15, 52);
+            doc.text(`Descuentos (Tasa ${config.discountRate*100}%): ${formatMoney(calc.descuentoTotal)}`, 15, 56);
+            doc.text(`Presentismo: ${formatMoney(calc.presentismo)} ${calc.hasLateness ? '(PERDIDO por Tarde/Ausencia)' : ''}`, 15, 60);
 
-                } else { 
-                    // Cuando se desloguea, vuelve a la pantalla de login
-                    userId = null; 
-                    document.getElementById('login-view').classList.remove('-translate-y-full');
-                    document.getElementById('app-layout').classList.add('hidden');
+            // Tabla de Quincenas
+            const quincenaData = [
+                ['Concepto', '1ra Quincena', '2da Quincena'],
+                ['Bruto', formatMoney(calc.quincenas.q1.bruto), formatMoney(calc.quincenas.q2.bruto)],
+                ['Descuento', formatMoney(-calc.quincenas.q1.desc), formatMoney(-calc.quincenas.q2.desc)],
+                ['Viáticos', formatMoney(calc.quincenas.q1.viaticos), formatMoney(calc.quincenas.q2.viaticos)],
+                ['Feriados', formatMoney(calc.quincenas.q1.feriados), formatMoney(calc.quincenas.q2.feriados)],
+                ['Presentismo', formatMoney(0), formatMoney(calc.quincenas.q2.presentismo)],
+                ['Título', formatMoney(0), formatMoney(calc.quincenas.q2.titulo)],
+                ['NETO', formatMoney(calc.quincenas.q1.neto), formatMoney(calc.quincenas.q2.neto)]
+            ];
+
+            doc.autoTable({
+                startY: 70,
+                head: [quincenaData[0]],
+                body: quincenaData.slice(1),
+                theme: 'striped',
+                headStyles: { fillColor: [220, 50, 50], textColor: 255, fontStyle: 'bold' },
+                footStyles: { fillColor: [240, 240, 240], fontStyle: 'bold' },
+                styles: { fontSize: 8 },
+                didDrawCell: (data) => {
+                    if (data.row.section === 'body' && data.row.index === quincenaData.length - 2) { // Última fila de Neto
+                        doc.setFillColor(230, 255, 230); doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'F');
+                        doc.setFont('helvetica', 'bold');
+                    }
                 }
             });
-        }
 
-        async function loadUserData() {
-            onSnapshot(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'config', 'salary'), (s) => { 
-                if(s.exists()) { 
-                    const data = s.data(); appState.config = { ...appState.config, ...data };
-                    if(auth.currentUser && auth.currentUser.displayName) appState.config.userName = auth.currentUser.displayName;
-                    renderHome(); updateProfilePictureUI(appState.config.profilePicUrl); fillConfigInputs();
-                } 
-            });
-            const snap = await getDocs(collection(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data'));
-            appState.historicalCache = {}; snap.forEach(d => appState.historicalCache[d.id] = d.data());
-            const k = Object.keys(appState.historicalCache).sort().reverse();
-            if(k.length > 0) { const [y, m] = k[0].split('-'); switchDashboardMonth(parseInt(m), parseInt(y)); appState.treasuryViewMonth = { month: parseInt(m), year: parseInt(y) }; }
-        }
-
-        function fillConfigInputs() {
-            document.getElementById('cfg-userName').value = appState.config.userName;
-            document.getElementById('cfg-teamLetter').value = appState.config.teamLetter || 'A';
-            document.getElementById('cfg-valorHora').value = appState.config.valorHora;
-            document.getElementById('cfg-discountRate').value = appState.config.discountRate;
-            document.getElementById('cfg-tituloAmount').value = appState.config.tituloAmount;
-            document.getElementById('cfg-viaticoValue').value = appState.config.viaticoValue;
-            document.getElementById('cfg-presentismoAmount').value = appState.config.presentismoAmount;
-            document.getElementById('cfg-lastFrancoDate').value = appState.config.lastFrancoDate;
-            document.getElementById('cfg-initialTurn').value = appState.config.initialTurn;
-        }
-
-        document.getElementById('btn-download-pdf').onclick = () => {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF(); const calc = appState.activeData.calculation; if(!calc) return;
-            const ml = new Date(appState.viewingMonth.year, appState.viewingMonth.month-1).toLocaleDateString('es-AR', {month:'long', year:'numeric'}).toUpperCase();
-            doc.setFillColor(220, 38, 38); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(255, 255, 255); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text(`PAPELERA ROSATO S.A.`, 15, 20); doc.setFontSize(12); doc.setFont("helvetica", "normal"); doc.text(`${ml}`, 15, 30); doc.text(`Empleado: ${appState.config.userName}`, 195, 30, { align: 'right' });
-            doc.setTextColor(60, 60, 60); doc.setFontSize(10); let y = 55; doc.text(`Valor Hora: ${formatCurrency(appState.config.valorHora)}`, 15, y); y += 10;
-            doc.autoTable({ startY: y, head: [['CONCEPTO', '1ª QUINCENA', '2ª QUINCENA', 'TOTAL MES']], body: [['Bruto', formatCurrency(calc.quincenas.q1.bruto), formatCurrency(calc.quincenas.q2.bruto), formatCurrency(calc.brutoTotal)], ['Descuentos', `-${formatCurrency(calc.quincenas.q1.desc)}`, `-${formatCurrency(calc.quincenas.q2.desc)}`, `-${formatCurrency(calc.descuentoTotal)}`], ['Viáticos', formatCurrency(calc.quincenas.q1.viaticos), formatCurrency(calc.quincenas.q2.viaticos), formatCurrency(calc.totalViaticos)], ['NETO', formatCurrency(calc.quincenas.q1.neto), formatCurrency(calc.quincenas.q2.neto), formatCurrency(calc.netoFinal)]], theme: 'grid', headStyles: { fillColor: [220, 38, 38] } });
-            doc.addPage(); const dd = calc.dailyResults.map(d => [d.date, d.turn, d.isHoliday?'Sí':'', d.isLate?'TARDE':'', formatNumber(d.equivBase), d.extraReal>0?d.extraReal:'-', formatCurrency(d.bruto)]);
-            doc.autoTable({ startY: 25, head: [['FECHA', 'TURNO', 'FERIADO', 'TARDE', 'BASE', 'EXTRAS', 'BRUTO']], body: dd, theme: 'striped', headStyles: { fillColor: [220, 38, 38] } });
-            doc.save(`Nomina_${ml}.pdf`);
-        };
-        
-        async function saveConfigHandler() {
-            appState.config.userName = document.getElementById('cfg-userName').value;
-            appState.config.teamLetter = document.getElementById('cfg-teamLetter').value;
-            appState.config.valorHora = parseFloat(document.getElementById('cfg-valorHora').value);
-            appState.config.discountRate = parseFloat(document.getElementById('cfg-discountRate').value);
-            appState.config.tituloAmount = parseFloat(document.getElementById('cfg-tituloAmount').value);
-            appState.config.viaticoValue = parseFloat(document.getElementById('cfg-viaticoValue').value);
-            appState.config.presentismoAmount = parseFloat(document.getElementById('cfg-presentismoAmount').value);
-            appState.config.lastFrancoDate = document.getElementById('cfg-lastFrancoDate').value;
-            appState.config.initialTurn = document.getElementById('cfg-initialTurn').value;
+            let finalY = doc.autoTable.previous.finalY + 10;
             
-            if(userId) await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'config', 'salary'), appState.config, {merge: true});
-            showMessage('Configuración guardada.', 'success'); 
-            renderHome(); toggleConfigEdit();
+            // Detalle Diario
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text("Detalle Diario de Turnos y Cálculos", 15, finalY);
+
+            const dailyTableData = calc.dailyResults.map(d => [
+                d.date, 
+                d.turn.replace(/ \(.*\)/, ''), 
+                d.isHoliday ? 'Sí' : 'No', 
+                d.isLate ? 'Sí' : 'No',
+                d.extraReal > 0 ? `+${d.extraReal}h` : '',
+                d.totalEquiv.toFixed(1), 
+                formatMoney(d.bruto)
+            ]);
+
+            doc.autoTable({
+                startY: finalY + 5,
+                head: [['Fecha', 'Turno', 'Feriado', 'Tarde', 'Extra', 'H. Eq.', 'Bruto']],
+                body: dailyTableData,
+                theme: 'grid',
+                headStyles: { fillColor: [50, 50, 50], textColor: 255, fontStyle: 'bold' },
+                styles: { fontSize: 8 },
+                columnStyles: { 5: { fontStyle: 'bold' }, 6: { halign: 'right' } }
+            });
+
+            doc.save(fileName);
         }
+        // --- END RENDER FUNCTIONS ---
+        
     </script>
 </body>
 </html>
