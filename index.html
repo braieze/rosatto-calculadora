@@ -27,26 +27,22 @@
         .table-select { appearance: none; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; }
         input, select, textarea { font-size: 16px !important; }
         input:disabled, select:disabled { background-color: #f9fafb; color: #9ca3af; cursor: not-allowed; }
-        #refresh-spinner { transition: transform 0.3s; transform: translateY(-100%); }
-        #refresh-spinner.visible { transform: translateY(60px); }
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Fix for mobile header tap area */
+        .safe-top { padding-top: env(safe-area-inset-top, 20px); }
     </style>
 </head>
-<body class="text-slate-800 bg-gray-50 h-[100dvh] overflow-hidden">
+<body class="text-slate-800 bg-gray-50 h-[100dvh] overflow-hidden flex flex-col">
 
-    <div id="app-layout" class="flex h-full">
+    <div id="app-layout" class="flex h-full relative">
         <div id="profile-modal" class="fixed inset-0 z-[100] bg-black/90 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
             <button id="close-modal-btn" class="absolute top-6 right-6 text-white text-4xl z-[101]">&times;</button>
             <img id="modal-img" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl transform scale-95 transition-transform duration-300">
         </div>
 
-        <div id="refresh-spinner" class="fixed top-0 left-0 w-full flex justify-center z-[60] pointer-events-none">
-            <div class="bg-white p-3 rounded-full shadow-xl border border-gray-100"><i class="fa-solid fa-arrows-rotate fa-spin text-red-600 text-2xl"></i></div>
-        </div>
-
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 text-gray-700 sidebar-closed md:relative md:translate-x-0 flex flex-col shadow-2xl md:shadow-none">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center safe-top">
                 <div class="flex items-center gap-2">
                     <img src="logo.png" alt="Logo" class="h-8 object-contain" onerror="this.style.display='none'">
                     <span class="font-bold text-red-700 tracking-tight text-xl">ROSATO</span>
@@ -60,6 +56,7 @@
                     <li><button onclick="window.navigateTo('treasury-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="treasury-view"><i class="fa-solid fa-wallet w-5 text-center"></i><span>Tesorería</span></button></li>
                     <li><button onclick="window.navigateTo('ranking-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="ranking-view"><i class="fa-solid fa-trophy w-5 text-center"></i><span>Ranking</span></button></li>
                     <li><button onclick="window.navigateTo('config-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="config-view"><i class="fa-solid fa-gear w-5 text-center"></i><span>Configuración</span></button></li>
+                    <li><button onclick="window.navigateTo('help-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 hover:bg-red-50 hover:text-red-600" data-target="help-view"><i class="fa-solid fa-circle-question w-5 text-center"></i><span>Ayuda</span></button></li>
                 </ul>
             </nav>
             <div class="p-4 border-t border-gray-100 bg-gray-50">
@@ -85,10 +82,10 @@
             </div>
         </aside>
 
-        <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50">
-            <header class="bg-white shadow-sm px-4 py-3 flex justify-between items-center md:hidden sticky top-0 z-40 w-full h-16 border-b border-gray-100">
-                <div class="flex items-center">
-                    <button id="open-sidebar-btn" class="text-gray-600 focus:outline-none p-2 active:bg-gray-100 rounded-lg mr-3"><i class="fa-solid fa-bars text-xl"></i></button>
+        <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50 w-full">
+            <header class="bg-white shadow-sm px-4 flex justify-between items-center md:hidden sticky top-0 z-40 w-full min-h-[70px] border-b border-gray-100 safe-top">
+                <div class="flex items-center h-full">
+                    <button id="open-sidebar-btn" class="text-gray-600 focus:outline-none p-3 active:bg-gray-100 rounded-lg mr-2 -ml-2"><i class="fa-solid fa-bars text-xl"></i></button>
                     <span class="font-bold text-red-700 tracking-tighter text-lg">ROSATO</span>
                 </div>
                 <div class="flex items-center cursor-pointer" onclick="window.openImageModal()">
@@ -106,7 +103,7 @@
                 <div id="guest-banner" class="hidden mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-xl shadow-sm flex justify-between items-center">
                     <div>
                         <p class="font-bold text-yellow-700 text-sm">Modo Invitado</p>
-                        <p class="text-xs text-yellow-600">Tus cálculos no se guardarán si cierras la app.</p>
+                        <p class="text-xs text-yellow-600">Si preferís probarla, guardá tus datos en configuración y hacé la prueba.</p>
                     </div>
                     <button onclick="document.getElementById('btn-sidebar-login').click()" class="text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-2 rounded-lg font-bold transition">Conectar</button>
                 </div>
@@ -239,6 +236,60 @@
                         <button id="btn-save-config" class="w-full bg-red-600 text-white py-4 rounded-xl font-bold hover:bg-red-700 shadow-lg hidden">GUARDAR Y APLICAR</button>
                     </div>
                 </div>
+
+                <div id="help-view" class="view-section hidden max-w-2xl mx-auto">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-circle-question text-blue-500 mr-2"></i> Cómo usar el Portal</h2>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">1</div>
+                                <h3 class="font-bold text-lg">Configuración Inicial</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed ml-12">
+                                Antes de empezar, ve a la sección <strong>Configuración</strong>. Ingresá tu Valor Hora, Equipo, Valor de Viático y la fecha de tu último franco. Es vital que presiones <strong>"GUARDAR Y APLICAR"</strong> para que los cálculos sean correctos.
+                            </p>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">2</div>
+                                <h3 class="font-bold text-lg">Generar tu Mes</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed ml-12">
+                                Ve a <strong>Mi Gestión</strong>. Si es tu primera vez, presiona "Generar Mes Actual". El sistema creará tu grilla de turnos basada en tu configuración. Puedes navegar entre meses usando los botones superiores.
+                            </p>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">3</div>
+                                <h3 class="font-bold text-lg">Cargar Novedades</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed ml-12">
+                                En la tabla de gestión puedes:
+                                <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-500">
+                                    <li>Ingresar <strong>Horas Extras Reales</strong> (el sistema calcula el 50% o 100% automáticamente).</li>
+                                    <li>Marcar llegadas tarde para el descuento de presentismo.</li>
+                                    <li>Marcar Feriados manualmente si el sistema no lo hizo.</li>
+                                    <li>Cambiar turnos (si cambiaste el franco o hiciste doble turno).</li>
+                                </ul>
+                                <strong class="block mt-2 text-red-600">Importante: Dale al botón "Guardar" arriba de la tabla para asegurar tus cambios.</strong>
+                            </p>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">4</div>
+                                <h3 class="font-bold text-lg">Consultar y Descargar</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm leading-relaxed ml-12">
+                                Usa la sección <strong>Tesorería</strong> para ver el desglose de quincenas. En <strong>Ranking</strong> verás tu histórico de mejores sueldos. También puedes descargar un PDF de tu nómina desde la sección de Gestión.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>
@@ -253,18 +304,19 @@
         let app, auth, db, userId = null;
         let isEditingConfig = false;
 
-        let appState = {
+        const DEFAULT_STATE = {
             config: { 
                 userName: 'Usuario', profilePicUrl: '', teamLetter: 'A', valorHora: 0, discountRate: 0.18, 
-                tituloAmount: 0, viaticoValue: 0, presentismoAmount: 0, // Legacy field, now calculated dynamically
+                tituloAmount: 0, viaticoValue: 0, presentismoAmount: 0, 
                 lastFrancoDate: new Date().toISOString().split('T')[0], initialTurn: 'Mañana' 
             },
             viewingMonth: { month: new Date().getMonth() + 1, year: new Date().getFullYear() },
             treasuryViewMonth: { month: new Date().getMonth() + 1, year: new Date().getFullYear() },
-            // Active Data for current viewing month
             activeData: { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, calculation: null },
             historicalCache: {}
         };
+
+        let appState = JSON.parse(JSON.stringify(DEFAULT_STATE)); // Deep copy
 
         // --- EXPOSE GLOBALS ---
         window.navigateTo = navigateTo; 
@@ -277,7 +329,6 @@
         window.onload = () => {
             initFirebaseSystem();
             setupUI();
-            setupPullToRefresh();
             const d = new Date();
             document.getElementById('header-current-date').textContent = `${d.getDate()} ${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][d.getMonth()]}`;
             
@@ -327,13 +378,6 @@
             document.getElementById('close-sidebar-btn').onclick = closeMenu; backdrop.onclick = closeMenu;
         }
 
-        function setupPullToRefresh() {
-            let touchStart = 0; const spinner = document.getElementById('refresh-spinner');
-            window.addEventListener('touchstart', e => { if (window.scrollY === 0) touchStart = e.touches[0].clientY; }, {passive: true});
-            window.addEventListener('touchmove', e => { const touchY = e.touches[0].clientY; if (touchStart > 0 && touchY > touchStart && window.scrollY === 0) { if (touchY - touchStart > 150) spinner.classList.add('visible'); } }, {passive: true});
-            window.addEventListener('touchend', e => { const touchY = e.changedTouches[0].clientY; if (touchStart > 0 && touchY - touchStart > 150 && window.scrollY === 0) { location.reload(); } spinner.classList.remove('visible'); touchStart = 0; });
-        }
-
         function navigateTo(viewId) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(viewId).classList.remove('hidden');
@@ -371,7 +415,6 @@
             };
         }
 
-        // --- CORE CALCULATION LOGIC MODIFIED ---
         function performCalculation(month, year, extras, holidays, overrides, lateness, configOverride) {
             const cfg = configOverride || appState.config;
             const { lastFrancoDate, initialTurn, valorHora, discountRate, tituloAmount, viaticoValue } = cfg;
@@ -390,7 +433,7 @@
 
             let q1_bruto = 0, q2_bruto = 0, q1_viaticos = 0, q2_viaticos = 0, q1_fer = 0, q2_fer = 0;
             let totalExtrasAmount = 0;
-            let presentismoHoursPool = 8; // Starting prize pool (8 hours)
+            let presentismoHoursPool = 8; 
 
             for (let i = 1; i <= daysInMonth; i++) {
                 const current = new Date(year, month - 1, i);
@@ -402,8 +445,6 @@
                 const isHol = holidays[dDisp] === true; 
                 const extReal = extras[dDisp] || 0;
                 
-                // --- LATENESS LOGIC ---
-                // 0: On Time, 1: Late > 5min (-0.5h), 2: Late > 1h (-1h)
                 const lateType = (lateness && lateness[dDisp]) ? parseInt(lateness[dDisp]) : 0;
                 if(lateType === 1) presentismoHoursPool -= 0.5;
                 if(lateType === 2) presentismoHoursPool -= 1.0;
@@ -422,13 +463,11 @@
                     }
                 }
 
-                // --- OVERTIME LOGIC: Normal 1.5x, Holiday 3.0x ---
                 const multiplier = isHol ? 3.0 : 1.5;
                 const eqAddedByExtras = extReal * multiplier; 
                 const eqTot = eqBase + eqAddedByExtras;
-                
                 const dBruto = eqTot * safeValHora; 
-                const dViat = extReal > 0 ? safeViat : 0; // Viatico applies if extras exist (simple rule from before)
+                const dViat = extReal > 0 ? safeViat : 0;
 
                 dailyResults.push({ 
                     date: dDisp, key: dKey, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], 
@@ -436,17 +475,14 @@
                     equivBase: eqBase, extraReal: extReal, totalEquiv: eqTot, bruto: dBruto, isFranco: cState === 'Franco' 
                 });
 
-                // Accumulators
                 const extrasCash = eqAddedByExtras * safeValHora;
                 totalExtrasAmount += extrasCash;
 
                 if (i <= 15) { 
-                    q1_bruto += dBruto; 
-                    q1_viaticos += dViat; 
-                    if(isHol) q1_fer += (eqBase * safeValHora); // Only base part counts as 'feriado value' for display
+                    q1_bruto += dBruto; q1_viaticos += dViat; 
+                    if(isHol) q1_fer += (eqBase * safeValHora); 
                 } else { 
-                    q2_bruto += dBruto; 
-                    q2_viaticos += dViat; 
+                    q2_bruto += dBruto; q2_viaticos += dViat; 
                     if(isHol) q2_fer += (eqBase * safeValHora);
                 }
                 startOffset = (startOffset + 1) % 24;
@@ -454,12 +490,9 @@
 
             if(presentismoHoursPool < 0) presentismoHoursPool = 0;
             const presMoney = presentismoHoursPool * safeValHora;
-
             const q1_n = q1_bruto - (q1_bruto * discountRate) + q1_viaticos;
-            // Presentismo & Title usually paid at end of month (Q2)
             const q2_n = q2_bruto - (q2_bruto * discountRate) + q2_viaticos + safeTitulo + presMoney;
 
-            // Summary objects for display
             return { 
                 dailyResults, francosList, 
                 totalEquivHours: dailyResults.reduce((a,b)=>a+b.totalEquiv,0), 
@@ -483,8 +516,6 @@
 
         function getCalculationFor(m, y, isHome = false) {
             if (isHome || (appState.viewingMonth.month === m && appState.viewingMonth.year === y)) {
-                const key = `${y}-${String(m).padStart(2,'0')}`;
-                const cached = appState.historicalCache[key];
                 return performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.config);
             }
             const key = `${y}-${String(m).padStart(2,'0')}`;
@@ -523,7 +554,7 @@
             document.getElementById('user-info-team').textContent = `Eq. ${appState.config.teamLetter}`;
             
             const now = new Date();
-            const calc = getCalculationFor(now.getMonth() + 1, now.getFullYear(), true); // TRUE forces live config
+            const calc = getCalculationFor(now.getMonth() + 1, now.getFullYear(), true);
             
             document.getElementById('home-current-month-label').textContent = now.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }).toUpperCase();
             updateProfilePictureUI(appState.config.profilePicUrl);
@@ -577,11 +608,8 @@
                     const tr = document.createElement('tr'); 
                     if(d.isFranco && !d.isHoliday) tr.className="bg-yellow-50/50"; 
                     if(d.isHoliday) tr.className="bg-red-50/50";
-                    
                     let sel = appState.activeData.shiftOverrides[d.key] || 'Original';
-                    let lateSel = d.lateType; // 0, 1, 2
-
-                    // Column Order: Date | Turn | Extras | Late | Holiday | HEq | Bruto
+                    let lateSel = d.lateType;
                     tr.innerHTML = `
                         <td class="px-4 py-3 text-gray-700 whitespace-nowrap font-medium">${d.date.split('/')[0]} <span class="text-xs text-gray-400">${d.dayName}</span></td>
                         <td class="px-4 py-3">
@@ -632,7 +660,6 @@
             });
             const {month, year} = appState.treasuryViewMonth;
             const calc = getCalculationFor(month, year);
-            
             const c = (t, a, d, dt) => `
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="p-6 border-b border-gray-50 flex justify-between items-start bg-white">
@@ -653,10 +680,20 @@
 
         function renderRanking() {
             const list = document.getElementById('ranking-list'); list.innerHTML = '';
-            const r = Object.entries(appState.historicalCache).map(([k, d]) => ({k, ...d})).sort((a, b) => b.results.netoFinal - a.results.netoFinal);
+            
+            // Fix: Recalculate on the fly to ensure accuracy with current data/logic
+            const r = Object.keys(appState.historicalCache).map(key => {
+                const [y, m] = key.split('-');
+                const cached = appState.historicalCache[key];
+                // Recalculate using stored input data
+                const freshCalc = performCalculation(parseInt(m), parseInt(y), cached.extras||{}, cached.holidayFlags||{}, cached.shiftOverrides||{}, cached.lateness||{}, cached.configSnapshot||appState.config);
+                return { key, results: freshCalc };
+            }).sort((a, b) => b.results.netoFinal - a.results.netoFinal);
+
             if (r.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 mt-8">Sin datos.</p>'; return; }
+            
             r.forEach((i, idx) => {
-                const [y, m] = i.k.split('-');
+                const [y, m] = i.key.split('-');
                 const extrasCount = i.results.totalExtrasHoursReal || 0;
                 const feriadosCount = i.results.totalFeriadosCount || 0;
                 list.innerHTML += `
@@ -673,18 +710,15 @@
 
         function updateExtra(d, v) { const val = parseFloat(v)||0; if(val>0) appState.activeData.extras[d]=val; else delete appState.activeData.extras[d]; triggerLocalRecalculate(); }
         function updateHoliday(d, c) { if(c) appState.activeData.manualHolidays[d]=true; else delete appState.activeData.manualHolidays[d]; triggerLocalRecalculate(); }
-        
-        // Changed lateness from checkbox to select value
-        function updateLateness(d, v) { 
-            const val = parseInt(v); 
-            if(val > 0) appState.activeData.lateness[d]=val; else delete appState.activeData.lateness[d]; 
-            triggerLocalRecalculate(); 
-        }
-
+        function updateLateness(d, v) { const val = parseInt(v); if(val > 0) appState.activeData.lateness[d]=val; else delete appState.activeData.lateness[d]; triggerLocalRecalculate(); }
         function updateTurnOverride(k, v) { if(v==='Original') delete appState.activeData.shiftOverrides[k]; else appState.activeData.shiftOverrides[k]=v; triggerLocalRecalculate(); }
+        
         function triggerLocalRecalculate() { const {month, year} = appState.viewingMonth; appState.activeData.calculation = performCalculation(month, year, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.config); renderDashboard(); renderHome(); }
+        
         async function switchDashboardMonth(m, y) { appState.viewingMonth = { month: m, year: y }; const key = `${y}-${String(m).padStart(2, '0')}`; const cached = appState.historicalCache[key]; if(cached) { appState.activeData = { extras: cached.extras||{}, manualHolidays: cached.holidayFlags||{}, shiftOverrides: cached.shiftOverrides||{}, lateness: cached.lateness||{} }; appState.activeData.calculation = performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, cached.configSnapshot || null); } renderDashboard(); const now = new Date(); if(m===now.getMonth()+1 && y===now.getFullYear()) renderHome(); }
+        
         async function saveCurrentData() { if(!userId) return; const { month, year } = appState.viewingMonth; const docId = `${year}-${String(month).padStart(2, '0')}`; const data = { extras: appState.activeData.extras, holidayFlags: appState.activeData.manualHolidays, shiftOverrides: appState.activeData.shiftOverrides, lateness: appState.activeData.lateness, results: appState.activeData.calculation, configSnapshot: { ...appState.config } }; appState.historicalCache[docId] = data; await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId), data); renderDashboard(); }
+        
         function formatCurrency(v) { return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(v||0); }
         function formatNumber(v) { return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2 }).format(v||0); }
         function showMessage(m, t='info') { const el = document.getElementById('status-message'); el.textContent = m; el.className = `mb-6 p-4 rounded-xl shadow-md border-l-4 transition-all-300 ${t === 'error' ? 'bg-red-100 text-red-700 border-red-500' : 'bg-indigo-100 text-indigo-700 border-indigo-500'}`; el.classList.remove('hidden'); setTimeout(() => el.classList.add('hidden'), 3000); }
@@ -703,13 +737,20 @@
                     if(u.displayName) { appState.config.userName = u.displayName; document.getElementById('user-info-name').textContent = u.displayName; }
                     loadUserData(); 
                 } else { 
+                    // FULL RESET FOR GUEST
                     userId = null; 
+                    appState = JSON.parse(JSON.stringify(DEFAULT_STATE)); // Reset state
                     document.getElementById('user-info-name').textContent = 'Invitado';
                     document.getElementById('user-info-email').textContent = 'No guardando';
                     document.getElementById('btn-sidebar-login').classList.remove('hidden');
                     document.getElementById('auth-action-btn').classList.add('hidden');
                     document.getElementById('guest-banner').classList.remove('hidden');
-                    renderHome(); // Render default guest view
+                    
+                    // Clear visual inputs
+                    fillConfigInputs();
+                    updateProfilePictureUI('');
+                    
+                    renderHome(); 
                 }
             });
         }
@@ -735,8 +776,6 @@
             document.getElementById('cfg-discountRate').value = appState.config.discountRate;
             document.getElementById('cfg-tituloAmount').value = appState.config.tituloAmount;
             document.getElementById('cfg-viaticoValue').value = appState.config.viaticoValue;
-            // Legacy presentismo input kept but functionally overridden by dynamic hours calculation
-            document.getElementById('cfg-presentismoAmount').value = appState.config.presentismoAmount;
             document.getElementById('cfg-lastFrancoDate').value = appState.config.lastFrancoDate;
             document.getElementById('cfg-initialTurn').value = appState.config.initialTurn;
         }
@@ -748,7 +787,6 @@
             doc.setTextColor(60, 60, 60); doc.setFontSize(10); let y = 55; doc.text(`Valor Hora: ${formatCurrency(appState.config.valorHora)}`, 15, y); y += 10;
             doc.autoTable({ startY: y, head: [['CONCEPTO', '1ª QUINCENA', '2ª QUINCENA', 'TOTAL MES']], body: [['Bruto', formatCurrency(calc.quincenas.q1.bruto), formatCurrency(calc.quincenas.q2.bruto), formatCurrency(calc.brutoTotal)], ['Descuentos', `-${formatCurrency(calc.quincenas.q1.desc)}`, `-${formatCurrency(calc.quincenas.q2.desc)}`, `-${formatCurrency(calc.descuentoTotal)}`], ['Viáticos', formatCurrency(calc.quincenas.q1.viaticos), formatCurrency(calc.quincenas.q2.viaticos), formatCurrency(calc.totalViaticos)], ['Extras', formatCurrency(calc.quincenas.q1.extras), formatCurrency(calc.quincenas.q2.extras), formatCurrency(calc.totalExtrasAmt)], ['NETO', formatCurrency(calc.quincenas.q1.neto), formatCurrency(calc.quincenas.q2.neto), formatCurrency(calc.netoFinal)]], theme: 'grid', headStyles: { fillColor: [220, 38, 38] } });
             doc.addPage(); 
-            // Add extra info to PDF
             const dd = calc.dailyResults.map(d => [d.date, d.turn, d.extraReal>0?d.extraReal:'-', d.lateType>0? (d.lateType===1?'>5m':'>1h') : '', d.isHoliday?'Sí':'', formatNumber(d.equivBase), formatCurrency(d.bruto)]);
             doc.autoTable({ startY: 25, head: [['FECHA', 'TURNO', 'EXTRAS', 'TARDE', 'FERIADO', 'BASE', 'BRUTO']], body: dd, theme: 'striped', headStyles: { fillColor: [220, 38, 38] } });
             doc.save(`Nomina_${ml}.pdf`);
@@ -761,7 +799,7 @@
             appState.config.discountRate = parseFloat(document.getElementById('cfg-discountRate').value);
             appState.config.tituloAmount = parseFloat(document.getElementById('cfg-tituloAmount').value);
             appState.config.viaticoValue = parseFloat(document.getElementById('cfg-viaticoValue').value);
-            appState.config.presentismoAmount = parseFloat(document.getElementById('cfg-presentismoAmount').value);
+            // Removed dependency on nonexistent presentismo input
             appState.config.lastFrancoDate = document.getElementById('cfg-lastFrancoDate').value;
             appState.config.initialTurn = document.getElementById('cfg-initialTurn').value;
             
