@@ -157,7 +157,7 @@
                     <div class="mb-6"><div id="months-chips-container" class="flex space-x-2 overflow-x-auto hide-scroll py-1"></div></div>
                     <div id="dashboard-content" class="hidden animate-fade-in space-y-6">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div class="bg-white p-4 rounded-xl border border-gray-200"><p class="text-xs text-gray-500 font-bold">HORAS EQ.</p><p class="text-xl font-bold text-red-600" id="dash-equiv-hours">0</p></div>
+                            <div class="bg-white p-4 rounded-xl border border-gray-200"><p class="text-xs text-gray-500 font-bold">HORAS EQ. TOTAL</p><p class="text-xl font-bold text-red-600" id="dash-equiv-hours">0</p></div>
                             <div class="bg-white p-4 rounded-xl border border-gray-200"><p class="text-xs text-gray-500 font-bold">VIÁTICOS</p><p class="text-xl font-bold text-orange-600" id="dash-viaticos-total">$ 0</p></div>
                             <div class="bg-white p-4 rounded-xl border border-gray-200"><p class="text-xs text-gray-500 font-bold">PRESENTISMO</p><p class="text-xl font-bold text-blue-600" id="dash-presentismo-total">$ 0</p></div>
                             <div class="bg-gray-800 p-4 rounded-xl border border-gray-700"><p class="text-xs text-gray-400 font-bold">NETO FINAL</p><p class="text-xl font-bold text-emerald-400" id="dash-neto-final">$ 0</p></div>
@@ -177,10 +177,11 @@
                                         <tr>
                                             <th class="px-4 py-3">Fecha</th>
                                             <th class="px-4 py-3">Turno</th>
-                                            <th class="px-4 py-3 text-center text-emerald-600">Extras (Reales)</th>
+                                            <th class="px-4 py-3 text-center text-emerald-600">Extras (Input)</th>
                                             <th class="px-4 py-3 text-center text-red-600">Tarde/Sanción</th>
                                             <th class="px-4 py-3 text-center">Feriado</th>
-                                            <th class="px-4 py-3 text-right">H.Eq</th>
+                                            <th class="px-4 py-3 text-right">Hs.Reales Tot</th>
+                                            <th class="px-4 py-3 text-right font-bold">Hs.Equiv Tot</th>
                                             <th class="px-4 py-3 text-right">Bruto</th>
                                         </tr>
                                     </thead>
@@ -269,7 +270,7 @@
                             <p class="text-gray-600 text-sm leading-relaxed ml-12">
                                 En la tabla de gestión puedes:
                                 <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-500">
-                                    <li>Ingresar <strong>Horas Extras Reales</strong> (el sistema calcula el 50% o 100% automáticamente).</li>
+                                    <li>Ingresar <strong>Horas Extras Reales</strong> (el sistema calcula el 50% o 100% automáticamente y lo suma al total equivalente).</li>
                                     <li>Marcar llegadas tarde para el descuento de presentismo.</li>
                                     <li>Marcar Feriados manualmente si el sistema no lo hizo.</li>
                                     <li>Cambiar turnos (si cambiaste el franco o hiciste doble turno).</li>
@@ -468,11 +469,19 @@
                 const eqTot = eqBase + eqAddedByExtras;
                 const dBruto = eqTot * safeValHora; 
                 const dViat = extReal > 0 ? safeViat : 0;
+                
+                // Assume 8h real shift unless it's a 24/28 eq Sunday which implies 12h, but stick to 8 for safety or simple sum.
+                // Request: "HORAS TOTALES REALES" = 8 + extras.
+                const realBaseHours = 8; 
+                const totalRealHours = realBaseHours + extReal;
 
                 dailyResults.push({ 
                     date: dDisp, key: dKey, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], 
                     turn: tLbl, isHoliday: isHol, lateType: lateType, 
-                    equivBase: eqBase, extraReal: extReal, totalEquiv: eqTot, bruto: dBruto, isFranco: cState === 'Franco' 
+                    equivBase: eqBase, extraReal: extReal, 
+                    totalEquiv: eqTot, // This now holds Base + (Extra * Multiplier)
+                    totalRealHours: totalRealHours, // New: 8 + Extra
+                    bruto: dBruto, isFranco: cState === 'Franco' 
                 });
 
                 const extrasCash = eqAddedByExtras * safeValHora;
@@ -637,7 +646,8 @@
                         <td class="px-4 py-3 text-center">
                             <input type="checkbox" class="w-4 h-4 text-red-600 rounded focus:ring-red-500" ${d.isHoliday?'checked':''} onchange="window.updateHoliday('${d.date}', this.checked)">
                         </td>
-                        <td class="px-4 py-3 text-right text-gray-500">${formatNumber(d.equivBase)}</td>
+                        <td class="px-4 py-3 text-right text-gray-500 font-medium">${formatNumber(d.totalRealHours)}</td>
+                        <td class="px-4 py-3 text-right font-bold text-gray-700">${formatNumber(d.totalEquiv)}</td>
                         <td class="px-4 py-3 text-right text-xs text-gray-500">${formatCurrency(d.bruto)}</td>
                     `;
                     tbody.appendChild(tr);
@@ -787,8 +797,9 @@
             doc.setTextColor(60, 60, 60); doc.setFontSize(10); let y = 55; doc.text(`Valor Hora: ${formatCurrency(appState.config.valorHora)}`, 15, y); y += 10;
             doc.autoTable({ startY: y, head: [['CONCEPTO', '1ª QUINCENA', '2ª QUINCENA', 'TOTAL MES']], body: [['Bruto', formatCurrency(calc.quincenas.q1.bruto), formatCurrency(calc.quincenas.q2.bruto), formatCurrency(calc.brutoTotal)], ['Descuentos', `-${formatCurrency(calc.quincenas.q1.desc)}`, `-${formatCurrency(calc.quincenas.q2.desc)}`, `-${formatCurrency(calc.descuentoTotal)}`], ['Viáticos', formatCurrency(calc.quincenas.q1.viaticos), formatCurrency(calc.quincenas.q2.viaticos), formatCurrency(calc.totalViaticos)], ['Extras', formatCurrency(calc.quincenas.q1.extras), formatCurrency(calc.quincenas.q2.extras), formatCurrency(calc.totalExtrasAmt)], ['NETO', formatCurrency(calc.quincenas.q1.neto), formatCurrency(calc.quincenas.q2.neto), formatCurrency(calc.netoFinal)]], theme: 'grid', headStyles: { fillColor: [220, 38, 38] } });
             doc.addPage(); 
-            const dd = calc.dailyResults.map(d => [d.date, d.turn, d.extraReal>0?d.extraReal:'-', d.lateType>0? (d.lateType===1?'>5m':'>1h') : '', d.isHoliday?'Sí':'', formatNumber(d.equivBase), formatCurrency(d.bruto)]);
-            doc.autoTable({ startY: 25, head: [['FECHA', 'TURNO', 'EXTRAS', 'TARDE', 'FERIADO', 'BASE', 'BRUTO']], body: dd, theme: 'striped', headStyles: { fillColor: [220, 38, 38] } });
+            // PDF now includes Real Total Hours and Equivalent Total Hours columns
+            const dd = calc.dailyResults.map(d => [d.date, d.turn, d.extraReal>0?d.extraReal:'-', d.lateType>0? (d.lateType===1?'>5m':'>1h') : '', d.isHoliday?'Sí':'', formatNumber(d.totalRealHours), formatNumber(d.totalEquiv), formatCurrency(d.bruto)]);
+            doc.autoTable({ startY: 25, head: [['FECHA', 'TURNO', 'EXTRAS', 'TARDE', 'FERIADO', 'HS.REAL', 'HS.EQUIV', 'BRUTO']], body: dd, theme: 'striped', headStyles: { fillColor: [220, 38, 38] } });
             doc.save(`Nomina_${ml}.pdf`);
         };
         
@@ -799,7 +810,6 @@
             appState.config.discountRate = parseFloat(document.getElementById('cfg-discountRate').value);
             appState.config.tituloAmount = parseFloat(document.getElementById('cfg-tituloAmount').value);
             appState.config.viaticoValue = parseFloat(document.getElementById('cfg-viaticoValue').value);
-            // Removed dependency on nonexistent presentismo input
             appState.config.lastFrancoDate = document.getElementById('cfg-lastFrancoDate').value;
             appState.config.initialTurn = document.getElementById('cfg-initialTurn').value;
             
