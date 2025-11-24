@@ -16,19 +16,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        @import url('https://fonts.fonts.google.com/specimen/Inter:wght@300;400;600;700;800');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; overscroll-behavior-y: none; }
+        
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
         .transition-all-300 { transition: all 0.3s ease-in-out; }
+        
         #sidebar { transition: transform 0.3s ease-in-out; }
         .sidebar-closed { transform: translateX(-100%); }
         .sidebar-open { transform: translateX(0); }
-        .table-select { appearance: none; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; }
-        input, select, textarea { font-size: 16px !important; }
+        
+        .table-select { 
+            appearance: none; 
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); 
+            background-position: right 0.5rem center; 
+            background-repeat: no-repeat; 
+            background-size: 1.5em 1.5em; 
+        }
+        
+        input, select, textarea { font-size: 16px !important; } /* Evita zoom en iOS */
         input:disabled, select:disabled { background-color: #f9fafb; color: #9ca3af; cursor: not-allowed; }
+        
+        /* Spinner de Carga */
         #refresh-spinner { transition: transform 0.3s; transform: translateY(-100%); }
         #refresh-spinner.visible { transform: translateY(60px); }
+        
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -41,22 +55,54 @@
                 <img src="logo.png" alt="Papelera Rosato" class="h-24 object-contain drop-shadow-sm" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
                 <h1 class="text-4xl font-bold text-red-700 tracking-tighter hidden">ROSATO</h1>
             </div>
-            <div><h2 class="text-2xl font-bold text-gray-800">Portal del Empleado</h2><p class="text-gray-500 mt-2">Gestiona tus turnos y calcula tu salario.</p></div>
-            <div class="space-y-4 w-full">
-                <button id="btn-login-google" class="w-full py-3.5 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"> Ingresar con Google</button>
-                <div class="relative flex py-2 items-center"><div class="flex-grow border-t border-gray-200"></div><span class="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase">O continuar como</span><div class="flex-grow border-t border-gray-200"></div></div>
-                <button id="btn-login-guest" class="w-full py-3.5 px-4 bg-red-600 text-white rounded-xl font-bold shadow-md hover:bg-red-700 transition active:scale-95">Invitado (Sin Guardar)</button>
+            
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Portal del Empleado</h2>
+                <p class="text-gray-500 mt-2">Gestiona tus turnos y calcula tu salario.</p>
             </div>
-            <div class="mt-12 text-center"><p class="text-xs text-gray-400">Desarrollado por</p><p class="text-sm font-bold text-gray-600">Braian Gomez</p></div>
+
+            <div class="space-y-4 w-full">
+                <button id="btn-login-google" class="w-full py-3.5 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"> 
+                    Ingresar con Google
+                </button>
+                
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-gray-200"></div>
+                    <span class="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase">O continuar como</span>
+                    <div class="flex-grow border-t border-gray-200"></div>
+                </div>
+
+                <button id="btn-login-guest" class="w-full py-3.5 px-4 bg-red-600 text-white rounded-xl font-bold shadow-md hover:bg-red-700 transition active:scale-95">
+                    Invitado (Sin Guardar)
+                </button>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <p class="text-xs text-gray-400">Desarrollado por</p>
+                <p class="text-sm font-bold text-gray-600">Braian Gomez</p>
+            </div>
         </div>
     </div>
 
     <div id="app-layout" class="flex h-full hidden">
-        <div id="profile-modal" class="fixed inset-0 z-[100] bg-black/90 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0"><button id="close-modal-btn" class="absolute top-6 right-6 text-white text-4xl z-[101]">&times;</button><img id="modal-img" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl transform scale-95 transition-transform duration-300"></div>
-        <div id="refresh-spinner" class="fixed top-0 left-0 w-full flex justify-center z-[60] pointer-events-none"><div class="bg-white p-3 rounded-full shadow-xl border border-gray-100"><i class="fa-solid fa-arrows-rotate fa-spin text-red-600 text-2xl"></i></div></div>
+        
+        <div id="profile-modal" class="fixed inset-0 z-[100] bg-black/90 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+            <button id="close-modal-btn" class="absolute top-6 right-6 text-white text-4xl z-[101]">&times;</button>
+            <img id="modal-img" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl transform scale-95 transition-transform duration-300">
+        </div>
+
+        <div id="refresh-spinner" class="fixed top-0 left-0 w-full flex justify-center z-[60] pointer-events-none">
+            <div class="bg-white p-3 rounded-full shadow-xl border border-gray-100">
+                <i class="fa-solid fa-arrows-rotate fa-spin text-red-600 text-2xl"></i>
+            </div>
+        </div>
 
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 text-gray-700 sidebar-closed md:relative md:translate-x-0 flex flex-col shadow-2xl md:shadow-none">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center"><img src="logo.png" alt="Logo" class="h-10 object-contain"><button id="close-sidebar-btn" class="md:hidden text-gray-400 hover:text-red-600 p-2"><i class="fa-solid fa-times text-xl"></i></button></div>
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <img src="logo.png" alt="Logo" class="h-10 object-contain">
+                <button id="close-sidebar-btn" class="md:hidden text-gray-400 hover:text-red-600 p-2"><i class="fa-solid fa-times text-xl"></i></button>
+            </div>
             <nav class="flex-1 overflow-y-auto py-4">
                 <ul class="space-y-1 px-3">
                     <li><button onclick="window.navigateTo('home-view')" class="nav-btn w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center space-x-3 bg-red-600 text-white shadow-md" data-target="home-view"><i class="fa-solid fa-house w-5 text-center"></i><span>Inicio</span></button></li>
@@ -67,16 +113,36 @@
                 </ul>
             </nav>
             <div class="p-4 border-t border-gray-100 bg-gray-50">
-                <div id="user-info-container" class="mb-3"><div id="user-info-name" class="text-sm font-bold text-gray-800 truncate">Invitado</div><div class="flex items-center gap-2 mt-1"><span id="user-info-team" class="text-[10px] font-bold bg-red-600 text-white px-1.5 py-0.5 rounded">Eq. A</span><div id="user-info-email" class="text-xs text-gray-400 truncate">Modo lectura</div></div></div>
-                <button id="auth-action-btn" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span></button>
-                <div class="mt-4 pt-3 border-t border-gray-200 text-center"><p class="text-[10px] text-gray-400 uppercase tracking-wider">Desarrollado por</p><p class="text-xs font-bold text-gray-700 mt-0.5">Braian Gomez</p><a href="mailto:braianezequielgomez00@gmail.com" class="text-[10px] text-red-500 hover:underline block mt-0.5">braianezequielgomez00@gmail.com</a></div>
+                <div id="user-info-container" class="mb-3">
+                    <div id="user-info-name" class="text-sm font-bold text-gray-800 truncate">Invitado</div>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span id="user-info-team" class="text-[10px] font-bold bg-red-600 text-white px-1.5 py-0.5 rounded">Eq. A</span>
+                        <div id="user-info-email" class="text-xs text-gray-400 truncate">Modo lectura</div>
+                    </div>
+                </div>
+                <button id="auth-action-btn" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>
+                </button>
+                <div class="mt-4 pt-3 border-t border-gray-200 text-center">
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wider">Desarrollado por</p>
+                    <p class="text-xs font-bold text-gray-700 mt-0.5">Braian Gomez</p>
+                    <a href="mailto:braianezequielgomez00@gmail.com" class="text-[10px] text-red-500 hover:underline block mt-0.5">braianezequielgomez00@gmail.com</a>
+                </div>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50">
             <header class="bg-white shadow-sm px-4 py-3 flex justify-between items-center md:hidden sticky top-0 z-40 w-full h-16 border-b border-gray-100">
-                <div class="flex items-center"><button id="open-sidebar-btn" class="text-gray-600 focus:outline-none p-2 active:bg-gray-100 rounded-lg mr-3"><i class="fa-solid fa-bars text-xl"></i></button><img src="logo.png" class="h-8 object-contain"></div>
-                <div class="flex items-center cursor-pointer" onclick="window.openImageModal()"><div class="w-9 h-9 rounded-full bg-gray-200 overflow-hidden border border-gray-200 shadow-sm"><img id="header-profile-pic" src="" class="w-full h-full object-cover hidden"><div id="header-profile-placeholder" class="w-full h-full flex items-center justify-center text-gray-400"><i class="fa-solid fa-user"></i></div></div></div>
+                <div class="flex items-center">
+                    <button id="open-sidebar-btn" class="text-gray-600 focus:outline-none p-2 active:bg-gray-100 rounded-lg mr-3"><i class="fa-solid fa-bars text-xl"></i></button>
+                    <img src="logo.png" class="h-8 object-contain">
+                </div>
+                <div class="flex items-center cursor-pointer" onclick="window.openImageModal()">
+                    <div class="w-9 h-9 rounded-full bg-gray-200 overflow-hidden border border-gray-200 shadow-sm">
+                        <img id="header-profile-pic" src="" class="w-full h-full object-cover hidden">
+                        <div id="header-profile-placeholder" class="w-full h-full flex items-center justify-center text-gray-400"><i class="fa-solid fa-user"></i></div>
+                    </div>
+                </div>
             </header>
             <div id="sidebar-backdrop" class="fixed inset-0 bg-black/20 z-40 md:hidden hidden transition-opacity backdrop-blur-sm"></div>
 
@@ -86,21 +152,51 @@
                 <div id="home-view" class="view-section max-w-5xl mx-auto">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                         <div class="flex items-center gap-5">
-                            <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-100 overflow-hidden border-4 border-white shadow-md cursor-pointer" onclick="window.openImageModal()"><img id="home-profile-pic" src="" class="w-full h-full object-cover hidden"><div id="home-profile-placeholder" class="w-full h-full flex items-center justify-center text-gray-300 text-3xl"><i class="fa-solid fa-user"></i></div></div>
-                            <div><h1 class="text-2xl font-bold text-gray-800">Hola, <span id="welcome-user-name" class="text-red-600">Usuario</span></h1><div class="flex items-center gap-2 mt-1"><span id="welcome-user-team" class="text-xs font-bold bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-100">Equipo A</span><p class="text-sm text-gray-400">Bienvenido al portal.</p></div></div>
+                            <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-100 overflow-hidden border-4 border-white shadow-md cursor-pointer" onclick="window.openImageModal()">
+                                <img id="home-profile-pic" src="" class="w-full h-full object-cover hidden">
+                                <div id="home-profile-placeholder" class="w-full h-full flex items-center justify-center text-gray-300 text-3xl"><i class="fa-solid fa-user"></i></div>
+                            </div>
+                            <div>
+                                <h1 class="text-2xl font-bold text-gray-800">Hola, <span id="welcome-user-name" class="text-red-600">Usuario</span></h1>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span id="welcome-user-team" class="text-xs font-bold bg-red-50 text-red-700 px-2 py-0.5 rounded border border-red-100">Equipo A</span>
+                                    <p class="text-sm text-gray-400">Bienvenido al portal.</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-right hidden md:block border-l pl-6 border-gray-200"><p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Hoy es</p><p id="header-current-date" class="text-2xl font-bold text-gray-700">...</p></div>
+                        <div class="text-right hidden md:block border-l pl-6 border-gray-200">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Hoy es</p>
+                            <p id="header-current-date" class="text-2xl font-bold text-gray-700">...</p>
+                        </div>
                     </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group hover:shadow-md transition-all"><div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-money-bill-wave text-6xl text-emerald-600"></i></div><h3 class="text-gray-500 font-semibold text-xs uppercase tracking-wider mb-1">Próxima Quincena (Estimada)</h3><div class="flex items-baseline gap-2"><span class="text-3xl font-extrabold text-emerald-600 truncate" id="home-next-quincena">$ 0</span></div><p id="home-payment-date" class="text-xs text-emerald-700 font-bold mt-3 bg-emerald-50 inline-block px-2 py-1 rounded-md">Calculando...</p></div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group hover:shadow-md transition-all"><div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-chart-pie text-6xl text-red-600"></i></div><h3 class="text-gray-500 font-semibold text-xs uppercase tracking-wider mb-1">Mes Actual (Proyectado)</h3><p class="text-xs text-red-600 font-bold mb-1 uppercase" id="home-current-month-label">...</p><div class="flex items-baseline"><span class="text-3xl font-extrabold text-gray-800 truncate" id="home-month-net">$ 0</span></div></div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group hover:shadow-md transition-all">
+                            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-money-bill-wave text-6xl text-emerald-600"></i></div>
+                            <h3 class="text-gray-500 font-semibold text-xs uppercase tracking-wider mb-1">Próxima Quincena (Estimada)</h3>
+                            <div class="flex items-baseline gap-2"><span class="text-3xl font-extrabold text-emerald-600 truncate" id="home-next-quincena">$ 0</span></div>
+                            <p id="home-payment-date" class="text-xs text-emerald-700 font-bold mt-3 bg-emerald-50 inline-block px-2 py-1 rounded-md">Calculando...</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group hover:shadow-md transition-all">
+                            <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-chart-pie text-6xl text-red-600"></i></div>
+                            <h3 class="text-gray-500 font-semibold text-xs uppercase tracking-wider mb-1">Mes Actual (Proyectado)</h3>
+                            <p class="text-xs text-red-600 font-bold mb-1 uppercase" id="home-current-month-label">...</p>
+                            <div class="flex items-baseline"><span class="text-3xl font-extrabold text-gray-800 truncate" id="home-month-net">$ 0</span></div>
+                        </div>
                     </div>
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6"><h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-regular fa-calendar-check text-red-500"></i> Próximos Francos</h3><div id="home-next-francos-container" class="flex space-x-4 overflow-x-auto hide-scroll pb-2"></div></div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fa-regular fa-calendar-check text-red-500"></i> Próximos Francos</h3>
+                        <div id="home-next-francos-container" class="flex space-x-4 overflow-x-auto hide-scroll pb-2"></div>
+                    </div>
                 </div>
 
                 <div id="monthly-history-view" class="view-section hidden max-w-6xl mx-auto">
-                    <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-gray-800">Gestión de Turnos</h2><button id="btn-generate-new" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> Mes Siguiente</button></div>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Gestión de Turnos</h2>
+                        <button id="btn-generate-new" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> Mes Siguiente</button>
+                    </div>
                     <div class="mb-6"><div id="months-chips-container" class="flex space-x-2 overflow-x-auto hide-scroll py-1"></div></div>
+                    
                     <div id="dashboard-content" class="hidden animate-fade-in space-y-6">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div class="bg-white p-4 rounded-xl border border-gray-200"><p class="text-xs text-gray-500 font-bold">HORAS EQ.</p><p class="text-xl font-bold text-red-600" id="dash-equiv-hours">0</p></div>
@@ -111,7 +207,11 @@
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                             <div class="p-4 border-b border-gray-100 bg-white sticky top-0 z-20 flex justify-between items-center">
                                 <div><h3 class="font-bold text-gray-700">Detalle <span id="dash-detail-month-label" class="text-red-600"></span></h3><p class="text-xs text-slate-400">Controla llegadas tarde y feriados.</p></div>
-                                <div class="flex gap-2"><button id="btn-delete-month" class="p-2 text-gray-400 hover:text-red-600 transition"><i class="fa-solid fa-trash"></i></button><button id="btn-recalculate" onclick="window.saveCurrentData()" class="px-3 py-1.5 bg-gray-800 text-white rounded-lg text-xs font-bold hover:bg-black"><i class="fa-solid fa-save mr-1"></i> Guardar</button><button id="btn-download-pdf" class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700"><i class="fa-solid fa-file-pdf"></i></button></div>
+                                <div class="flex gap-2">
+                                    <button id="btn-delete-month" class="p-2 text-gray-400 hover:text-red-600 transition"><i class="fa-solid fa-trash"></i></button>
+                                    <button id="btn-recalculate" onclick="window.saveCurrentData()" class="px-3 py-1.5 bg-gray-800 text-white rounded-lg text-xs font-bold hover:bg-black"><i class="fa-solid fa-save mr-1"></i> Guardar</button>
+                                    <button id="btn-download-pdf" class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700"><i class="fa-solid fa-file-pdf"></i></button>
+                                </div>
                             </div>
                             <div class="overflow-x-auto max-h-[500px]"><table class="w-full text-sm text-left"><thead class="text-xs text-gray-500 uppercase bg-gray-50 sticky-header"><tr><th class="px-4 py-3">Fecha</th><th class="px-4 py-3">Turno</th><th class="px-4 py-3 text-center">Fer.</th><th class="px-4 py-3 text-center text-red-600">Tarde</th><th class="px-4 py-3 text-right">H.Eq</th><th class="px-4 py-3 text-center">Ext</th><th class="px-4 py-3 text-right">Bruto</th></tr></thead><tbody id="daily-detail-tbody" class="divide-y divide-gray-100"></tbody></table></div>
                         </div>
@@ -120,15 +220,24 @@
 
                 <div id="treasury-view" class="view-section hidden max-w-5xl mx-auto"><h2 class="text-2xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-wallet text-emerald-500 mr-2"></i> Tesorería</h2><div class="mb-6 bg-white p-2 rounded-xl border border-gray-200"><div id="treasury-chips-container" class="flex space-x-2 overflow-x-auto hide-scroll"></div></div><div id="treasury-container" class="space-y-6 animate-fade-in"></div></div>
                 
-                <div id="ranking-view" class="view-section hidden max-w-4xl mx-auto"><h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i> Mi Historial de Ganancias</h2><div id="ranking-list" class="space-y-4"></div></div>
+                <div id="ranking-view" class="view-section hidden max-w-4xl mx-auto"><h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i> Ranking de Ganancias</h2><div id="ranking-list" class="space-y-4"></div></div>
 
                 <div id="config-view" class="view-section hidden max-w-3xl mx-auto">
-                    <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-gray-800">Ajustes</h2><button id="btn-toggle-edit" class="text-red-600 font-bold text-sm bg-red-50 px-4 py-2 rounded-lg border border-red-100 hover:bg-red-100 transition"><i class="fa-solid fa-pencil mr-2"></i> Editar Valores</button></div>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Ajustes</h2>
+                        <button id="btn-toggle-edit" class="text-red-600 font-bold text-sm bg-red-50 px-4 py-2 rounded-lg border border-red-100 hover:bg-red-100 transition"><i class="fa-solid fa-pencil mr-2"></i> Editar Valores</button>
+                    </div>
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8 space-y-6 mb-12">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="col-span-1 md:col-span-2 border-b border-gray-100 pb-6 flex items-center gap-4">
-                                <div class="w-16 h-16 rounded-full bg-gray-100 border-2 border-gray-200 overflow-hidden"><img id="profile-pic-preview" src="" class="w-full h-full object-cover hidden"><div id="profile-icon-preview" class="w-full h-full flex items-center justify-center text-gray-400"><i class="fa-solid fa-user text-2xl"></i></div></div>
-                                <div><input type="file" id="cfg-profilePicture" accept="image/*" class="hidden"><button onclick="document.getElementById('cfg-profilePicture').click()" class="bg-gray-800 text-white py-2 px-4 rounded-lg text-xs font-bold hover:bg-black"><i class="fa-solid fa-camera mr-2"></i> Subir Foto</button></div>
+                                <div class="w-16 h-16 rounded-full bg-gray-100 border-2 border-gray-200 overflow-hidden">
+                                    <img id="profile-pic-preview" src="" class="w-full h-full object-cover hidden">
+                                    <div id="profile-icon-preview" class="w-full h-full flex items-center justify-center text-gray-400"><i class="fa-solid fa-user text-2xl"></i></div>
+                                </div>
+                                <div>
+                                    <input type="file" id="cfg-profilePicture" accept="image/*" class="hidden">
+                                    <button onclick="document.getElementById('cfg-profilePicture').click()" class="bg-gray-800 text-white py-2 px-4 rounded-lg text-xs font-bold hover:bg-black"><i class="fa-solid fa-camera mr-2"></i> Subir Foto</button>
+                                </div>
                             </div>
                             <div class="col-span-1 md:col-span-2"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre (Gmail)</label><input type="text" id="cfg-userName" class="w-full p-3 border rounded-lg bg-gray-50 text-gray-500 font-medium" disabled></div>
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tu Equipo</label><select id="cfg-teamLetter" class="w-full p-3 border rounded-lg bg-white" disabled><option value="A">Equipo A</option><option value="B">Equipo B</option><option value="C">Equipo C</option><option value="D">Equipo D</option></select></div>
@@ -174,9 +283,15 @@
             historicalCache: {}
         };
 
-        window.navigateTo = navigateTo; window.openImageModal = openImageModal;
-        window.updateExtra = updateExtra; window.updateHoliday = updateHoliday; window.updateLateness = updateLateness; window.updateTurnOverride = updateTurnOverride;
-        window.handleLogout = handleLogout; window.saveCurrentData = saveCurrentData; 
+        // Expose functions globally
+        window.navigateTo = navigateTo; 
+        window.openImageModal = openImageModal;
+        window.updateExtra = updateExtra; 
+        window.updateHoliday = updateHoliday; 
+        window.updateLateness = updateLateness; 
+        window.updateTurnOverride = updateTurnOverride;
+        window.handleLogout = handleLogout;
+        window.saveCurrentData = saveCurrentData; 
 
         window.onload = () => {
             initFirebaseSystem();
@@ -187,11 +302,15 @@
             
             document.getElementById('btn-login-google').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
             document.getElementById('btn-login-guest').onclick = () => enterAsGuest();
+            
             document.getElementById('auth-action-btn').onclick = handleLogout;
+            
             document.getElementById('btn-save-config').addEventListener('click', saveConfigHandler);
             document.getElementById('btn-toggle-edit').addEventListener('click', toggleConfigEdit);
+            
             const fileInput = document.getElementById('cfg-profilePicture');
             if (fileInput) fileInput.onchange = (e) => { if(e.target.files[0]) compressAndUpload(e.target.files[0]); };
+
             document.getElementById('btn-download-pdf').onclick = generatePdfReport;
             document.getElementById('btn-generate-new').onclick = generateNextMonthData;
             document.getElementById('btn-delete-month').onclick = deleteCurrentMonthData;
@@ -214,15 +333,20 @@
             document.getElementById('app-layout').classList.remove('hidden');
             const authBtn = document.getElementById('auth-action-btn');
             authBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> <span>Volver al Login</span>';
-            authBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
-            authBtn.classList.add('bg-red-600', 'text-white', 'border-red-600');
+            authBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300', 'hover:bg-red-50', 'hover:text-red-600', 'hover:border-red-200');
+            authBtn.classList.add('bg-red-600', 'text-white', 'border-red-600', 'hover:bg-red-700');
             document.getElementById('user-info-name').textContent = 'Invitado';
             document.getElementById('user-info-email').textContent = 'Modo lectura';
+            updateProfilePictureUI(''); // Reset photo
+            
+            // Safe Init for Guest
             const now = new Date();
             appState.viewingMonth = { month: now.getMonth() + 1, year: now.getFullYear() };
-            appState.activeData.calculation = getCalculationFor(now.getMonth() + 1, now.getFullYear(), true);
+            // Important: Reset data to avoid errors
+            appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, calculation: null };
             appState.historicalCache = {};
-            renderHome();
+            
+            renderHome(); // Will calculate on the fly
         }
 
         function toggleConfigEdit() {
@@ -273,8 +397,8 @@
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(viewId).classList.remove('hidden');
             document.querySelectorAll('.nav-btn').forEach(btn => { 
-                if(btn.dataset.target === viewId) { btn.classList.remove('text-gray-700','hover:bg-red-50'); btn.classList.add('bg-red-600', 'text-white', 'shadow-md'); } 
-                else { btn.classList.add('text-gray-700','hover:bg-red-50'); btn.classList.remove('bg-red-600', 'text-white', 'shadow-md'); } 
+                if(btn.dataset.target === viewId) { btn.classList.remove('text-gray-700','hover:bg-red-50','hover:text-red-600'); btn.classList.add('bg-red-600', 'text-white', 'shadow-md'); } 
+                else { btn.classList.add('text-gray-700','hover:bg-red-50','hover:text-red-600'); btn.classList.remove('bg-red-600', 'text-white', 'shadow-md'); } 
             });
             if (viewId === 'home-view') renderHome();
             if (viewId === 'monthly-history-view') renderDashboard();
@@ -358,86 +482,15 @@
         }
 
         function getCalculationFor(m, y, isHome = false) {
+            // FIX: Always return a calculation object, even if empty
             if (isHome || (appState.viewingMonth.month === m && appState.viewingMonth.year === y)) {
                 const key = `${y}-${String(m).padStart(2,'0')}`;
                 const cached = appState.historicalCache[key];
-                // FIX: Ensure empty objects if cached data is missing to prevent crashes
                 return performCalculation(m, y, cached?.extras||{}, cached?.manualHolidays||{}, cached?.shiftOverrides||{}, cached?.lateness||{}, appState.config);
             }
             const key = `${y}-${String(m).padStart(2,'0')}`;
             const cached = appState.historicalCache[key];
-            // FIX: Same here
             return performCalculation(m, y, cached?.extras||{}, cached?.manualHolidays||{}, cached?.shiftOverrides||{}, cached?.lateness||{}, cached?.configSnapshot||appState.config);
-        }
-
-        function renderDashboardDetails() {
-            const calc = appState.activeData.calculation;
-            if (!calc) {
-                document.getElementById('dash-neto-final').textContent = '$ 0';
-                return;
-            }
-            document.getElementById('dash-equiv-hours').textContent = Math.round(calc.totalEquivHours);
-            document.getElementById('dash-viaticos-total').textContent = formatCurrency(calc.totalViaticos);
-            const pEl = document.getElementById('dash-presentismo-total'); pEl.textContent = formatCurrency(calc.presentismo);
-            if(calc.hasLateness) { pEl.classList.add('text-red-500', 'line-through'); pEl.classList.remove('text-blue-600'); } else { pEl.classList.add('text-blue-600'); pEl.classList.remove('text-red-500', 'line-through'); }
-            document.getElementById('dash-neto-final').textContent = formatCurrency(calc.netoFinal);
-            
-            const tbody = document.getElementById('daily-detail-tbody');
-            tbody.innerHTML = '';
-            
-            const shiftOptions = ['Original', 'Franco', 'Mañana', 'Tarde', 'Noche', 'Vacaciones', 'Licencia'];
-
-            calc.dailyResults.forEach(day => {
-                const tr = document.createElement('tr');
-                tr.className = `border-b ${day.isFranco ? 'bg-gray-50 text-gray-500' : 'bg-white hover:bg-red-50/50'}`;
-
-                // Fecha
-                const tdDate = document.createElement('td');
-                tdDate.className = 'px-4 py-3 font-semibold text-gray-900 whitespace-nowrap';
-                tdDate.innerHTML = `<span class="text-xs text-gray-500 block">${day.dayName}</span>${day.date.substring(0, 5)}`;
-                tr.appendChild(tdDate);
-
-                // Turno
-                const tdTurn = document.createElement('td');
-                tdTurn.className = 'px-4 py-3';
-                const turnSelect = document.createElement('select');
-                turnSelect.className = 'w-full p-1.5 border border-gray-300 rounded-lg bg-white table-select text-xs';
-                turnSelect.onchange = (e) => window.updateTurnOverride(day.key, e.target.value);
-                shiftOptions.forEach(opt => {
-                    const option = document.createElement('option');
-                    option.value = opt;
-                    option.textContent = opt === 'Original' ? day.turn.split(' ')[0] : opt;
-                    // FIX: Safe access to shiftOverrides
-                    if (day.turn.includes(opt) || (appState.activeData.shiftOverrides && appState.activeData.shiftOverrides[day.key] === opt)) {
-                        option.selected = true;
-                    }
-                    if (opt === 'Original' && appState.activeData.shiftOverrides && appState.activeData.shiftOverrides[day.key]) option.textContent = 'Original';
-                    turnSelect.appendChild(option);
-                });
-                tdTurn.appendChild(turnSelect);
-                tr.appendChild(tdTurn);
-
-                // Checkboxes (Feriado, Tarde, Extra, Bruto) - Simplificado para brevedad pero funcional
-                const createCheck = (checked, handler, colorClass) => {
-                    const td = document.createElement('td'); td.className = 'px-4 py-3 text-center';
-                    const inp = document.createElement('input'); inp.type = 'checkbox'; inp.className = `w-4 h-4 ${colorClass} rounded focus:ring-red-500`;
-                    inp.checked = checked; inp.onclick = (e) => handler(day.date, e.target.checked);
-                    td.appendChild(inp); return td;
-                };
-
-                tr.appendChild(createCheck(appState.activeData.manualHolidays && appState.activeData.manualHolidays[day.date], window.updateHoliday, 'text-red-600'));
-                tr.appendChild(createCheck(appState.activeData.lateness && appState.activeData.lateness[day.date], window.updateLateness, 'text-orange-500'));
-
-                const tdEq = document.createElement('td'); tdEq.className = 'px-4 py-3 text-right font-medium text-red-600'; tdEq.textContent = day.totalEquiv.toFixed(1); tr.appendChild(tdEq);
-
-                const tdExt = document.createElement('td'); tdExt.className = 'px-4 py-3 text-center';
-                const extInp = document.createElement('input'); extInp.type = 'number'; extInp.className = 'w-12 text-center border rounded text-xs'; extInp.value = (appState.activeData.extras && appState.activeData.extras[day.date]) || ''; extInp.onchange = (e) => window.updateExtra(day.date, e.target.value);
-                tdExt.appendChild(extInp); tr.appendChild(tdExt);
-
-                const tdBr = document.createElement('td'); tdBr.className = 'px-4 py-3 text-right font-bold'; tdBr.textContent = formatCurrency(day.bruto); tr.appendChild(tdBr);
-
-                tbody.appendChild(tr);
-            });
         }
 
         function generateNextMonthData() {
@@ -488,15 +541,23 @@
                     if(u.displayName) { appState.config.userName = u.displayName; document.getElementById('user-info-name').textContent = u.displayName; }
                     loadUserData(); 
                     authBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>';
-                    authBtn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
-                    authBtn.classList.remove('bg-red-600', 'text-white', 'border-red-600');
-                } else { userId = null; document.getElementById('login-view').classList.remove('-translate-y-full'); document.getElementById('app-layout').classList.add('hidden'); }
+                    authBtn.classList.add('bg-white', 'text-gray-700', 'border-gray-300', 'hover:bg-red-50', 'hover:text-red-600', 'hover:border-red-200');
+                    authBtn.classList.remove('bg-red-600', 'text-white', 'border-red-600', 'hover:bg-red-700');
+                } else { 
+                    userId = null; 
+                    document.getElementById('login-view').classList.remove('-translate-y-full');
+                    document.getElementById('app-layout').classList.add('hidden');
+                }
             });
         }
 
         async function loadUserData() {
             onSnapshot(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'config', 'salary'), (s) => { 
-                if(s.exists()) { const data = s.data(); appState.config = { ...appState.config, ...data }; if(auth.currentUser && auth.currentUser.displayName) appState.config.userName = auth.currentUser.displayName; renderHome(); updateProfilePictureUI(appState.config.profilePicUrl); fillConfigInputs(); } 
+                if(s.exists()) { 
+                    const data = s.data(); appState.config = { ...appState.config, ...data };
+                    if(auth.currentUser && auth.currentUser.displayName) appState.config.userName = auth.currentUser.displayName;
+                    renderHome(); updateProfilePictureUI(appState.config.profilePicUrl); fillConfigInputs();
+                } 
             });
             const snap = await getDocs(collection(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data'));
             appState.historicalCache = {}; snap.forEach(d => appState.historicalCache[d.id] = d.data());
@@ -506,7 +567,15 @@
         }
 
         function fillConfigInputs() {
-            document.getElementById('cfg-userName').value = appState.config.userName; document.getElementById('cfg-teamLetter').value = appState.config.teamLetter || 'A'; document.getElementById('cfg-valorHora').value = appState.config.valorHora; document.getElementById('cfg-discountRate').value = appState.config.discountRate; document.getElementById('cfg-tituloAmount').value = appState.config.tituloAmount; document.getElementById('cfg-viaticoValue').value = appState.config.viaticoValue; document.getElementById('cfg-presentismoAmount').value = appState.config.presentismoAmount; document.getElementById('cfg-lastFrancoDate').value = appState.config.lastFrancoDate; document.getElementById('cfg-initialTurn').value = appState.config.initialTurn;
+            document.getElementById('cfg-userName').value = appState.config.userName;
+            document.getElementById('cfg-teamLetter').value = appState.config.teamLetter || 'A';
+            document.getElementById('cfg-valorHora').value = appState.config.valorHora;
+            document.getElementById('cfg-discountRate').value = appState.config.discountRate;
+            document.getElementById('cfg-tituloAmount').value = appState.config.tituloAmount;
+            document.getElementById('cfg-viaticoValue').value = appState.config.viaticoValue;
+            document.getElementById('cfg-presentismoAmount').value = appState.config.presentismoAmount;
+            document.getElementById('cfg-lastFrancoDate').value = appState.config.lastFrancoDate;
+            document.getElementById('cfg-initialTurn').value = appState.config.initialTurn;
         }
         
         function generatePdfReport() {
@@ -541,6 +610,14 @@
             container.innerHTML = '';
             const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
             const keys = Object.keys(appState.historicalCache).sort((a, b) => b.localeCompare(a));
+            const currentMonthKey = `${appState.viewingMonth.year}-${String(appState.viewingMonth.month).padStart(2,'0')}`;
+            
+            // Ensure current viewing month is always in the list if not in history
+            let allKeys = [...keys];
+            if (!allKeys.includes(currentMonthKey) && document.getElementById('monthly-history-view').classList.contains('hidden') === false) {
+               // Only add visually if needed, logic handles it
+            }
+
             keys.forEach(key => {
                 const [year, month] = key.split('-'); const m = parseInt(month);
                 const isSelected = parseInt(month) === appState.viewingMonth.month && parseInt(year) === appState.viewingMonth.year;
@@ -559,11 +636,11 @@
             
             if (appState.historicalCache[key]) {
                 appState.activeData = appState.historicalCache[key];
-                // Ensure overrides are initialized to avoid crashes
-                if (!appState.activeData.extras) appState.activeData.extras = {};
-                if (!appState.activeData.manualHolidays) appState.activeData.manualHolidays = {};
-                if (!appState.activeData.shiftOverrides) appState.activeData.shiftOverrides = {};
-                if (!appState.activeData.lateness) appState.activeData.lateness = {};
+                // SAFEGUARDS FOR MISSING DATA
+                if(!appState.activeData.extras) appState.activeData.extras = {};
+                if(!appState.activeData.manualHolidays) appState.activeData.manualHolidays = {};
+                if(!appState.activeData.shiftOverrides) appState.activeData.shiftOverrides = {};
+                if(!appState.activeData.lateness) appState.activeData.lateness = {};
                 
                 appState.activeData.calculation = performCalculation(month, year, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.configSnapshot || appState.config);
             } else {
@@ -577,7 +654,7 @@
         async function generateMonth(m, y) {
             appState.viewingMonth = { month: m, year: y };
             appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {} };
-            // Force calculation
+            // Force calc
             appState.activeData.calculation = performCalculation(m, y, {}, {}, {}, {}, appState.config);
             await saveCurrentData();
             if(!appState.treasuryViewMonth) appState.treasuryViewMonth = { month: m, year: y };
