@@ -35,26 +35,7 @@
 </head>
 <body class="text-slate-800 bg-gray-50 h-[100dvh] overflow-hidden">
 
-    <div id="login-view" class="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6 transition-transform duration-500">
-        <div class="w-full max-w-sm text-center space-y-8 fade-in">
-            <div class="flex justify-center">
-                <img src="logo.png" alt="Papelera Rosato" class="h-24 object-contain drop-shadow-sm" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-                <h1 class="text-4xl font-bold text-red-700 tracking-tighter hidden">ROSATO</h1>
-            </div>
-            <div><h2 class="text-2xl font-bold text-gray-800">Portal del Empleado</h2><p class="text-gray-500 mt-2">Gestiona tus turnos y calcula tu salario.</p></div>
-            <div class="space-y-4 w-full">
-                <button id="btn-login-google" class="w-full py-3.5 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition flex items-center justify-center gap-3"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"> Ingresar con Google</button>
-                <div class="relative flex py-2 items-center"><div class="flex-grow border-t border-gray-200"></div><span class="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase">O continuar como</span><div class="flex-grow border-t border-gray-200"></div></div>
-                <button id="btn-login-guest" class="w-full py-3.5 px-4 bg-red-600 text-white rounded-xl font-bold shadow-md hover:bg-red-700 transition active:scale-95">Invitado (Sin Guardar)</button>
-            </div>
-            <div class="mt-12 text-center">
-                <p class="text-xs text-gray-400">Desarrollado por</p>
-                <p class="text-sm font-bold text-gray-600">Braian Gomez</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="app-layout" class="flex h-full hidden">
+    <div id="app-layout" class="flex h-full">
         <div id="profile-modal" class="fixed inset-0 z-[100] bg-black/90 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
             <button id="close-modal-btn" class="absolute top-6 right-6 text-white text-4xl z-[101]">&times;</button>
             <img id="modal-img" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl transform scale-95 transition-transform duration-300">
@@ -66,7 +47,10 @@
 
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 text-gray-700 sidebar-closed md:relative md:translate-x-0 flex flex-col shadow-2xl md:shadow-none">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                <img src="logo.png" alt="Logo" class="h-10 object-contain">
+                <div class="flex items-center gap-2">
+                    <img src="logo.png" alt="Logo" class="h-8 object-contain" onerror="this.style.display='none'">
+                    <span class="font-bold text-red-700 tracking-tight text-xl">ROSATO</span>
+                </div>
                 <button id="close-sidebar-btn" class="md:hidden text-gray-400 hover:text-red-600 p-2"><i class="fa-solid fa-times text-xl"></i></button>
             </div>
             <nav class="flex-1 overflow-y-auto py-4">
@@ -83,15 +67,20 @@
                     <div id="user-info-name" class="text-sm font-bold text-gray-800 truncate">Invitado</div>
                     <div class="flex items-center gap-2 mt-1">
                         <span id="user-info-team" class="text-[10px] font-bold bg-red-600 text-white px-1.5 py-0.5 rounded">Eq. A</span>
-                        <div id="user-info-email" class="text-xs text-gray-400 truncate">Modo lectura</div>
+                        <div id="user-info-email" class="text-xs text-gray-400 truncate">No guardando</div>
                     </div>
                 </div>
-                <button id="auth-action-btn" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span></button>
+                
+                <button id="btn-sidebar-login" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2 mb-2">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-4 h-4"> <span>Iniciar Sesión</span>
+                </button>
+                <button id="auth-action-btn" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2 hidden">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>
+                </button>
                 
                 <div class="mt-4 pt-3 border-t border-gray-200 text-center">
                     <p class="text-[10px] text-gray-400 uppercase tracking-wider">Desarrollado por</p>
                     <p class="text-xs font-bold text-gray-700 mt-0.5">Braian Gomez</p>
-                    <a href="mailto:braianezequielgomez00@gmail.com" class="text-[10px] text-red-500 hover:underline block mt-0.5">braianezequielgomez00@gmail.com</a>
                 </div>
             </div>
         </aside>
@@ -100,7 +89,7 @@
             <header class="bg-white shadow-sm px-4 py-3 flex justify-between items-center md:hidden sticky top-0 z-40 w-full h-16 border-b border-gray-100">
                 <div class="flex items-center">
                     <button id="open-sidebar-btn" class="text-gray-600 focus:outline-none p-2 active:bg-gray-100 rounded-lg mr-3"><i class="fa-solid fa-bars text-xl"></i></button>
-                    <img src="logo.png" class="h-8 object-contain">
+                    <span class="font-bold text-red-700 tracking-tighter text-lg">ROSATO</span>
                 </div>
                 <div class="flex items-center cursor-pointer" onclick="window.openImageModal()">
                     <div class="w-9 h-9 rounded-full bg-gray-200 overflow-hidden border border-gray-200 shadow-sm">
@@ -113,6 +102,14 @@
 
             <div id="view-container" class="flex-1 overflow-y-auto p-4 md:p-8 relative pb-32 scroll-smooth">
                 <div id="status-message" class="hidden mb-6 p-4 rounded-xl shadow-sm border-l-4 transition-all-300 bg-white"></div>
+                
+                <div id="guest-banner" class="hidden mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-xl shadow-sm flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-yellow-700 text-sm">Modo Invitado</p>
+                        <p class="text-xs text-yellow-600">Tus cálculos no se guardarán si cierras la app.</p>
+                    </div>
+                    <button onclick="document.getElementById('btn-sidebar-login').click()" class="text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-2 rounded-lg font-bold transition">Conectar</button>
+                </div>
 
                 <div id="home-view" class="view-section max-w-5xl mx-auto">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -177,13 +174,36 @@
                                     <button id="btn-download-pdf" class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700"><i class="fa-solid fa-file-pdf"></i></button>
                                 </div>
                             </div>
-                            <div class="overflow-x-auto max-h-[500px]"><table class="w-full text-sm text-left"><thead class="text-xs text-gray-500 uppercase bg-gray-50 sticky-header"><tr><th class="px-4 py-3">Fecha</th><th class="px-4 py-3">Turno</th><th class="px-4 py-3 text-center">Fer.</th><th class="px-4 py-3 text-center text-red-600">Tarde</th><th class="px-4 py-3 text-right">H.Eq</th><th class="px-4 py-3 text-center">Ext</th><th class="px-4 py-3 text-right">Bruto</th></tr></thead><tbody id="daily-detail-tbody" class="divide-y divide-gray-100"></tbody></table></div>
+                            <div class="overflow-x-auto max-h-[500px]">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="text-xs text-gray-500 uppercase bg-gray-50 sticky-header">
+                                        <tr>
+                                            <th class="px-4 py-3">Fecha</th>
+                                            <th class="px-4 py-3">Turno</th>
+                                            <th class="px-4 py-3 text-center text-emerald-600">Extras (Reales)</th>
+                                            <th class="px-4 py-3 text-center text-red-600">Tarde/Sanción</th>
+                                            <th class="px-4 py-3 text-center">Feriado</th>
+                                            <th class="px-4 py-3 text-right">H.Eq</th>
+                                            <th class="px-4 py-3 text-right">Bruto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="daily-detail-tbody" class="divide-y divide-gray-100"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="treasury-view" class="view-section hidden max-w-5xl mx-auto"><h2 class="text-2xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-wallet text-emerald-500 mr-2"></i> Tesorería</h2><div class="mb-6 bg-white p-2 rounded-xl border border-gray-200"><div id="treasury-chips-container" class="flex space-x-2 overflow-x-auto hide-scroll"></div></div><div id="treasury-container" class="space-y-6 animate-fade-in"></div></div>
-                <div id="ranking-view" class="view-section hidden max-w-4xl mx-auto"><h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i> Ranking</h2><div id="ranking-list" class="space-y-4"></div></div>
+                <div id="treasury-view" class="view-section hidden max-w-5xl mx-auto">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-wallet text-emerald-500 mr-2"></i> Tesorería</h2>
+                    <div class="mb-6 bg-white p-2 rounded-xl border border-gray-200"><div id="treasury-chips-container" class="flex space-x-2 overflow-x-auto hide-scroll"></div></div>
+                    <div id="treasury-container" class="space-y-6 animate-fade-in"></div>
+                </div>
+
+                <div id="ranking-view" class="view-section hidden max-w-4xl mx-auto">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i> Ranking</h2>
+                    <div id="ranking-list" class="space-y-4"></div>
+                </div>
 
                 <div id="config-view" class="view-section hidden max-w-3xl mx-auto">
                     <div class="flex justify-between items-center mb-6">
@@ -207,7 +227,6 @@
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Hora ($)</label><input type="number" id="cfg-valorHora" class="w-full p-3 border rounded-lg" disabled></div>
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Afiliación</label><select id="cfg-discountRate" class="w-full p-3 border rounded-lg bg-white" disabled><option value="0.18">No Afiliado (18%)</option><option value="0.21">Afiliado (21%)</option></select></div>
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Viático ($)</label><input type="number" id="cfg-viaticoValue" class="w-full p-3 border rounded-lg" disabled></div>
-                            <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Presentismo ($)</label><input type="number" id="cfg-presentismoAmount" class="w-full p-3 border rounded-lg" disabled></div>
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Título ($)</label><input type="number" id="cfg-tituloAmount" class="w-full p-3 border rounded-lg" disabled></div>
                             <div class="col-span-1 md:col-span-2 border-t border-gray-100 pt-4 mt-2">
                                 <h4 class="font-bold text-red-600 mb-4 text-sm">CONFIGURACIÓN DE ROTACIÓN</h4>
@@ -237,16 +256,17 @@
         let appState = {
             config: { 
                 userName: 'Usuario', profilePicUrl: '', teamLetter: 'A', valorHora: 0, discountRate: 0.18, 
-                tituloAmount: 0, viaticoValue: 0, presentismoAmount: 0,
+                tituloAmount: 0, viaticoValue: 0, presentismoAmount: 0, // Legacy field, now calculated dynamically
                 lastFrancoDate: new Date().toISOString().split('T')[0], initialTurn: 'Mañana' 
             },
             viewingMonth: { month: new Date().getMonth() + 1, year: new Date().getFullYear() },
             treasuryViewMonth: { month: new Date().getMonth() + 1, year: new Date().getFullYear() },
+            // Active Data for current viewing month
             activeData: { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, calculation: null },
             historicalCache: {}
         };
 
-        // --- EXPOSE GLOBALS FOR HTML HANDLERS (CRITICAL FIX) ---
+        // --- EXPOSE GLOBALS ---
         window.navigateTo = navigateTo; 
         window.openImageModal = openImageModal;
         window.updateExtra = updateExtra; 
@@ -261,8 +281,7 @@
             const d = new Date();
             document.getElementById('header-current-date').textContent = `${d.getDate()} ${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][d.getMonth()]}`;
             
-            document.getElementById('btn-login-google').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
-            document.getElementById('btn-login-guest').onclick = () => enterAsGuest();
+            document.getElementById('btn-sidebar-login').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
             document.getElementById('auth-action-btn').onclick = () => signOut(auth);
             document.getElementById('btn-save-config').addEventListener('click', saveConfigHandler);
             document.getElementById('btn-toggle-edit').addEventListener('click', toggleConfigEdit);
@@ -270,13 +289,6 @@
             const fileInput = document.getElementById('cfg-profilePicture');
             if (fileInput) fileInput.onchange = (e) => { if(e.target.files[0]) compressAndUpload(e.target.files[0]); };
         };
-
-        function enterAsGuest() {
-            userId = null;
-            document.getElementById('login-view').style.transform = 'translateY(-100%)';
-            document.getElementById('app-layout').classList.remove('hidden');
-            renderHome();
-        }
 
         function toggleConfigEdit() {
             isEditingConfig = !isEditingConfig;
@@ -339,7 +351,7 @@
         }
 
         function compressAndUpload(file) {
-            if (!userId) { showMessage('Inicia sesión.', 'error'); return; }
+            if (!userId) { showMessage('Inicia sesión para guardar.', 'error'); return; }
             showMessage('Procesando...', 'info');
             const reader = new FileReader(); reader.readAsDataURL(file);
             reader.onload = (event) => {
@@ -359,11 +371,12 @@
             };
         }
 
+        // --- CORE CALCULATION LOGIC MODIFIED ---
         function performCalculation(month, year, extras, holidays, overrides, lateness, configOverride) {
             const cfg = configOverride || appState.config;
-            const { lastFrancoDate, initialTurn, valorHora, discountRate, tituloAmount, viaticoValue, presentismoAmount } = cfg;
+            const { lastFrancoDate, initialTurn, valorHora, discountRate, tituloAmount, viaticoValue } = cfg;
             const safeValHora = Number(valorHora) || 0; const safeViat = Number(viaticoValue) || 0;
-            const safePres = Number(presentismoAmount) || 0; const safeTitulo = Number(tituloAmount) || 0;
+            const safeTitulo = Number(tituloAmount) || 0;
 
             const daysInMonth = new Date(year, month, 0).getDate();
             const dailyResults = []; const francosList = [];
@@ -376,7 +389,8 @@
             let startOffset = (baseOffset + diffDays) % 24; if (startOffset < 0) startOffset += 24;
 
             let q1_bruto = 0, q2_bruto = 0, q1_viaticos = 0, q2_viaticos = 0, q1_fer = 0, q2_fer = 0;
-            let hasLateness = false;
+            let totalExtrasAmount = 0;
+            let presentismoHoursPool = 8; // Starting prize pool (8 hours)
 
             for (let i = 1; i <= daysInMonth; i++) {
                 const current = new Date(year, month - 1, i);
@@ -384,8 +398,15 @@
                 const dDisp = current.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year:'numeric'});
                 let cState = masterCycle[startOffset];
                 if (overrides && overrides[dKey] && overrides[dKey] !== 'Original') cState = overrides[dKey];
-                const isHol = holidays[dDisp] === true; const ext = extras[dDisp] || 0;
-                const isLate = lateness && lateness[dDisp] === true; if(isLate) hasLateness = true;
+                
+                const isHol = holidays[dDisp] === true; 
+                const extReal = extras[dDisp] || 0;
+                
+                // --- LATENESS LOGIC ---
+                // 0: On Time, 1: Late > 5min (-0.5h), 2: Late > 1h (-1h)
+                const lateType = (lateness && lateness[dDisp]) ? parseInt(lateness[dDisp]) : 0;
+                if(lateType === 1) presentismoHoursPool -= 0.5;
+                if(lateType === 2) presentismoHoursPool -= 1.0;
 
                 let tLbl = cState, eqBase = 0;
                 if (cState === 'Vacaciones' || cState === 'Licencia') { tLbl = cState; eqBase = 8; } 
@@ -400,22 +421,71 @@
                         if (d>=1 && d<=5 && cState==='Noche') eqBase=12; if(d===0 && cState==='Noche') eqBase=28;
                     }
                 }
-                const eqTot = eqBase + (ext * 1.5); const dBruto = eqTot * safeValHora; const dViat = ext > 0 ? safeViat : 0;
-                dailyResults.push({ date: dDisp, key: dKey, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], turn: tLbl, isHoliday: isHol, isLate: isLate, equivBase: eqBase, extraReal: ext, totalEquiv: eqTot, bruto: dBruto, isFranco: cState === 'Franco' });
-                if (i <= 15) { q1_bruto += dBruto; q1_viaticos += dViat; if(isHol) q1_fer += dBruto; } else { q2_bruto += dBruto; q2_viaticos += dViat; if(isHol) q2_fer += dBruto; }
+
+                // --- OVERTIME LOGIC: Normal 1.5x, Holiday 3.0x ---
+                const multiplier = isHol ? 3.0 : 1.5;
+                const eqAddedByExtras = extReal * multiplier; 
+                const eqTot = eqBase + eqAddedByExtras;
+                
+                const dBruto = eqTot * safeValHora; 
+                const dViat = extReal > 0 ? safeViat : 0; // Viatico applies if extras exist (simple rule from before)
+
+                dailyResults.push({ 
+                    date: dDisp, key: dKey, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], 
+                    turn: tLbl, isHoliday: isHol, lateType: lateType, 
+                    equivBase: eqBase, extraReal: extReal, totalEquiv: eqTot, bruto: dBruto, isFranco: cState === 'Franco' 
+                });
+
+                // Accumulators
+                const extrasCash = eqAddedByExtras * safeValHora;
+                totalExtrasAmount += extrasCash;
+
+                if (i <= 15) { 
+                    q1_bruto += dBruto; 
+                    q1_viaticos += dViat; 
+                    if(isHol) q1_fer += (eqBase * safeValHora); // Only base part counts as 'feriado value' for display
+                } else { 
+                    q2_bruto += dBruto; 
+                    q2_viaticos += dViat; 
+                    if(isHol) q2_fer += (eqBase * safeValHora);
+                }
                 startOffset = (startOffset + 1) % 24;
             }
-            const pres = hasLateness ? 0 : safePres;
+
+            if(presentismoHoursPool < 0) presentismoHoursPool = 0;
+            const presMoney = presentismoHoursPool * safeValHora;
+
             const q1_n = q1_bruto - (q1_bruto * discountRate) + q1_viaticos;
-            const q2_n = q2_bruto - (q2_bruto * discountRate) + q2_viaticos + safeTitulo + pres;
-            return { dailyResults, francosList, totalEquivHours: dailyResults.reduce((a,b)=>a+b.totalEquiv,0), totalViaticos: q1_viaticos + q2_viaticos, tituloAmount: safeTitulo, presentismo: pres, hasLateness, netoFinal: q1_n + q2_n, totalFeriadosAmt: q1_fer + q2_fer, quincenas: { q1: { bruto: q1_bruto, neto: q1_n, viaticos: q1_viaticos, desc: q1_bruto * discountRate, feriados: q1_fer }, q2: { bruto: q2_bruto, neto: q2_n, viaticos: q2_viaticos, desc: q2_bruto * discountRate, feriados: q2_fer } } };
+            // Presentismo & Title usually paid at end of month (Q2)
+            const q2_n = q2_bruto - (q2_bruto * discountRate) + q2_viaticos + safeTitulo + presMoney;
+
+            // Summary objects for display
+            return { 
+                dailyResults, francosList, 
+                totalEquivHours: dailyResults.reduce((a,b)=>a+b.totalEquiv,0), 
+                totalViaticos: q1_viaticos + q2_viaticos, 
+                tituloAmount: safeTitulo, 
+                presentismo: presMoney, 
+                presentismoHoursLeft: presentismoHoursPool,
+                netoFinal: q1_n + q2_n, 
+                brutoTotal: q1_bruto + q2_bruto,
+                descuentoTotal: (q1_bruto + q2_bruto) * discountRate,
+                totalFeriadosAmt: q1_fer + q2_fer,
+                totalFeriadosCount: dailyResults.filter(d=>d.isHoliday).length,
+                totalExtrasAmt: totalExtrasAmount,
+                totalExtrasHoursReal: dailyResults.reduce((a,b)=>a+b.extraReal,0),
+                quincenas: { 
+                    q1: { bruto: q1_bruto, neto: q1_n, viaticos: q1_viaticos, desc: q1_bruto * discountRate, feriados: q1_fer, extras: dailyResults.slice(0,15).reduce((a,b)=>a+(b.extraReal*(b.isHoliday?3:1.5)*safeValHora),0) }, 
+                    q2: { bruto: q2_bruto, neto: q2_n, viaticos: q2_viaticos, desc: q2_bruto * discountRate, feriados: q2_fer, extras: dailyResults.slice(15).reduce((a,b)=>a+(b.extraReal*(b.isHoliday?3:1.5)*safeValHora),0) } 
+                } 
+            };
         }
 
         function getCalculationFor(m, y, isHome = false) {
             if (isHome || (appState.viewingMonth.month === m && appState.viewingMonth.year === y)) {
                 const key = `${y}-${String(m).padStart(2,'0')}`;
                 const cached = appState.historicalCache[key];
-                return performCalculation(m, y, cached?.extras||{}, cached?.holidayFlags||{}, cached?.shiftOverrides||{}, cached?.lateness||{}, appState.config);
+                return performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.config);
             }
             const key = `${y}-${String(m).padStart(2,'0')}`;
             const cached = appState.historicalCache[key];
@@ -445,9 +515,6 @@
                 const el = document.getElementById(id);
                 if(el) { if(url) { el.src = url; el.classList.remove('hidden'); if(el.nextElementSibling) el.nextElementSibling.classList.add('hidden'); } else { el.src = ''; el.classList.add('hidden'); if(el.nextElementSibling) el.nextElementSibling.classList.remove('hidden'); } }
             });
-            const hw = document.getElementById('home-profile-wrapper'); if(hw) hw.classList.toggle('hidden', !url);
-            const headerWrapper = document.getElementById('header-profile-wrapper'); if(headerWrapper) headerWrapper.classList.toggle('hidden', !url);
-            const headerIcon = document.getElementById('header-profile-icon'); if(headerIcon) headerIcon.classList.toggle('hidden', !!url);
         }
 
         function renderHome() {
@@ -493,14 +560,58 @@
             if (calc) {
                 document.getElementById('dash-equiv-hours').textContent = formatNumber(calc.totalEquivHours);
                 document.getElementById('dash-viaticos-total').textContent = formatCurrency(calc.totalViaticos);
-                const pEl = document.getElementById('dash-presentismo-total'); pEl.textContent = formatCurrency(calc.presentismo);
-                if(calc.hasLateness) { pEl.classList.add('text-red-500', 'line-through'); pEl.classList.remove('text-blue-600'); } else { pEl.classList.add('text-blue-600'); pEl.classList.remove('text-red-500', 'line-through'); }
+                
+                const pEl = document.getElementById('dash-presentismo-total'); 
+                pEl.textContent = formatCurrency(calc.presentismo);
+                if(calc.presentismoHoursLeft < 8) { 
+                    pEl.classList.add('text-orange-500'); pEl.classList.remove('text-blue-600');
+                    pEl.innerHTML += `<span class="text-[10px] block text-gray-400">(${calc.presentismoHoursLeft}hs)</span>`;
+                } else { 
+                    pEl.classList.add('text-blue-600'); pEl.classList.remove('text-orange-500'); 
+                }
+                
                 document.getElementById('dash-neto-final').textContent = formatCurrency(calc.netoFinal);
+                
                 const tbody = document.getElementById('daily-detail-tbody'); tbody.innerHTML = '';
                 calc.dailyResults.forEach(d => {
-                    const tr = document.createElement('tr'); if(d.isFranco && !d.isHoliday) tr.className="bg-yellow-50/50"; if(d.isHoliday) tr.className="bg-red-50/50";
+                    const tr = document.createElement('tr'); 
+                    if(d.isFranco && !d.isHoliday) tr.className="bg-yellow-50/50"; 
+                    if(d.isHoliday) tr.className="bg-red-50/50";
+                    
                     let sel = appState.activeData.shiftOverrides[d.key] || 'Original';
-                    tr.innerHTML = `<td class="px-4 py-3 text-gray-700 whitespace-nowrap font-medium">${d.date.split('/')[0]} <span class="text-xs text-gray-400">${d.dayName}</span></td><td class="px-4 py-3"><select class="table-select bg-transparent border-none text-xs font-bold ${d.isFranco?'text-yellow-600':'text-red-600'}" onchange="window.updateTurnOverride('${d.key}', this.value)"><option value="Original" ${sel==='Original'?'selected':''}>Auto</option><option value="Mañana" ${sel==='Mañana'?'selected':''}>Mañana</option><option value="Tarde" ${sel==='Tarde'?'selected':''}>Tarde</option><option value="Noche" ${sel==='Noche'?'selected':''}>Noche</option><option value="Franco" ${sel==='Franco'?'selected':''}>Franco</option><option value="Licencia" ${sel==='Licencia'?'selected':''}>Licencia</option><option value="Vacaciones" ${sel==='Vacaciones'?'selected':''}>Vacaciones</option></select><div class="text-[10px] text-gray-400">${d.turn}</div></td><td class="px-4 py-3 text-center"><input type="checkbox" class="w-4 h-4 text-red-600 rounded focus:ring-red-500" ${d.isHoliday?'checked':''} onchange="window.updateHoliday('${d.date}', this.checked)"></td><td class="px-4 py-3 text-center"><input type="checkbox" class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" ${d.isLate?'checked':''} onchange="window.updateLateness('${d.date}', this.checked)"></td><td class="px-4 py-3 text-right text-gray-500">${formatNumber(d.equivBase)}</td><td class="px-4 py-3 text-center"><input type="number" value="${d.extraReal||''}" class="w-16 text-center border rounded py-1 text-xs" placeholder="-" step="0.5" min="0" onchange="window.updateExtra('${d.date}', this.value)"></td><td class="px-4 py-3 text-right text-xs text-gray-500">${formatCurrency(d.bruto)}</td>`;
+                    let lateSel = d.lateType; // 0, 1, 2
+
+                    // Column Order: Date | Turn | Extras | Late | Holiday | HEq | Bruto
+                    tr.innerHTML = `
+                        <td class="px-4 py-3 text-gray-700 whitespace-nowrap font-medium">${d.date.split('/')[0]} <span class="text-xs text-gray-400">${d.dayName}</span></td>
+                        <td class="px-4 py-3">
+                            <select class="table-select bg-transparent border-none text-xs font-bold ${d.isFranco?'text-yellow-600':'text-red-600'}" onchange="window.updateTurnOverride('${d.key}', this.value)">
+                                <option value="Original" ${sel==='Original'?'selected':''}>Auto</option>
+                                <option value="Mañana" ${sel==='Mañana'?'selected':''}>Mañana</option>
+                                <option value="Tarde" ${sel==='Tarde'?'selected':''}>Tarde</option>
+                                <option value="Noche" ${sel==='Noche'?'selected':''}>Noche</option>
+                                <option value="Franco" ${sel==='Franco'?'selected':''}>Franco</option>
+                                <option value="Licencia" ${sel==='Licencia'?'selected':''}>Licencia</option>
+                                <option value="Vacaciones" ${sel==='Vacaciones'?'selected':''}>Vacaciones</option>
+                            </select>
+                            <div class="text-[10px] text-gray-400">${d.turn}</div>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <input type="number" value="${d.extraReal||''}" class="w-14 text-center border rounded py-1 text-xs font-bold text-emerald-600" placeholder="-" step="0.5" min="0" onchange="window.updateExtra('${d.date}', this.value)">
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <select class="border rounded text-[10px] py-1 px-1 ${lateSel>0?'text-red-600 bg-red-50 font-bold':''}" onchange="window.updateLateness('${d.date}', this.value)">
+                                <option value="0" ${lateSel===0?'selected':''}>Puntual</option>
+                                <option value="1" ${lateSel===1?'selected':''}>Tarde (>5m)</option>
+                                <option value="2" ${lateSel===2?'selected':''}>Tarde (>1h)</option>
+                            </select>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <input type="checkbox" class="w-4 h-4 text-red-600 rounded focus:ring-red-500" ${d.isHoliday?'checked':''} onchange="window.updateHoliday('${d.date}', this.checked)">
+                        </td>
+                        <td class="px-4 py-3 text-right text-gray-500">${formatNumber(d.equivBase)}</td>
+                        <td class="px-4 py-3 text-right text-xs text-gray-500">${formatCurrency(d.bruto)}</td>
+                    `;
                     tbody.appendChild(tr);
                 });
             }
@@ -521,7 +632,21 @@
             });
             const {month, year} = appState.treasuryViewMonth;
             const calc = getCalculationFor(month, year);
-            const c = (t, a, d, dt) => `<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden"><div class="p-6 border-b border-gray-50 flex justify-between items-start bg-white"><div><h3 class="text-lg font-bold text-gray-700">${t}</h3><p class="text-sm text-emerald-600 mt-1">Cobro: ${d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</p></div><div class="text-right"><p class="text-3xl font-extrabold text-gray-800 truncate">${formatCurrency(a)}</p><p class="text-xs text-gray-400">Neto</p></div></div><div class="p-6 grid grid-cols-2 gap-4 text-sm"><div><p class="text-gray-400">Bruto</p><p class="font-semibold">${formatCurrency(dt.bruto)}</p></div><div><p class="text-gray-400">Desc.</p><p class="font-semibold text-red-500">-${formatCurrency(dt.desc)}</p></div><div><p class="text-gray-400">Viáticos</p><p class="font-semibold text-orange-500">+${formatCurrency(dt.viaticos)}</p></div>${dt.feriados>0?`<div><p class="text-gray-400">Feriados</p><p class="font-semibold text-red-600">+${formatCurrency(dt.feriados)}</p></div>`:''}</div></div>`;
+            
+            const c = (t, a, d, dt) => `
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-50 flex justify-between items-start bg-white">
+                        <div><h3 class="text-lg font-bold text-gray-700">${t}</h3><p class="text-sm text-emerald-600 mt-1">Cobro: ${d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</p></div>
+                        <div class="text-right"><p class="text-3xl font-extrabold text-gray-800 truncate">${formatCurrency(a)}</p><p class="text-xs text-gray-400">Neto</p></div>
+                    </div>
+                    <div class="p-6 grid grid-cols-2 gap-4 text-sm">
+                        <div><p class="text-gray-400">Bruto</p><p class="font-semibold">${formatCurrency(dt.bruto)}</p></div>
+                        <div><p class="text-gray-400">Desc.</p><p class="font-semibold text-red-500">-${formatCurrency(dt.desc)}</p></div>
+                        <div><p class="text-gray-400">Viáticos</p><p class="font-semibold text-orange-500">+${formatCurrency(dt.viaticos)}</p></div>
+                        ${dt.extras > 0 ? `<div><p class="text-gray-400">Extras</p><p class="font-semibold text-emerald-600">+${formatCurrency(dt.extras)}</p></div>` : ''}
+                        ${dt.feriados > 0 ? `<div><p class="text-gray-400">Feriados</p><p class="font-semibold text-emerald-600">+${formatCurrency(dt.feriados)}</p></div>` : ''}
+                    </div>
+                </div>`;
             const d1 = calculatePaymentDate(year, month, 15), d2 = calculatePaymentDate(year, month, new Date(year, month, 0).getDate());
             cont.innerHTML = c('1ª Quincena', calc.quincenas.q1.neto, d1, calc.quincenas.q1) + c('2ª Quincena', calc.quincenas.q2.neto, d2, calc.quincenas.q2);
         }
@@ -532,13 +657,30 @@
             if (r.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 mt-8">Sin datos.</p>'; return; }
             r.forEach((i, idx) => {
                 const [y, m] = i.k.split('-');
-                list.innerHTML += `<div class="p-4 rounded-xl border ${idx===0?'border-yellow-400':idx===1?'border-gray-300':idx===2?'border-orange-300':'border-gray-100'} bg-white shadow-sm flex justify-between items-center gap-4"><div><div class="text-2xl font-bold text-center w-8">${idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':idx+1}</div><h4 class="font-bold text-gray-800 capitalize">${new Date(y, m-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'})}</h4></div><div class="text-right"><p class="text-xl font-extrabold text-emerald-600">${formatCurrency(i.results.netoFinal)}</p></div></div>`;
+                const extrasCount = i.results.totalExtrasHoursReal || 0;
+                const feriadosCount = i.results.totalFeriadosCount || 0;
+                list.innerHTML += `
+                    <div class="p-4 rounded-xl border ${idx===0?'border-yellow-400':idx===1?'border-gray-300':idx===2?'border-orange-300':'border-gray-100'} bg-white shadow-sm flex justify-between items-center gap-4">
+                        <div>
+                            <div class="text-2xl font-bold text-center w-8 float-left mr-2">${idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':idx+1}</div>
+                            <h4 class="font-bold text-gray-800 capitalize">${new Date(y, m-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'})}</h4>
+                            <p class="text-[10px] text-gray-400 font-medium ml-10">${feriadosCount} Feriados • ${extrasCount}hs Extras</p>
+                        </div>
+                        <div class="text-right"><p class="text-xl font-extrabold text-emerald-600">${formatCurrency(i.results.netoFinal)}</p></div>
+                    </div>`;
             });
         }
 
         function updateExtra(d, v) { const val = parseFloat(v)||0; if(val>0) appState.activeData.extras[d]=val; else delete appState.activeData.extras[d]; triggerLocalRecalculate(); }
         function updateHoliday(d, c) { if(c) appState.activeData.manualHolidays[d]=true; else delete appState.activeData.manualHolidays[d]; triggerLocalRecalculate(); }
-        function updateLateness(d, c) { if(c) appState.activeData.lateness[d]=true; else delete appState.activeData.lateness[d]; triggerLocalRecalculate(); }
+        
+        // Changed lateness from checkbox to select value
+        function updateLateness(d, v) { 
+            const val = parseInt(v); 
+            if(val > 0) appState.activeData.lateness[d]=val; else delete appState.activeData.lateness[d]; 
+            triggerLocalRecalculate(); 
+        }
+
         function updateTurnOverride(k, v) { if(v==='Original') delete appState.activeData.shiftOverrides[k]; else appState.activeData.shiftOverrides[k]=v; triggerLocalRecalculate(); }
         function triggerLocalRecalculate() { const {month, year} = appState.viewingMonth; appState.activeData.calculation = performCalculation(month, year, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.config); renderDashboard(); renderHome(); }
         async function switchDashboardMonth(m, y) { appState.viewingMonth = { month: m, year: y }; const key = `${y}-${String(m).padStart(2, '0')}`; const cached = appState.historicalCache[key]; if(cached) { appState.activeData = { extras: cached.extras||{}, manualHolidays: cached.holidayFlags||{}, shiftOverrides: cached.shiftOverrides||{}, lateness: cached.lateness||{} }; appState.activeData.calculation = performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, cached.configSnapshot || null); } renderDashboard(); const now = new Date(); if(m===now.getMonth()+1 && y===now.getFullYear()) renderHome(); }
@@ -553,15 +695,21 @@
             app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
             onAuthStateChanged(auth, (u) => {
                 if (u) { 
-                    userId = u.uid; document.getElementById('user-info-email').textContent = u.email; 
-                    document.getElementById('login-view').classList.add('-translate-y-full');
-                    document.getElementById('app-layout').classList.remove('hidden');
+                    userId = u.uid; 
+                    document.getElementById('user-info-email').textContent = u.email;
+                    document.getElementById('btn-sidebar-login').classList.add('hidden');
+                    document.getElementById('auth-action-btn').classList.remove('hidden');
+                    document.getElementById('guest-banner').classList.add('hidden');
                     if(u.displayName) { appState.config.userName = u.displayName; document.getElementById('user-info-name').textContent = u.displayName; }
                     loadUserData(); 
                 } else { 
                     userId = null; 
-                    document.getElementById('login-view').classList.remove('-translate-y-full');
-                    document.getElementById('app-layout').classList.add('hidden');
+                    document.getElementById('user-info-name').textContent = 'Invitado';
+                    document.getElementById('user-info-email').textContent = 'No guardando';
+                    document.getElementById('btn-sidebar-login').classList.remove('hidden');
+                    document.getElementById('auth-action-btn').classList.add('hidden');
+                    document.getElementById('guest-banner').classList.remove('hidden');
+                    renderHome(); // Render default guest view
                 }
             });
         }
@@ -587,6 +735,7 @@
             document.getElementById('cfg-discountRate').value = appState.config.discountRate;
             document.getElementById('cfg-tituloAmount').value = appState.config.tituloAmount;
             document.getElementById('cfg-viaticoValue').value = appState.config.viaticoValue;
+            // Legacy presentismo input kept but functionally overridden by dynamic hours calculation
             document.getElementById('cfg-presentismoAmount').value = appState.config.presentismoAmount;
             document.getElementById('cfg-lastFrancoDate').value = appState.config.lastFrancoDate;
             document.getElementById('cfg-initialTurn').value = appState.config.initialTurn;
@@ -597,9 +746,11 @@
             const ml = new Date(appState.viewingMonth.year, appState.viewingMonth.month-1).toLocaleDateString('es-AR', {month:'long', year:'numeric'}).toUpperCase();
             doc.setFillColor(220, 38, 38); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(255, 255, 255); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text(`PAPELERA ROSATO S.A.`, 15, 20); doc.setFontSize(12); doc.setFont("helvetica", "normal"); doc.text(`${ml}`, 15, 30); doc.text(`Empleado: ${appState.config.userName}`, 195, 30, { align: 'right' });
             doc.setTextColor(60, 60, 60); doc.setFontSize(10); let y = 55; doc.text(`Valor Hora: ${formatCurrency(appState.config.valorHora)}`, 15, y); y += 10;
-            doc.autoTable({ startY: y, head: [['CONCEPTO', '1ª QUINCENA', '2ª QUINCENA', 'TOTAL MES']], body: [['Bruto', formatCurrency(calc.quincenas.q1.bruto), formatCurrency(calc.quincenas.q2.bruto), formatCurrency(calc.brutoTotal)], ['Descuentos', `-${formatCurrency(calc.quincenas.q1.desc)}`, `-${formatCurrency(calc.quincenas.q2.desc)}`, `-${formatCurrency(calc.descuentoTotal)}`], ['Viáticos', formatCurrency(calc.quincenas.q1.viaticos), formatCurrency(calc.quincenas.q2.viaticos), formatCurrency(calc.totalViaticos)], ['NETO', formatCurrency(calc.quincenas.q1.neto), formatCurrency(calc.quincenas.q2.neto), formatCurrency(calc.netoFinal)]], theme: 'grid', headStyles: { fillColor: [220, 38, 38] } });
-            doc.addPage(); const dd = calc.dailyResults.map(d => [d.date, d.turn, d.isHoliday?'Sí':'', d.isLate?'TARDE':'', formatNumber(d.equivBase), d.extraReal>0?d.extraReal:'-', formatCurrency(d.bruto)]);
-            doc.autoTable({ startY: 25, head: [['FECHA', 'TURNO', 'FERIADO', 'TARDE', 'BASE', 'EXTRAS', 'BRUTO']], body: dd, theme: 'striped', headStyles: { fillColor: [220, 38, 38] } });
+            doc.autoTable({ startY: y, head: [['CONCEPTO', '1ª QUINCENA', '2ª QUINCENA', 'TOTAL MES']], body: [['Bruto', formatCurrency(calc.quincenas.q1.bruto), formatCurrency(calc.quincenas.q2.bruto), formatCurrency(calc.brutoTotal)], ['Descuentos', `-${formatCurrency(calc.quincenas.q1.desc)}`, `-${formatCurrency(calc.quincenas.q2.desc)}`, `-${formatCurrency(calc.descuentoTotal)}`], ['Viáticos', formatCurrency(calc.quincenas.q1.viaticos), formatCurrency(calc.quincenas.q2.viaticos), formatCurrency(calc.totalViaticos)], ['Extras', formatCurrency(calc.quincenas.q1.extras), formatCurrency(calc.quincenas.q2.extras), formatCurrency(calc.totalExtrasAmt)], ['NETO', formatCurrency(calc.quincenas.q1.neto), formatCurrency(calc.quincenas.q2.neto), formatCurrency(calc.netoFinal)]], theme: 'grid', headStyles: { fillColor: [220, 38, 38] } });
+            doc.addPage(); 
+            // Add extra info to PDF
+            const dd = calc.dailyResults.map(d => [d.date, d.turn, d.extraReal>0?d.extraReal:'-', d.lateType>0? (d.lateType===1?'>5m':'>1h') : '', d.isHoliday?'Sí':'', formatNumber(d.equivBase), formatCurrency(d.bruto)]);
+            doc.autoTable({ startY: 25, head: [['FECHA', 'TURNO', 'EXTRAS', 'TARDE', 'FERIADO', 'BASE', 'BRUTO']], body: dd, theme: 'striped', headStyles: { fillColor: [220, 38, 38] } });
             doc.save(`Nomina_${ml}.pdf`);
         };
         
