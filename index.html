@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Calculadora salariall</title>
+    <title>Portal Rosato</title>
     
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -29,6 +31,16 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         /* Fix for mobile header tap area */
         .safe-top { padding-top: env(safe-area-inset-top, 20px); }
+        
+        /* Estilo para cabecera fija de tabla */
+        .sticky-header th { position: sticky; top: 0; z-index: 20; background-color: #f9fafb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        
+        /* Animación para el hint de scroll */
+        @keyframes bounce-x {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(3px); }
+        }
+        .animate-bounce-x { animation: bounce-x 1s infinite; }
     </style>
 </head>
 <body class="text-slate-800 bg-gray-50 h-[100dvh] overflow-hidden flex flex-col">
@@ -43,7 +55,7 @@
             <div class="p-6 border-b border-gray-100 flex justify-between items-center safe-top">
                 <div class="flex items-center gap-2">
                     <img src="logo.png" alt="Logo" class="h-8 object-contain" onerror="this.style.display='none'">
-                    <span class="font-bold text-red-700 tracking-tight text-xl">CALCULADORA</span>
+                    <span class="font-bold text-red-700 tracking-tight text-xl">ROSATO</span>
                 </div>
                 <button id="close-sidebar-btn" class="md:hidden text-gray-400 hover:text-red-600 p-2"><i class="fa-solid fa-times text-xl"></i></button>
             </div>
@@ -84,7 +96,7 @@
             <header class="bg-white shadow-sm px-4 flex justify-between items-center md:hidden sticky top-0 z-40 w-full min-h-[70px] border-b border-gray-100 safe-top">
                 <div class="flex items-center h-full">
                     <button id="open-sidebar-btn" class="text-gray-600 focus:outline-none p-3 active:bg-gray-100 rounded-lg mr-2 -ml-2"><i class="fa-solid fa-bars text-xl"></i></button>
-                    <span class="font-bold text-red-700 tracking-tighter text-lg">...</span>
+                    <span class="font-bold text-red-700 tracking-tighter text-lg">ROSATO</span>
                 </div>
                 <div class="flex items-center cursor-pointer" onclick="window.openImageModal()">
                     <div class="w-9 h-9 rounded-full bg-gray-200 overflow-hidden border border-gray-200 shadow-sm">
@@ -101,7 +113,7 @@
                 <div id="guest-banner" class="hidden mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-xl shadow-sm flex justify-between items-center">
                     <div>
                         <p class="font-bold text-yellow-700 text-sm">Modo Invitado</p>
-                        <p class="text-xs text-yellow-600">Inicia sesion para una mejor experiencia.<br>Si preferís probarla, guardá tus datos en configuración y hacé la prueba.</p>
+                        <p class="text-xs text-yellow-600">Si preferís probarla, guardá tus datos en configuración y hacé la prueba.</p>
                     </div>
                     <button onclick="document.getElementById('btn-sidebar-login').click()" class="text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-2 rounded-lg font-bold transition">Conectar</button>
                 </div>
@@ -152,7 +164,14 @@
                         <h2 class="text-2xl font-bold text-gray-800">Gestión de Turnos</h2>
                         <button id="btn-generate-new" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> Mes Siguiente</button>
                     </div>
-                    <div class="mb-6"><div id="months-chips-container" class="flex space-x-2 overflow-x-auto hide-scroll py-1"></div></div>
+                    
+                    <div class="relative mb-6 group">
+                        <div id="months-chips-container" class="flex space-x-2 overflow-x-auto hide-scroll py-2 relative z-10"></div>
+                        <div class="pointer-events-none absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-gray-50 via-gray-50/80 to-transparent flex items-center justify-end pr-2 z-20">
+                             <span class="text-[10px] font-bold text-red-500 animate-bounce-x bg-white/80 px-1 rounded shadow-sm">Desliza ⮕</span>
+                        </div>
+                    </div>
+
                     <div id="dashboard-content" class="hidden animate-fade-in space-y-6">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div class="bg-white p-4 rounded-xl border border-gray-200"><p class="text-xs text-gray-500 font-bold">HORAS EQ. TOTAL</p><p class="text-xl font-bold text-red-600" id="dash-equiv-hours">0</p></div>
@@ -161,7 +180,7 @@
                             <div class="bg-gray-800 p-4 rounded-xl border border-gray-700"><p class="text-xs text-gray-400 font-bold">NETO FINAL</p><p class="text-xl font-bold text-emerald-400" id="dash-neto-final">$ 0</p></div>
                         </div>
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="p-4 border-b border-gray-100 bg-white sticky top-0 z-20 flex justify-between items-center">
+                            <div class="p-4 border-b border-gray-100 bg-white sticky top-0 z-30 flex justify-between items-center shadow-sm">
                                 <h3 class="font-bold text-gray-700">Detalle <span id="dash-detail-month-label" class="text-red-600"></span></h3>
                                 <div class="flex gap-2">
                                     <button id="btn-delete-month" class="p-2 text-gray-400 hover:text-red-600 transition"><i class="fa-solid fa-trash"></i></button>
@@ -171,7 +190,7 @@
                             </div>
                             <div class="overflow-x-auto max-h-[500px]">
                                 <table class="w-full text-sm text-left">
-                                    <thead class="text-xs text-gray-500 uppercase bg-gray-50 sticky-header">
+                                    <thead class="text-xs text-gray-500 uppercase sticky-header">
                                         <tr>
                                             <th class="px-4 py-3">Fecha</th>
                                             <th class="px-4 py-3">Turno</th>
@@ -462,14 +481,20 @@
                     }
                 }
 
-                const multiplier = isHol ? 3.0 : 1.5;
+                // --- NEW EXTRAS LOGIC ---
+                // M-F (1-5): 1.5x (50%)
+                // Sat (6): 2.0x (100%)
+                // Sun (0) or Holiday: 3.0x (200%)
+                const dayOfWeek = current.getDay(); 
+                let multiplier = 1.5; 
+                if(isHol || dayOfWeek === 0) multiplier = 3.0;
+                else if(dayOfWeek === 6) multiplier = 2.0;
+
                 const eqAddedByExtras = extReal * multiplier; 
                 const eqTot = eqBase + eqAddedByExtras;
                 const dBruto = eqTot * safeValHora; 
                 const dViat = extReal > 0 ? safeViat : 0;
                 
-                // Assume 8h real shift unless it's a 24/28 eq Sunday which implies 12h, but stick to 8 for safety or simple sum.
-                // Request: "HORAS TOTALES REALES" = 8 + extras.
                 const realBaseHours = 8; 
                 const totalRealHours = realBaseHours + extReal;
 
@@ -477,8 +502,8 @@
                     date: dDisp, key: dKey, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], 
                     turn: tLbl, isHoliday: isHol, lateType: lateType, 
                     equivBase: eqBase, extraReal: extReal, 
-                    totalEquiv: eqTot, // This now holds Base + (Extra * Multiplier)
-                    totalRealHours: totalRealHours, // New: 8 + Extra
+                    totalEquiv: eqTot, 
+                    totalRealHours: totalRealHours, 
                     bruto: dBruto, isFranco: cState === 'Franco' 
                 });
 
@@ -521,13 +546,23 @@
             };
         }
 
+        // --- FIXED FUNCTION TO SEPARATE ACTIVE DATA FROM HOME VIEW DATA ---
         function getCalculationFor(m, y, isHome = false) {
-            if (isHome || (appState.viewingMonth.month === m && appState.viewingMonth.year === y)) {
+            // Check if we requested the exact month that is currently "Open" in Dashboard
+            if (!isHome && appState.viewingMonth.month === m && appState.viewingMonth.year === y) {
                 return performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.config);
             }
+            
+            // If checking for Home or another month, check cache first
             const key = `${y}-${String(m).padStart(2,'0')}`;
             const cached = appState.historicalCache[key];
-            return performCalculation(m, y, cached?.extras||{}, cached?.holidayFlags||{}, cached?.shiftOverrides||{}, cached?.lateness||{}, cached?.configSnapshot||appState.config);
+            
+            if(cached) {
+                return performCalculation(m, y, cached.extras||{}, cached.holidayFlags||{}, cached.shiftOverrides||{}, cached.lateness||{}, cached.configSnapshot||appState.config);
+            } else {
+                // Return clean projection if no data exists
+                return performCalculation(m, y, {}, {}, {}, {}, appState.config);
+            }
         }
 
         document.getElementById('btn-delete-month').onclick = async () => {
@@ -561,6 +596,7 @@
             document.getElementById('user-info-team').textContent = `Eq. ${appState.config.teamLetter}`;
             
             const now = new Date();
+            // Call explicitly for current calendar month
             const calc = getCalculationFor(now.getMonth() + 1, now.getFullYear(), true);
             
             document.getElementById('home-current-month-label').textContent = now.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }).toUpperCase();
@@ -689,11 +725,9 @@
         function renderRanking() {
             const list = document.getElementById('ranking-list'); list.innerHTML = '';
             
-            // Fix: Recalculate on the fly to ensure accuracy with current data/logic
             const r = Object.keys(appState.historicalCache).map(key => {
                 const [y, m] = key.split('-');
                 const cached = appState.historicalCache[key];
-                // Recalculate using stored input data
                 const freshCalc = performCalculation(parseInt(m), parseInt(y), cached.extras||{}, cached.holidayFlags||{}, cached.shiftOverrides||{}, cached.lateness||{}, cached.configSnapshot||appState.config);
                 return { key, results: freshCalc };
             }).sort((a, b) => b.results.netoFinal - a.results.netoFinal);
@@ -795,7 +829,6 @@
             doc.setTextColor(60, 60, 60); doc.setFontSize(10); let y = 55; doc.text(`Valor Hora: ${formatCurrency(appState.config.valorHora)}`, 15, y); y += 10;
             doc.autoTable({ startY: y, head: [['CONCEPTO', '1ª QUINCENA', '2ª QUINCENA', 'TOTAL MES']], body: [['Bruto', formatCurrency(calc.quincenas.q1.bruto), formatCurrency(calc.quincenas.q2.bruto), formatCurrency(calc.brutoTotal)], ['Descuentos', `-${formatCurrency(calc.quincenas.q1.desc)}`, `-${formatCurrency(calc.quincenas.q2.desc)}`, `-${formatCurrency(calc.descuentoTotal)}`], ['Viáticos', formatCurrency(calc.quincenas.q1.viaticos), formatCurrency(calc.quincenas.q2.viaticos), formatCurrency(calc.totalViaticos)], ['Extras', formatCurrency(calc.quincenas.q1.extras), formatCurrency(calc.quincenas.q2.extras), formatCurrency(calc.totalExtrasAmt)], ['NETO', formatCurrency(calc.quincenas.q1.neto), formatCurrency(calc.quincenas.q2.neto), formatCurrency(calc.netoFinal)]], theme: 'grid', headStyles: { fillColor: [220, 38, 38] } });
             doc.addPage(); 
-            // PDF now includes Real Total Hours and Equivalent Total Hours columns
             const dd = calc.dailyResults.map(d => [d.date, d.turn, d.extraReal>0?d.extraReal:'-', d.lateType>0? (d.lateType===1?'>5m':'>1h') : '', d.isHoliday?'Sí':'', formatNumber(d.totalRealHours), formatNumber(d.totalEquiv), formatCurrency(d.bruto)]);
             doc.autoTable({ startY: 25, head: [['FECHA', 'TURNO', 'EXTRAS', 'TARDE', 'FERIADO', 'HS.REAL', 'HS.EQUIV', 'BRUTO']], body: dd, theme: 'striped', headStyles: { fillColor: [220, 38, 38] } });
             doc.save(`Nomina_${ml}.pdf`);
