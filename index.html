@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Portal Rosato</title>
+    <title>Calculadora Salarial</title>
     
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
@@ -29,17 +29,9 @@
         input:disabled, select:disabled { background-color: #f9fafb; color: #9ca3af; cursor: not-allowed; }
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        /* Fix for mobile header tap area */
         .safe-top { padding-top: env(safe-area-inset-top, 20px); }
-        
-        /* Estilo para cabecera fija de tabla */
         .sticky-header th { position: sticky; top: 0; z-index: 20; background-color: #f9fafb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        
-        /* Animación para el hint de scroll */
-        @keyframes bounce-x {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(3px); }
-        }
+        @keyframes bounce-x { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
         .animate-bounce-x { animation: bounce-x 1s infinite; }
     </style>
 </head>
@@ -55,7 +47,7 @@
             <div class="p-6 border-b border-gray-100 flex justify-between items-center safe-top">
                 <div class="flex items-center gap-2">
                     <img src="logo.png" alt="Logo" class="h-8 object-contain" onerror="this.style.display='none'">
-                    <span class="font-bold text-red-700 tracking-tight text-xl">ROSATO</span>
+                    <span class="font-bold text-gray-800 tracking-tight text-lg">CALCULADORA</span>
                 </div>
                 <button id="close-sidebar-btn" class="md:hidden text-gray-400 hover:text-red-600 p-2"><i class="fa-solid fa-times text-xl"></i></button>
             </div>
@@ -77,18 +69,9 @@
                         <div id="user-info-email" class="text-xs text-gray-400 truncate">No guardando</div>
                     </div>
                 </div>
-                
-                <button id="btn-sidebar-login" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2 mb-2">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-4 h-4"> <span>Iniciar Sesión</span>
-                </button>
-                <button id="auth-action-btn" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2 hidden">
-                    <i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>
-                </button>
-                
-                <div class="mt-4 pt-3 border-t border-gray-200 text-center">
-                    <p class="text-[10px] text-gray-400 uppercase tracking-wider">Desarrollado por</p>
-                    <p class="text-xs font-bold text-gray-700 mt-0.5">Braian Gomez</p>
-                </div>
+                <button id="btn-sidebar-login" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2 mb-2"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-4 h-4"> <span>Iniciar Sesión</span></button>
+                <button id="auth-action-btn" class="w-full py-2 px-4 bg-white border border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 rounded-lg text-sm font-bold transition shadow-sm flex justify-center items-center gap-2 hidden"><i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span></button>
+                <div class="mt-4 pt-3 border-t border-gray-200 text-center"><p class="text-[10px] text-gray-400 uppercase tracking-wider">Desarrollado por</p><p class="text-xs font-bold text-gray-700 mt-0.5">Braian Gomez</p></div>
             </div>
         </aside>
 
@@ -96,7 +79,7 @@
             <header class="bg-white shadow-sm px-4 flex justify-between items-center md:hidden sticky top-0 z-40 w-full min-h-[70px] border-b border-gray-100 safe-top">
                 <div class="flex items-center h-full">
                     <button id="open-sidebar-btn" class="text-gray-600 focus:outline-none p-3 active:bg-gray-100 rounded-lg mr-2 -ml-2"><i class="fa-solid fa-bars text-xl"></i></button>
-                    <span class="font-bold text-red-700 tracking-tighter text-lg">ROSATO</span>
+                    <span class="font-bold text-gray-800 tracking-tighter text-lg">CALCULADORA</span>
                 </div>
                 <div class="flex items-center cursor-pointer" onclick="window.openImageModal()">
                     <div class="w-9 h-9 rounded-full bg-gray-200 overflow-hidden border border-gray-200 shadow-sm">
@@ -111,10 +94,7 @@
                 <div id="status-message" class="hidden mb-6 p-4 rounded-xl shadow-sm border-l-4 transition-all-300 bg-white"></div>
                 
                 <div id="guest-banner" class="hidden mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-xl shadow-sm flex justify-between items-center">
-                    <div>
-                        <p class="font-bold text-yellow-700 text-sm">Modo Invitado</p>
-                        <p class="text-xs text-yellow-600">Si preferís probarla, guardá tus datos en configuración y hacé la prueba.</p>
-                    </div>
+                    <div><p class="font-bold text-yellow-700 text-sm">Modo Invitado</p><p class="text-xs text-yellow-600">Si preferís probarla, guardá tus datos en configuración y hacé la prueba.</p></div>
                     <button onclick="document.getElementById('btn-sidebar-login').click()" class="text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-2 rounded-lg font-bold transition">Conectar</button>
                 </div>
 
@@ -138,7 +118,6 @@
                             <p id="header-current-date" class="text-2xl font-bold text-gray-700">...</p>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group hover:shadow-md transition-all">
                             <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-money-bill-wave text-6xl text-emerald-600"></i></div>
@@ -164,14 +143,7 @@
                         <h2 class="text-2xl font-bold text-gray-800">Gestión de Turnos</h2>
                         <button id="btn-generate-new" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 shadow-sm transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> Mes Siguiente</button>
                     </div>
-                    
-                    <div class="relative mb-6 group">
-                        <div id="months-chips-container" class="flex space-x-2 overflow-x-auto hide-scroll py-2 relative z-10"></div>
-                        <div class="pointer-events-none absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-gray-50 via-gray-50/80 to-transparent flex items-center justify-end pr-2 z-20">
-                             <span class="text-[10px] font-bold text-red-500 animate-bounce-x bg-white/80 px-1 rounded shadow-sm">Desliza ⮕</span>
-                        </div>
-                    </div>
-
+                    <div class="mb-6"><div id="months-chips-container" class="flex space-x-2 overflow-x-auto hide-scroll py-2"></div></div>
                     <div id="dashboard-content" class="hidden animate-fade-in space-y-6">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div class="bg-white p-4 rounded-xl border border-gray-200"><p class="text-xs text-gray-500 font-bold">HORAS EQ. TOTAL</p><p class="text-xl font-bold text-red-600" id="dash-equiv-hours">0</p></div>
@@ -180,8 +152,11 @@
                             <div class="bg-gray-800 p-4 rounded-xl border border-gray-700"><p class="text-xs text-gray-400 font-bold">NETO FINAL</p><p class="text-xl font-bold text-emerald-400" id="dash-neto-final">$ 0</p></div>
                         </div>
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="p-4 border-b border-gray-100 bg-white sticky top-0 z-30 flex justify-between items-center shadow-sm">
-                                <h3 class="font-bold text-gray-700">Detalle <span id="dash-detail-month-label" class="text-red-600"></span></h3>
+                            <div class="p-4 border-b border-gray-100 bg-white sticky top-0 z-30 flex justify-between items-center shadow-sm flex-wrap gap-3">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-gray-700 whitespace-nowrap">Detalle <span id="dash-detail-month-label" class="text-red-600"></span></h3>
+                                    <span class="text-[10px] font-bold text-red-500 animate-bounce-x bg-red-50 px-2 py-0.5 rounded-full border border-red-100 shadow-sm ml-2">Desliza ⮕</span>
+                                </div>
                                 <div class="flex gap-2">
                                     <button id="btn-delete-month" class="p-2 text-gray-400 hover:text-red-600 transition"><i class="fa-solid fa-trash"></i></button>
                                     <button id="btn-recalculate" class="px-3 py-1.5 bg-gray-800 text-white rounded-lg text-xs font-bold hover:bg-black"><i class="fa-solid fa-save mr-1"></i> Guardar</button>
@@ -194,11 +169,12 @@
                                         <tr>
                                             <th class="px-4 py-3">Fecha</th>
                                             <th class="px-4 py-3">Turno</th>
-                                            <th class="px-4 py-3 text-center text-emerald-600">Extras (Input)</th>
+                                            <th class="px-4 py-3 text-center text-emerald-600">Extras (Reales)</th>
                                             <th class="px-4 py-3 text-center text-red-600">Tarde/Sanción</th>
                                             <th class="px-4 py-3 text-center">Feriado</th>
-                                            <th class="px-4 py-3 text-right">Hs.Reales Tot</th>
-                                            <th class="px-4 py-3 text-right font-bold">Hs.Equiv Tot</th>
+                                            <th class="px-4 py-3 text-center text-orange-500" title="Falta de Descanso">F.Desc</th>
+                                            <th class="px-4 py-3 text-right">Hs.Reales</th>
+                                            <th class="px-4 py-3 text-right font-bold">Hs.Equiv</th>
                                             <th class="px-4 py-3 text-right">Bruto</th>
                                         </tr>
                                     </thead>
@@ -243,6 +219,7 @@
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Afiliación</label><select id="cfg-discountRate" class="w-full p-3 border rounded-lg bg-white" disabled><option value="0.18">No Afiliado (18%)</option><option value="0.21">Afiliado (21%)</option></select></div>
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Viático ($)</label><input type="number" id="cfg-viaticoValue" class="w-full p-3 border rounded-lg" disabled></div>
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Título ($)</label><input type="number" id="cfg-tituloAmount" class="w-full p-3 border rounded-lg" disabled></div>
+                            <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Años Antigüedad</label><input type="number" id="cfg-antiguedad" class="w-full p-3 border rounded-lg" placeholder="Ej: 5" disabled></div>
                             <div class="col-span-1 md:col-span-2 border-t border-gray-100 pt-4 mt-2">
                                 <h4 class="font-bold text-red-600 mb-4 text-sm">CONFIGURACIÓN DE ROTACIÓN</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -257,57 +234,11 @@
 
                 <div id="help-view" class="view-section hidden max-w-2xl mx-auto">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-circle-question text-blue-500 mr-2"></i> Cómo usar el Portal</h2>
-                    
                     <div class="space-y-6">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                            <div class="flex items-center gap-4 mb-3">
-                                <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">1</div>
-                                <h3 class="font-bold text-lg">Configuración Inicial</h3>
-                            </div>
-                            <p class="text-gray-600 text-sm leading-relaxed ml-12">
-                                Antes de empezar, ve a la sección <strong>Configuración</strong>. Ingresá tu Valor Hora, Equipo, Valor de Viático y la fecha de tu último franco. Es vital que presiones <strong>"GUARDAR Y APLICAR"</strong> para que los cálculos sean correctos.
-                            </p>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                            <div class="flex items-center gap-4 mb-3">
-                                <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">2</div>
-                                <h3 class="font-bold text-lg">Generar tu Mes</h3>
-                            </div>
-                            <p class="text-gray-600 text-sm leading-relaxed ml-12">
-                                Ve a <strong>Mi Gestión</strong>. Si es tu primera vez, presiona "Generar Mes Actual". El sistema creará tu grilla de turnos basada en tu configuración. Puedes navegar entre meses usando los botones superiores.
-                            </p>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                            <div class="flex items-center gap-4 mb-3">
-                                <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">3</div>
-                                <h3 class="font-bold text-lg">Cargar Novedades</h3>
-                            </div>
-                            <p class="text-gray-600 text-sm leading-relaxed ml-12">
-                                En la tabla de gestión puedes:
-                                <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-500">
-                                    <li>Ingresar <strong>Horas Extras Reales</strong> (el sistema calcula el 50% o 100% automáticamente y lo suma al total equivalente).</li>
-                                    <li>Marcar llegadas tarde para el descuento de presentismo.</li>
-                                    <li>Marcar Feriados manualmente si el sistema no lo hizo.</li>
-                                    <li>Cambiar turnos (si cambiaste el franco o hiciste doble turno).</li>
-                                </ul>
-                                <strong class="block mt-2 text-red-600">Importante: Dale al botón "Guardar" arriba de la tabla para asegurar tus cambios.</strong>
-                            </p>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                            <div class="flex items-center gap-4 mb-3">
-                                <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">4</div>
-                                <h3 class="font-bold text-lg">Consultar y Descargar</h3>
-                            </div>
-                            <p class="text-gray-600 text-sm leading-relaxed ml-12">
-                                Usa la sección <strong>Tesorería</strong> para ver el desglose de quincenas. En <strong>Ranking</strong> verás tu histórico de mejores sueldos. También puedes descargar un PDF de tu nómina desde la sección de Gestión.
-                            </p>
-                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200"><div class="flex items-center gap-4 mb-3"><div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">1</div><h3 class="font-bold text-lg">Configuración Inicial</h3></div><p class="text-gray-600 text-sm leading-relaxed ml-12">Ve a <strong>Configuración</strong>. Ingresá tu Valor Hora, Antigüedad, Equipo, etc. y dale a <strong>"GUARDAR Y APLICAR"</strong>.</p></div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200"><div class="flex items-center gap-4 mb-3"><div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">2</div><h3 class="font-bold text-lg">Cargar Novedades</h3></div><p class="text-gray-600 text-sm leading-relaxed ml-12">En <strong>Mi Gestión</strong>, carga tus <strong>Extras Reales</strong> (ej: 4hs). El sistema calcula el multiplicador. Marca <strong>F.Desc</strong> si hubo falta de descanso (+4hs).</p></div>
                     </div>
                 </div>
-
             </div>
         </main>
     </div>
@@ -325,36 +256,34 @@
         const DEFAULT_STATE = {
             config: { 
                 userName: 'Usuario', profilePicUrl: '', teamLetter: 'A', valorHora: 0, discountRate: 0.18, 
-                tituloAmount: 0, viaticoValue: 0, presentismoAmount: 0, 
+                tituloAmount: 0, viaticoValue: 0, antiguedadYears: 0, presentismoAmount: 0, 
                 lastFrancoDate: new Date().toISOString().split('T')[0], initialTurn: 'Mañana' 
             },
             viewingMonth: { month: new Date().getMonth() + 1, year: new Date().getFullYear() },
             treasuryViewMonth: { month: new Date().getMonth() + 1, year: new Date().getFullYear() },
-            activeData: { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, calculation: null },
+            activeData: { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, lackOfRest: {}, calculation: null },
             historicalCache: {}
         };
 
-        let appState = JSON.parse(JSON.stringify(DEFAULT_STATE)); // Deep copy
+        let appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
 
-        // --- EXPOSE GLOBALS ---
         window.navigateTo = navigateTo; 
         window.openImageModal = openImageModal;
         window.updateExtra = updateExtra; 
         window.updateHoliday = updateHoliday; 
         window.updateLateness = updateLateness; 
         window.updateTurnOverride = updateTurnOverride;
+        window.updateLackOfRest = updateLackOfRest;
 
         window.onload = () => {
             initFirebaseSystem();
             setupUI();
             const d = new Date();
             document.getElementById('header-current-date').textContent = `${d.getDate()} ${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][d.getMonth()]}`;
-            
             document.getElementById('btn-sidebar-login').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
             document.getElementById('auth-action-btn').onclick = () => signOut(auth);
             document.getElementById('btn-save-config').addEventListener('click', saveConfigHandler);
             document.getElementById('btn-toggle-edit').addEventListener('click', toggleConfigEdit);
-            
             const fileInput = document.getElementById('cfg-profilePicture');
             if (fileInput) fileInput.onchange = (e) => { if(e.target.files[0]) compressAndUpload(e.target.files[0]); };
         };
@@ -408,7 +337,6 @@
             if (viewId === 'ranking-view') renderRanking();
             if (viewId === 'treasury-view') renderTreasury();
             if (viewId === 'config-view') fillConfigInputs();
-            
             if(window.innerWidth < 768) { document.getElementById('sidebar').classList.add('sidebar-closed'); document.getElementById('sidebar').classList.remove('sidebar-open'); document.getElementById('sidebar-backdrop').classList.add('hidden'); }
         }
 
@@ -433,11 +361,11 @@
             };
         }
 
-        function performCalculation(month, year, extras, holidays, overrides, lateness, configOverride) {
+        function performCalculation(month, year, extras, holidays, overrides, lateness, lackOfRest, configOverride) {
             const cfg = configOverride || appState.config;
-            const { lastFrancoDate, initialTurn, valorHora, discountRate, tituloAmount, viaticoValue } = cfg;
+            const { lastFrancoDate, initialTurn, valorHora, discountRate, tituloAmount, viaticoValue, antiguedadYears } = cfg;
             const safeValHora = Number(valorHora) || 0; const safeViat = Number(viaticoValue) || 0;
-            const safeTitulo = Number(tituloAmount) || 0;
+            const safeTitulo = Number(tituloAmount) || 0; const safeAntig = Number(antiguedadYears) || 0;
 
             const daysInMonth = new Date(year, month, 0).getDate();
             const dailyResults = []; const francosList = [];
@@ -449,9 +377,12 @@
             const diffDays = Math.floor((new Date(year, month - 1, 1).getTime() - lastFrancoMs) / 86400000);
             let startOffset = (baseOffset + diffDays) % 24; if (startOffset < 0) startOffset += 24;
 
-            let q1_bruto = 0, q2_bruto = 0, q1_viaticos = 0, q2_viaticos = 0, q1_fer = 0, q2_fer = 0;
-            let totalExtrasAmount = 0;
-            let presentismoHoursPool = 8; 
+            let q1_bruto = 0, q2_bruto = 0, q1_viaticos = 0, q2_viaticos = 0;
+            let q1_antig = 0, q2_antig = 0, q1_fer = 0, q2_fer = 0, q1_extras = 0, q2_extras = 0, q1_descanso = 0, q2_descanso = 0;
+            let presentismoHoursPool = 8;
+            
+            // Counters for PDF Receipt Classification
+            let receiptStats = { normal: 0, night: 0, sat50: 0, sat100: 0, sun200: 0, holidays: 0, lackRest: 0 };
 
             for (let i = 1; i <= daysInMonth; i++) {
                 const current = new Date(year, month - 1, i);
@@ -462,8 +393,9 @@
                 
                 const isHol = holidays[dDisp] === true; 
                 const extReal = extras[dDisp] || 0;
-                
+                const isLackRest = lackOfRest && lackOfRest[dDisp] === true;
                 const lateType = (lateness && lateness[dDisp]) ? parseInt(lateness[dDisp]) : 0;
+                
                 if(lateType === 1) presentismoHoursPool -= 0.5;
                 if(lateType === 2) presentismoHoursPool -= 1.0;
 
@@ -471,28 +403,49 @@
                 if (cState === 'Vacaciones' || cState === 'Licencia') { tLbl = cState; eqBase = 8; } 
                 else if (cState === 'Franco') {
                     francosList.push({ dayNum: i, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], fullDate: dDisp, isHoliday: isHol });
-                    if (isHol) { tLbl = 'FERIADO (Franco)'; eqBase = 8; }
+                    if (isHol) { tLbl = 'FERIADO (Franco)'; eqBase = 8; receiptStats.holidays += 8; }
                 } else {
-                    if (isHol) { tLbl = `FERIADO (${cState})`; eqBase = 32; }
+                    if (isHol) { tLbl = `FERIADO (${cState})`; eqBase = 32; receiptStats.holidays += 8; } // Receipt usually shows hol as separate line
                     else {
                         eqBase = 8; const d = current.getDay();
-                        if (d===0) eqBase=24; else if(d===6 && (cState==='Tarde'||cState==='Noche')) eqBase = cState==='Tarde'?12:16;
-                        if (d>=1 && d<=5 && cState==='Noche') eqBase=12; if(d===0 && cState==='Noche') eqBase=28;
+                        // Categorization for PDF based on Turn & Day
+                        if (d >= 1 && d <= 5) {
+                             if(cState === 'Noche') receiptStats.night += 8; 
+                             else receiptStats.normal += 8;
+                        }
+                        if (d===0) { eqBase=24; receiptStats.sun200 += 8; } 
+                        else if(d===6) {
+                            // Sat: App Logic for Pay vs Receipt Logic
+                            if(cState==='Tarde'||cState==='Noche') {
+                                eqBase = cState==='Tarde'?12:16;
+                                receiptStats.sat50 += 8; // Mapping Tarde/Noche to Sat lines
+                            } else {
+                                receiptStats.normal += 8; // Morning Sat often counts as normal 4-5h? Assuming 8 for sim.
+                            }
+                        }
+                        if (d>=1 && d<=5 && cState==='Noche') eqBase=12; 
+                        if(d===0 && cState==='Noche') eqBase=28;
                     }
                 }
 
-                // --- NEW EXTRAS LOGIC ---
-                // M-F (1-5): 1.5x (50%)
-                // Sat (6): 2.0x (100%)
-                // Sun (0) or Holiday: 3.0x (200%)
+                // Extras Multipliers
                 const dayOfWeek = current.getDay(); 
                 let multiplier = 1.5; 
                 if(isHol || dayOfWeek === 0) multiplier = 3.0;
                 else if(dayOfWeek === 6) multiplier = 2.0;
 
                 const eqAddedByExtras = extReal * multiplier; 
-                const eqTot = eqBase + eqAddedByExtras;
+                let eqTot = eqBase + eqAddedByExtras;
+                
+                // Lack of Rest Logic (Flat +4 equivalent hours)
+                if(isLackRest) {
+                    eqTot += 4;
+                    receiptStats.lackRest += 1; // Count days
+                }
+
                 const dBruto = eqTot * safeValHora; 
+                // Antiguedad is calculated on the Bruto of the day (proportional)
+                const dAntig = dBruto * (safeAntig / 100);
                 const dViat = extReal > 0 ? safeViat : 0;
                 
                 const realBaseHours = 8; 
@@ -500,75 +453,69 @@
 
                 dailyResults.push({ 
                     date: dDisp, key: dKey, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], 
-                    turn: tLbl, isHoliday: isHol, lateType: lateType, 
+                    turn: tLbl, isHoliday: isHol, lateType: lateType, isLackRest: isLackRest,
                     equivBase: eqBase, extraReal: extReal, 
-                    totalEquiv: eqTot, 
-                    totalRealHours: totalRealHours, 
-                    bruto: dBruto, isFranco: cState === 'Franco' 
+                    totalEquiv: eqTot, totalRealHours: totalRealHours, 
+                    bruto: dBruto + dAntig, isFranco: cState === 'Franco' 
                 });
 
-                const extrasCash = eqAddedByExtras * safeValHora;
-                totalExtrasAmount += extrasCash;
+                const extrasMoney = eqAddedByExtras * safeValHora;
+                const restMoney = isLackRest ? (4 * safeValHora) : 0;
+                const feriadoMoney = isHol ? (eqBase * safeValHora) : 0; 
 
                 if (i <= 15) { 
-                    q1_bruto += dBruto; q1_viaticos += dViat; 
-                    if(isHol) q1_fer += (eqBase * safeValHora); 
+                    q1_bruto += dBruto; q1_viaticos += dViat; q1_antig += dAntig;
+                    q1_extras += extrasMoney; q1_descanso += restMoney; q1_fer += feriadoMoney;
                 } else { 
-                    q2_bruto += dBruto; q2_viaticos += dViat; 
-                    if(isHol) q2_fer += (eqBase * safeValHora);
+                    q2_bruto += dBruto; q2_viaticos += dViat; q2_antig += dAntig;
+                    q2_extras += extrasMoney; q2_descanso += restMoney; q2_fer += feriadoMoney;
                 }
                 startOffset = (startOffset + 1) % 24;
             }
 
             if(presentismoHoursPool < 0) presentismoHoursPool = 0;
             const presMoney = presentismoHoursPool * safeValHora;
-            const q1_n = q1_bruto - (q1_bruto * discountRate) + q1_viaticos;
-            const q2_n = q2_bruto - (q2_bruto * discountRate) + q2_viaticos + safeTitulo + presMoney;
+            
+            // Total Sums
+            const q1_final = q1_bruto + q1_antig + q1_viaticos;
+            const q1_neto = (q1_bruto + q1_antig) * (1 - discountRate) + q1_viaticos;
+
+            const q2_final_bruto = q2_bruto + q2_antig + safeTitulo + presMoney;
+            const q2_neto = q2_final_bruto * (1 - discountRate) + q2_viaticos;
 
             return { 
-                dailyResults, francosList, 
+                dailyResults, francosList, receiptStats,
                 totalEquivHours: dailyResults.reduce((a,b)=>a+b.totalEquiv,0), 
                 totalViaticos: q1_viaticos + q2_viaticos, 
                 tituloAmount: safeTitulo, 
                 presentismo: presMoney, 
                 presentismoHoursLeft: presentismoHoursPool,
-                netoFinal: q1_n + q2_n, 
-                brutoTotal: q1_bruto + q2_bruto,
-                descuentoTotal: (q1_bruto + q2_bruto) * discountRate,
-                totalFeriadosAmt: q1_fer + q2_fer,
-                totalFeriadosCount: dailyResults.filter(d=>d.isHoliday).length,
-                totalExtrasAmt: totalExtrasAmount,
-                totalExtrasHoursReal: dailyResults.reduce((a,b)=>a+b.extraReal,0),
+                netoFinal: q1_neto + q2_neto, 
                 quincenas: { 
-                    q1: { bruto: q1_bruto, neto: q1_n, viaticos: q1_viaticos, desc: q1_bruto * discountRate, feriados: q1_fer, extras: dailyResults.slice(0,15).reduce((a,b)=>a+(b.extraReal*(b.isHoliday?3:1.5)*safeValHora),0) }, 
-                    q2: { bruto: q2_bruto, neto: q2_n, viaticos: q2_viaticos, desc: q2_bruto * discountRate, feriados: q2_fer, extras: dailyResults.slice(15).reduce((a,b)=>a+(b.extraReal*(b.isHoliday?3:1.5)*safeValHora),0) } 
+                    q1: { brutoBase: q1_bruto, antiguedad: q1_antig, viaticos: q1_viaticos, extras: q1_extras, feriados: q1_fer, descanso: q1_descanso, neto: q1_neto, desc: (q1_bruto + q1_antig)*discountRate }, 
+                    q2: { brutoBase: q2_bruto, antiguedad: q2_antig, viaticos: q2_viaticos, extras: q2_extras, feriados: q2_fer, descanso: q2_descanso, titulo: safeTitulo, presentismo: presMoney, neto: q2_neto, desc: q2_final_bruto*discountRate } 
                 } 
             };
         }
 
-        // --- FIXED FUNCTION TO SEPARATE ACTIVE DATA FROM HOME VIEW DATA ---
         function getCalculationFor(m, y, isHome = false) {
-            // Check if we requested the exact month that is currently "Open" in Dashboard
-            if (!isHome && appState.viewingMonth.month === m && appState.viewingMonth.year === y) {
-                return performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.config);
+            // Force calculation if Home View requested (current date) to avoid showing cached edit state
+            if (isHome) {
+                 // Always fresh calc for home projection
+                 return performCalculation(m, y, {}, {}, {}, {}, {}, appState.config);
             }
-            
-            // If checking for Home or another month, check cache first
+            if (appState.viewingMonth.month === m && appState.viewingMonth.year === y) {
+                return performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.lackOfRest, appState.config);
+            }
             const key = `${y}-${String(m).padStart(2,'0')}`;
             const cached = appState.historicalCache[key];
-            
-            if(cached) {
-                return performCalculation(m, y, cached.extras||{}, cached.holidayFlags||{}, cached.shiftOverrides||{}, cached.lateness||{}, cached.configSnapshot||appState.config);
-            } else {
-                // Return clean projection if no data exists
-                return performCalculation(m, y, {}, {}, {}, {}, appState.config);
-            }
+            return performCalculation(m, y, cached?.extras||{}, cached?.holidayFlags||{}, cached?.shiftOverrides||{}, cached?.lateness||{}, cached?.lackOfRest||{}, cached?.configSnapshot||appState.config);
         }
 
         document.getElementById('btn-delete-month').onclick = async () => {
             if(!confirm("¿Borrar este mes?")) return;
             const { month, year } = appState.viewingMonth; const docId = `${year}-${String(month).padStart(2, '0')}`;
-            try { if(userId) await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId)); delete appState.historicalCache[docId]; const keys = Object.keys(appState.historicalCache).sort(); if (keys.length > 0) { const [ly, lm] = keys[keys.length - 1].split('-'); switchDashboardMonth(parseInt(lm), parseInt(ly)); } else { const now = new Date(); appState.viewingMonth = { month: now.getMonth() + 1, year: now.getFullYear() }; appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {} }; renderDashboard(); } showMessage('Eliminado.', 'success'); } catch(e) { console.error(e); showMessage('Error.', 'error'); }
+            try { if(userId) await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId)); delete appState.historicalCache[docId]; const keys = Object.keys(appState.historicalCache).sort(); if (keys.length > 0) { const [ly, lm] = keys[keys.length - 1].split('-'); switchDashboardMonth(parseInt(lm), parseInt(ly)); } else { const now = new Date(); appState.viewingMonth = { month: now.getMonth() + 1, year: now.getFullYear() }; appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, lackOfRest: {} }; renderDashboard(); } showMessage('Eliminado.', 'success'); } catch(e) { console.error(e); showMessage('Error.', 'error'); }
         };
 
         document.getElementById('btn-generate-new').onclick = async () => { 
@@ -578,30 +525,23 @@
         };
 
         async function generateMonth(m, y) {
-            appState.viewingMonth = { month: m, year: y }; appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {} };
+            appState.viewingMonth = { month: m, year: y }; appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, lackOfRest: {} };
             triggerLocalRecalculate(); await saveCurrentData(); if(!appState.treasuryViewMonth) appState.treasuryViewMonth = { month: m, year: y }; showMessage(`Mes ${m}/${y} generado.`);
         }
 
         function updateProfilePictureUI(url) {
             const els = ['profile-pic-preview', 'home-profile-pic', 'header-profile-pic'];
-            els.forEach(id => {
-                const el = document.getElementById(id);
-                if(el) { if(url) { el.src = url; el.classList.remove('hidden'); if(el.nextElementSibling) el.nextElementSibling.classList.add('hidden'); } else { el.src = ''; el.classList.add('hidden'); if(el.nextElementSibling) el.nextElementSibling.classList.remove('hidden'); } }
-            });
+            els.forEach(id => { const el = document.getElementById(id); if(el) { if(url) { el.src = url; el.classList.remove('hidden'); if(el.nextElementSibling) el.nextElementSibling.classList.add('hidden'); } else { el.src = ''; el.classList.add('hidden'); if(el.nextElementSibling) el.nextElementSibling.classList.remove('hidden'); } } });
         }
 
         function renderHome() {
             document.getElementById('welcome-user-name').textContent = appState.config.userName;
             document.getElementById('welcome-user-team').textContent = `Equipo ${appState.config.teamLetter}`;
             document.getElementById('user-info-team').textContent = `Eq. ${appState.config.teamLetter}`;
-            
             const now = new Date();
-            // Call explicitly for current calendar month
             const calc = getCalculationFor(now.getMonth() + 1, now.getFullYear(), true);
-            
             document.getElementById('home-current-month-label').textContent = now.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }).toUpperCase();
             updateProfilePictureUI(appState.config.profilePicUrl);
-
             if (calc) {
                 document.getElementById('home-month-net').textContent = formatCurrency(calc.netoFinal);
                 const d = now.getDate();
@@ -634,18 +574,9 @@
             if (calc) {
                 document.getElementById('dash-equiv-hours').textContent = formatNumber(calc.totalEquivHours);
                 document.getElementById('dash-viaticos-total').textContent = formatCurrency(calc.totalViaticos);
-                
-                const pEl = document.getElementById('dash-presentismo-total'); 
-                pEl.textContent = formatCurrency(calc.presentismo);
-                if(calc.presentismoHoursLeft < 8) { 
-                    pEl.classList.add('text-orange-500'); pEl.classList.remove('text-blue-600');
-                    pEl.innerHTML += `<span class="text-[10px] block text-gray-400">(${calc.presentismoHoursLeft}hs)</span>`;
-                } else { 
-                    pEl.classList.add('text-blue-600'); pEl.classList.remove('text-orange-500'); 
-                }
-                
+                const pEl = document.getElementById('dash-presentismo-total'); pEl.textContent = formatCurrency(calc.presentismo);
+                if(calc.presentismoHoursLeft < 8) { pEl.classList.add('text-orange-500'); pEl.classList.remove('text-blue-600'); pEl.innerHTML += `<span class="text-[10px] block text-gray-400">(${calc.presentismoHoursLeft}hs)</span>`; } else { pEl.classList.add('text-blue-600'); pEl.classList.remove('text-orange-500'); }
                 document.getElementById('dash-neto-final').textContent = formatCurrency(calc.netoFinal);
-                
                 const tbody = document.getElementById('daily-detail-tbody'); tbody.innerHTML = '';
                 calc.dailyResults.forEach(d => {
                     const tr = document.createElement('tr'); 
@@ -655,31 +586,11 @@
                     let lateSel = d.lateType;
                     tr.innerHTML = `
                         <td class="px-4 py-3 text-gray-700 whitespace-nowrap font-medium">${d.date.split('/')[0]} <span class="text-xs text-gray-400">${d.dayName}</span></td>
-                        <td class="px-4 py-3">
-                            <select class="table-select bg-transparent border-none text-xs font-bold ${d.isFranco?'text-yellow-600':'text-red-600'}" onchange="window.updateTurnOverride('${d.key}', this.value)">
-                                <option value="Original" ${sel==='Original'?'selected':''}>Auto</option>
-                                <option value="Mañana" ${sel==='Mañana'?'selected':''}>Mañana</option>
-                                <option value="Tarde" ${sel==='Tarde'?'selected':''}>Tarde</option>
-                                <option value="Noche" ${sel==='Noche'?'selected':''}>Noche</option>
-                                <option value="Franco" ${sel==='Franco'?'selected':''}>Franco</option>
-                                <option value="Licencia" ${sel==='Licencia'?'selected':''}>Licencia</option>
-                                <option value="Vacaciones" ${sel==='Vacaciones'?'selected':''}>Vacaciones</option>
-                            </select>
-                            <div class="text-[10px] text-gray-400">${d.turn}</div>
-                        </td>
-                        <td class="px-4 py-3 text-center">
-                            <input type="number" value="${d.extraReal||''}" class="w-14 text-center border rounded py-1 text-xs font-bold text-emerald-600" placeholder="-" step="0.5" min="0" onchange="window.updateExtra('${d.date}', this.value)">
-                        </td>
-                        <td class="px-4 py-3 text-center">
-                            <select class="border rounded text-[10px] py-1 px-1 ${lateSel>0?'text-red-600 bg-red-50 font-bold':''}" onchange="window.updateLateness('${d.date}', this.value)">
-                                <option value="0" ${lateSel===0?'selected':''}>Puntual</option>
-                                <option value="1" ${lateSel===1?'selected':''}>Tarde (>5m)</option>
-                                <option value="2" ${lateSel===2?'selected':''}>Tarde (>1h)</option>
-                            </select>
-                        </td>
-                        <td class="px-4 py-3 text-center">
-                            <input type="checkbox" class="w-4 h-4 text-red-600 rounded focus:ring-red-500" ${d.isHoliday?'checked':''} onchange="window.updateHoliday('${d.date}', this.checked)">
-                        </td>
+                        <td class="px-4 py-3"><select class="table-select bg-transparent border-none text-xs font-bold ${d.isFranco?'text-yellow-600':'text-red-600'}" onchange="window.updateTurnOverride('${d.key}', this.value)"><option value="Original" ${sel==='Original'?'selected':''}>Auto</option><option value="Mañana" ${sel==='Mañana'?'selected':''}>Mañana</option><option value="Tarde" ${sel==='Tarde'?'selected':''}>Tarde</option><option value="Noche" ${sel==='Noche'?'selected':''}>Noche</option><option value="Franco" ${sel==='Franco'?'selected':''}>Franco</option><option value="Licencia" ${sel==='Licencia'?'selected':''}>Licencia</option><option value="Vacaciones" ${sel==='Vacaciones'?'selected':''}>Vacaciones</option></select><div class="text-[10px] text-gray-400">${d.turn}</div></td>
+                        <td class="px-4 py-3 text-center"><input type="number" value="${d.extraReal||''}" class="w-14 text-center border rounded py-1 text-xs font-bold text-emerald-600" placeholder="-" step="0.5" min="0" onchange="window.updateExtra('${d.date}', this.value)"></td>
+                        <td class="px-4 py-3 text-center"><select class="border rounded text-[10px] py-1 px-1 ${lateSel>0?'text-red-600 bg-red-50 font-bold':''}" onchange="window.updateLateness('${d.date}', this.value)"><option value="0" ${lateSel===0?'selected':''}>Puntual</option><option value="1" ${lateSel===1?'selected':''}>Tarde (>5m)</option><option value="2" ${lateSel===2?'selected':''}>Tarde (>1h)</option></select></td>
+                        <td class="px-4 py-3 text-center"><input type="checkbox" class="w-4 h-4 text-red-600 rounded focus:ring-red-500" ${d.isHoliday?'checked':''} onchange="window.updateHoliday('${d.date}', this.checked)"></td>
+                        <td class="px-4 py-3 text-center"><input type="checkbox" class="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" ${d.isLackRest?'checked':''} onchange="window.updateLackOfRest('${d.date}', this.checked)"></td>
                         <td class="px-4 py-3 text-right text-gray-500 font-medium">${formatNumber(d.totalRealHours)}</td>
                         <td class="px-4 py-3 text-right font-bold text-gray-700">${formatNumber(d.totalEquiv)}</td>
                         <td class="px-4 py-3 text-right text-xs text-gray-500">${formatCurrency(d.bruto)}</td>
@@ -706,16 +617,17 @@
             const calc = getCalculationFor(month, year);
             const c = (t, a, d, dt) => `
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="p-6 border-b border-gray-50 flex justify-between items-start bg-white">
-                        <div><h3 class="text-lg font-bold text-gray-700">${t}</h3><p class="text-sm text-emerald-600 mt-1">Cobro: ${d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</p></div>
-                        <div class="text-right"><p class="text-3xl font-extrabold text-gray-800 truncate">${formatCurrency(a)}</p><p class="text-xs text-gray-400">Neto</p></div>
-                    </div>
-                    <div class="p-6 grid grid-cols-2 gap-4 text-sm">
-                        <div><p class="text-gray-400">Bruto</p><p class="font-semibold">${formatCurrency(dt.bruto)}</p></div>
-                        <div><p class="text-gray-400">Desc.</p><p class="font-semibold text-red-500">-${formatCurrency(dt.desc)}</p></div>
-                        <div><p class="text-gray-400">Viáticos</p><p class="font-semibold text-orange-500">+${formatCurrency(dt.viaticos)}</p></div>
-                        ${dt.extras > 0 ? `<div><p class="text-gray-400">Extras</p><p class="font-semibold text-emerald-600">+${formatCurrency(dt.extras)}</p></div>` : ''}
-                        ${dt.feriados > 0 ? `<div><p class="text-gray-400">Feriados</p><p class="font-semibold text-emerald-600">+${formatCurrency(dt.feriados)}</p></div>` : ''}
+                    <div class="p-6 border-b border-gray-50 flex justify-between items-start bg-white"><div><h3 class="text-lg font-bold text-gray-700">${t}</h3><p class="text-sm text-emerald-600 mt-1">Cobro: ${d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</p></div><div class="text-right"><p class="text-3xl font-extrabold text-gray-800 truncate">${formatCurrency(a)}</p><p class="text-xs text-gray-400">Neto</p></div></div>
+                    <div class="p-6 grid grid-cols-2 gap-2 text-sm">
+                        <div><p class="text-gray-400 text-xs">Bruto Base</p><p class="font-semibold">${formatCurrency(dt.brutoBase)}</p></div>
+                        <div><p class="text-gray-400 text-xs">Antigüedad</p><p class="font-semibold text-gray-700">+${formatCurrency(dt.antiguedad)}</p></div>
+                        <div><p class="text-gray-400 text-xs">Viáticos</p><p class="font-semibold text-orange-500">+${formatCurrency(dt.viaticos)}</p></div>
+                        ${dt.extras > 0 ? `<div><p class="text-gray-400 text-xs">Extras</p><p class="font-semibold text-emerald-600">+${formatCurrency(dt.extras)}</p></div>` : ''}
+                        ${dt.descanso > 0 ? `<div><p class="text-gray-400 text-xs">F. Descanso</p><p class="font-semibold text-purple-600">+${formatCurrency(dt.descanso)}</p></div>` : ''}
+                        ${dt.feriados > 0 ? `<div><p class="text-gray-400 text-xs">Feriados</p><p class="font-semibold text-teal-600">+${formatCurrency(dt.feriados)}</p></div>` : ''}
+                        ${dt.titulo ? `<div><p class="text-gray-400 text-xs">Título</p><p class="font-semibold text-blue-600">+${formatCurrency(dt.titulo)}</p></div>` : ''}
+                        ${dt.presentismo ? `<div><p class="text-gray-400 text-xs">Presentismo</p><p class="font-semibold text-blue-600">+${formatCurrency(dt.presentismo)}</p></div>` : ''}
+                        <div class="col-span-2 border-t pt-2 mt-1"><p class="text-gray-400 text-xs">Descuentos</p><p class="font-semibold text-red-500">-${formatCurrency(dt.desc)}</p></div>
                     </div>
                 </div>`;
             const d1 = calculatePaymentDate(year, month, 15), d2 = calculatePaymentDate(year, month, new Date(year, month, 0).getDate());
@@ -724,29 +636,16 @@
 
         function renderRanking() {
             const list = document.getElementById('ranking-list'); list.innerHTML = '';
-            
             const r = Object.keys(appState.historicalCache).map(key => {
-                const [y, m] = key.split('-');
-                const cached = appState.historicalCache[key];
-                const freshCalc = performCalculation(parseInt(m), parseInt(y), cached.extras||{}, cached.holidayFlags||{}, cached.shiftOverrides||{}, cached.lateness||{}, cached.configSnapshot||appState.config);
+                const [y, m] = key.split('-'); const cached = appState.historicalCache[key];
+                const freshCalc = performCalculation(parseInt(m), parseInt(y), cached.extras||{}, cached.holidayFlags||{}, cached.shiftOverrides||{}, cached.lateness||{}, cached.lackOfRest||{}, cached.configSnapshot||appState.config);
                 return { key, results: freshCalc };
             }).sort((a, b) => b.results.netoFinal - a.results.netoFinal);
-
             if (r.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 mt-8">Sin datos.</p>'; return; }
-            
             r.forEach((i, idx) => {
                 const [y, m] = i.key.split('-');
                 const extrasCount = i.results.totalExtrasHoursReal || 0;
-                const feriadosCount = i.results.totalFeriadosCount || 0;
-                list.innerHTML += `
-                    <div class="p-4 rounded-xl border ${idx===0?'border-yellow-400':idx===1?'border-gray-300':idx===2?'border-orange-300':'border-gray-100'} bg-white shadow-sm flex justify-between items-center gap-4">
-                        <div>
-                            <div class="text-2xl font-bold text-center w-8 float-left mr-2">${idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':idx+1}</div>
-                            <h4 class="font-bold text-gray-800 capitalize">${new Date(y, m-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'})}</h4>
-                            <p class="text-[10px] text-gray-400 font-medium ml-10">${feriadosCount} Feriados • ${extrasCount}hs Extras</p>
-                        </div>
-                        <div class="text-right"><p class="text-xl font-extrabold text-emerald-600">${formatCurrency(i.results.netoFinal)}</p></div>
-                    </div>`;
+                list.innerHTML += `<div class="p-4 rounded-xl border ${idx===0?'border-yellow-400':idx===1?'border-gray-300':idx===2?'border-orange-300':'border-gray-100'} bg-white shadow-sm flex justify-between items-center gap-4"><div><div class="text-2xl font-bold text-center w-8 float-left mr-2">${idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':idx+1}</div><h4 class="font-bold text-gray-800 capitalize">${new Date(y, m-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'})}</h4><p class="text-[10px] text-gray-400 font-medium ml-10">${extrasCount}hs Extras</p></div><div class="text-right"><p class="text-xl font-extrabold text-emerald-600">${formatCurrency(i.results.netoFinal)}</p></div></div>`;
             });
         }
 
@@ -754,56 +653,36 @@
         function updateHoliday(d, c) { if(c) appState.activeData.manualHolidays[d]=true; else delete appState.activeData.manualHolidays[d]; triggerLocalRecalculate(); }
         function updateLateness(d, v) { const val = parseInt(v); if(val > 0) appState.activeData.lateness[d]=val; else delete appState.activeData.lateness[d]; triggerLocalRecalculate(); }
         function updateTurnOverride(k, v) { if(v==='Original') delete appState.activeData.shiftOverrides[k]; else appState.activeData.shiftOverrides[k]=v; triggerLocalRecalculate(); }
+        function updateLackOfRest(d, c) { if(c) appState.activeData.lackOfRest[d]=true; else delete appState.activeData.lackOfRest[d]; triggerLocalRecalculate(); }
         
-        function triggerLocalRecalculate() { const {month, year} = appState.viewingMonth; appState.activeData.calculation = performCalculation(month, year, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.config); renderDashboard(); renderHome(); }
+        function triggerLocalRecalculate() { const {month, year} = appState.viewingMonth; appState.activeData.calculation = performCalculation(month, year, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.lackOfRest, appState.config); renderDashboard(); renderHome(); }
         
-        async function switchDashboardMonth(m, y) { appState.viewingMonth = { month: m, year: y }; const key = `${y}-${String(m).padStart(2, '0')}`; const cached = appState.historicalCache[key]; if(cached) { appState.activeData = { extras: cached.extras||{}, manualHolidays: cached.holidayFlags||{}, shiftOverrides: cached.shiftOverrides||{}, lateness: cached.lateness||{} }; appState.activeData.calculation = performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, cached.configSnapshot || null); } renderDashboard(); const now = new Date(); if(m===now.getMonth()+1 && y===now.getFullYear()) renderHome(); }
+        async function switchDashboardMonth(m, y) { appState.viewingMonth = { month: m, year: y }; const key = `${y}-${String(m).padStart(2, '0')}`; const cached = appState.historicalCache[key]; if(cached) { appState.activeData = { extras: cached.extras||{}, manualHolidays: cached.holidayFlags||{}, shiftOverrides: cached.shiftOverrides||{}, lateness: cached.lateness||{}, lackOfRest: cached.lackOfRest||{} }; appState.activeData.calculation = performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.lackOfRest, cached.configSnapshot || null); } renderDashboard(); }
         
-        async function saveCurrentData() { if(!userId) return; const { month, year } = appState.viewingMonth; const docId = `${year}-${String(month).padStart(2, '0')}`; const data = { extras: appState.activeData.extras, holidayFlags: appState.activeData.manualHolidays, shiftOverrides: appState.activeData.shiftOverrides, lateness: appState.activeData.lateness, results: appState.activeData.calculation, configSnapshot: { ...appState.config } }; appState.historicalCache[docId] = data; await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId), data); renderDashboard(); }
+        async function saveCurrentData() { if(!userId) return; const { month, year } = appState.viewingMonth; const docId = `${year}-${String(month).padStart(2, '0')}`; const data = { extras: appState.activeData.extras, holidayFlags: appState.activeData.manualHolidays, shiftOverrides: appState.activeData.shiftOverrides, lateness: appState.activeData.lateness, lackOfRest: appState.activeData.lackOfRest, results: appState.activeData.calculation, configSnapshot: { ...appState.config } }; appState.historicalCache[docId] = data; await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId), data); renderDashboard(); }
         
         function formatCurrency(v) { return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(v||0); }
         function formatNumber(v) { return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2 }).format(v||0); }
         function showMessage(m, t='info') { const el = document.getElementById('status-message'); el.textContent = m; el.className = `mb-6 p-4 rounded-xl shadow-md border-l-4 transition-all-300 ${t === 'error' ? 'bg-red-100 text-red-700 border-red-500' : 'bg-indigo-100 text-indigo-700 border-indigo-500'}`; el.classList.remove('hidden'); setTimeout(() => el.classList.add('hidden'), 3000); }
         function calculatePaymentDate(y, m, d) { const b = new Date(y, m-1, d); let p = new Date(b), c = 0; while(c<4) { p.setDate(p.getDate()+1); if(p.getDay()!==0 && p.getDay()!==6) c++; } return p; }
 
-        // INIT & AUTH
         async function initFirebaseSystem() {
             app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
             onAuthStateChanged(auth, (u) => {
                 if (u) { 
-                    userId = u.uid; 
-                    document.getElementById('user-info-email').textContent = u.email;
-                    document.getElementById('btn-sidebar-login').classList.add('hidden');
-                    document.getElementById('auth-action-btn').classList.remove('hidden');
-                    document.getElementById('guest-banner').classList.add('hidden');
+                    userId = u.uid; document.getElementById('user-info-email').textContent = u.email; document.getElementById('btn-sidebar-login').classList.add('hidden'); document.getElementById('auth-action-btn').classList.remove('hidden'); document.getElementById('guest-banner').classList.add('hidden');
                     if(u.displayName) { appState.config.userName = u.displayName; document.getElementById('user-info-name').textContent = u.displayName; }
                     loadUserData(); 
                 } else { 
-                    // FULL RESET FOR GUEST
-                    userId = null; 
-                    appState = JSON.parse(JSON.stringify(DEFAULT_STATE)); // Reset state
-                    document.getElementById('user-info-name').textContent = 'Invitado';
-                    document.getElementById('user-info-email').textContent = 'No guardando';
-                    document.getElementById('btn-sidebar-login').classList.remove('hidden');
-                    document.getElementById('auth-action-btn').classList.add('hidden');
-                    document.getElementById('guest-banner').classList.remove('hidden');
-                    
-                    // Clear visual inputs
-                    fillConfigInputs();
-                    updateProfilePictureUI('');
-                    
-                    renderHome(); 
+                    userId = null; appState = JSON.parse(JSON.stringify(DEFAULT_STATE)); document.getElementById('user-info-name').textContent = 'Invitado'; document.getElementById('user-info-email').textContent = 'No guardando'; document.getElementById('btn-sidebar-login').classList.remove('hidden'); document.getElementById('auth-action-btn').classList.add('hidden'); document.getElementById('guest-banner').classList.remove('hidden');
+                    fillConfigInputs(); updateProfilePictureUI(''); renderHome(); 
                 }
             });
         }
 
         async function loadUserData() {
             onSnapshot(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'config', 'salary'), (s) => { 
-                if(s.exists()) { 
-                    const data = s.data(); appState.config = { ...appState.config, ...data };
-                    if(auth.currentUser && auth.currentUser.displayName) appState.config.userName = auth.currentUser.displayName;
-                    renderHome(); updateProfilePictureUI(appState.config.profilePicUrl); fillConfigInputs();
-                } 
+                if(s.exists()) { const data = s.data(); appState.config = { ...appState.config, ...data }; if(auth.currentUser && auth.currentUser.displayName) appState.config.userName = auth.currentUser.displayName; renderHome(); updateProfilePictureUI(appState.config.profilePicUrl); fillConfigInputs(); } 
             });
             const snap = await getDocs(collection(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data'));
             appState.historicalCache = {}; snap.forEach(d => appState.historicalCache[d.id] = d.data());
@@ -818,6 +697,7 @@
             document.getElementById('cfg-discountRate').value = appState.config.discountRate;
             document.getElementById('cfg-tituloAmount').value = appState.config.tituloAmount;
             document.getElementById('cfg-viaticoValue').value = appState.config.viaticoValue;
+            document.getElementById('cfg-antiguedad').value = appState.config.antiguedadYears;
             document.getElementById('cfg-lastFrancoDate').value = appState.config.lastFrancoDate;
             document.getElementById('cfg-initialTurn').value = appState.config.initialTurn;
         }
@@ -825,13 +705,54 @@
         document.getElementById('btn-download-pdf').onclick = () => {
             const { jsPDF } = window.jspdf; const doc = new jsPDF(); const calc = appState.activeData.calculation; if(!calc) return;
             const ml = new Date(appState.viewingMonth.year, appState.viewingMonth.month-1).toLocaleDateString('es-AR', {month:'long', year:'numeric'}).toUpperCase();
-            doc.setFillColor(220, 38, 38); doc.rect(0, 0, 210, 40, 'F'); doc.setTextColor(255, 255, 255); doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text(`PAPELERA ROSATO S.A.`, 15, 20); doc.setFontSize(12); doc.setFont("helvetica", "normal"); doc.text(`${ml}`, 15, 30); doc.text(`Empleado: ${appState.config.userName}`, 195, 30, { align: 'right' });
-            doc.setTextColor(60, 60, 60); doc.setFontSize(10); let y = 55; doc.text(`Valor Hora: ${formatCurrency(appState.config.valorHora)}`, 15, y); y += 10;
-            doc.autoTable({ startY: y, head: [['CONCEPTO', '1ª QUINCENA', '2ª QUINCENA', 'TOTAL MES']], body: [['Bruto', formatCurrency(calc.quincenas.q1.bruto), formatCurrency(calc.quincenas.q2.bruto), formatCurrency(calc.brutoTotal)], ['Descuentos', `-${formatCurrency(calc.quincenas.q1.desc)}`, `-${formatCurrency(calc.quincenas.q2.desc)}`, `-${formatCurrency(calc.descuentoTotal)}`], ['Viáticos', formatCurrency(calc.quincenas.q1.viaticos), formatCurrency(calc.quincenas.q2.viaticos), formatCurrency(calc.totalViaticos)], ['Extras', formatCurrency(calc.quincenas.q1.extras), formatCurrency(calc.quincenas.q2.extras), formatCurrency(calc.totalExtrasAmt)], ['NETO', formatCurrency(calc.quincenas.q1.neto), formatCurrency(calc.quincenas.q2.neto), formatCurrency(calc.netoFinal)]], theme: 'grid', headStyles: { fillColor: [220, 38, 38] } });
-            doc.addPage(); 
-            const dd = calc.dailyResults.map(d => [d.date, d.turn, d.extraReal>0?d.extraReal:'-', d.lateType>0? (d.lateType===1?'>5m':'>1h') : '', d.isHoliday?'Sí':'', formatNumber(d.totalRealHours), formatNumber(d.totalEquiv), formatCurrency(d.bruto)]);
-            doc.autoTable({ startY: 25, head: [['FECHA', 'TURNO', 'EXTRAS', 'TARDE', 'FERIADO', 'HS.REAL', 'HS.EQUIV', 'BRUTO']], body: dd, theme: 'striped', headStyles: { fillColor: [220, 38, 38] } });
-            doc.save(`Nomina_${ml}.pdf`);
+            
+            // --- PAGE 1: RECIBO SUMMARY ---
+            doc.setFontSize(10); doc.setFont("helvetica", "bold");
+            doc.rect(14, 15, 182, 10); doc.text("CALCULADORA SALARIAL", 105, 21, { align: "center" });
+            
+            doc.setFontSize(9); doc.setFont("helvetica", "normal");
+            doc.text(`Valor Hora: ${formatCurrency(appState.config.valorHora)}`, 14, 32);
+            doc.text(`Antigüedad: ${appState.config.antiguedadYears}%`, 60, 32);
+            doc.text(`Viático: ${formatCurrency(appState.config.viaticoValue)}`, 100, 32);
+            
+            // Build Table Data based on Receipt Logic
+            const st = calc.receiptStats;
+            const totalAntig = calc.quincenas.q1.antiguedad + calc.quincenas.q2.antiguedad;
+            const totalDesc = calc.quincenas.q1.desc + calc.quincenas.q2.desc;
+            
+            let rows = [
+                ['HORAS NORMALES', st.normal, formatCurrency(st.normal * appState.config.valorHora)],
+                ['HORAS NOCTURNAS', st.night, formatCurrency(st.night * appState.config.valorHora)],
+                ['SÁBADO TARDE/NOCHE (50%)', st.sat50, formatCurrency(st.sat50 * appState.config.valorHora)],
+                ['DOMINGO (200%)', st.sun200, formatCurrency(st.sun200 * appState.config.valorHora)],
+                ['FERIADOS', st.holidays, formatCurrency(st.holidays * appState.config.valorHora)],
+                ['FALTA DE DESCANSO', st.lackRest, formatCurrency(st.lackRest * 4 * appState.config.valorHora)],
+                ['EXTRAS (REALES)', calc.totalExtrasHoursReal, formatCurrency(calc.totalExtrasAmt)],
+                ['ANTIGÜEDAD', `${appState.config.antiguedadYears}%`, formatCurrency(totalAntig)],
+                ['VIÁTICOS', '-', formatCurrency(calc.totalViaticos)],
+                ['TÍTULO', '-', formatCurrency(calc.tituloAmount)],
+                ['PRESENTISMO', '-', formatCurrency(calc.presentismo)],
+                ['TOTAL BRUTO (S/D)', '-', formatCurrency(calc.quincenas.q1.brutoBase + calc.quincenas.q2.brutoBase + totalAntig + calc.tituloAmount + calc.presentismo + calc.totalExtrasAmt)], // Approx
+                ['DESCUENTOS', `${appState.config.discountRate * 100}%`, `-${formatCurrency(totalDesc)}`],
+                ['TOTAL NETO', '-', formatCurrency(calc.netoFinal)]
+            ];
+
+            doc.autoTable({
+                startY: 40,
+                head: [['CONCEPTO', 'UNIDADES / HS', 'SUBTOTAL']],
+                body: rows,
+                theme: 'grid',
+                headStyles: { fillColor: [40, 40, 40] },
+                columnStyles: { 2: { halign: 'right' } }
+            });
+
+            // --- PAGE 2: DAILY DETAIL ---
+            doc.addPage();
+            doc.text(`Detalle Diario - ${ml}`, 14, 15);
+            const dd = calc.dailyResults.map(d => [d.date, d.turn, d.extraReal>0?d.extraReal:'-', d.lateType>0? (d.lateType===1?'>5m':'>1h') : '', d.isHoliday?'Sí':'', d.isLackRest?'Sí':'', formatNumber(d.totalRealHours), formatNumber(d.totalEquiv), formatCurrency(d.bruto)]);
+            doc.autoTable({ startY: 20, head: [['FECHA', 'TURNO', 'EXTRAS', 'TARDE', 'FER.', 'DESC.', 'H.REAL', 'H.EQ', 'BRUTO']], body: dd, theme: 'striped', headStyles: { fillColor: [40, 40, 40] } });
+            
+            doc.save(`Recibo_${ml}.pdf`);
         };
         
         async function saveConfigHandler() {
@@ -841,6 +762,7 @@
             appState.config.discountRate = parseFloat(document.getElementById('cfg-discountRate').value);
             appState.config.tituloAmount = parseFloat(document.getElementById('cfg-tituloAmount').value);
             appState.config.viaticoValue = parseFloat(document.getElementById('cfg-viaticoValue').value);
+            appState.config.antiguedadYears = parseFloat(document.getElementById('cfg-antiguedad').value);
             appState.config.lastFrancoDate = document.getElementById('cfg-lastFrancoDate').value;
             appState.config.initialTurn = document.getElementById('cfg-initialTurn').value;
             
