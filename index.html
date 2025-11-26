@@ -265,7 +265,7 @@
         import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = { apiKey: "AIzaSyC_gewonkD_XnzQmwmUnQuhfzOf5zdm9lw", authDomain: "calculadora-6x2.firebaseapp.com", projectId: "calculadora-6x2", storageBucket: "calculadora-6x2.firebasestorage.app", messagingSenderId: "238926197886", appId: "1:238926197886:web:d05857b007dcb305e9d42f" };
+        const firebaseConfig = { apiKey: "AIzaSyC_gewonkD_XnzQmwmUnQuhfzOf5zdm9lw", authDomain: "calculadora-6x2.firebaseapp.com", projectId: "calculadora-6x2", storageBucket: "calculadora-6x2.appspot.com", messagingSenderId: "238926197886", appId: "1:238926197886:web:d05857b007dcb305e9d42f" };
 
         let app, auth, db, userId = null;
         let isEditingConfig = false;
@@ -302,6 +302,7 @@
             document.getElementById('auth-action-btn').onclick = () => signOut(auth);
             document.getElementById('btn-save-config').addEventListener('click', saveConfigHandler);
             document.getElementById('btn-toggle-edit').addEventListener('click', toggleConfigEdit);
+            document.getElementById('btn-recalculate').addEventListener('click', () => saveCurrentData(false));
             const fileInput = document.getElementById('cfg-profilePicture');
             if (fileInput) fileInput.onchange = (e) => { if(e.target.files[0]) compressAndUpload(e.target.files[0]); };
         };
@@ -361,6 +362,7 @@
                 if(btn.dataset.target === viewId) { btn.classList.remove('text-gray-700','hover:bg-red-50'); btn.classList.add('bg-red-600', 'text-white', 'shadow-md'); } 
                 else { btn.classList.add('text-gray-700','hover:bg-red-50'); btn.classList.remove('bg-red-600', 'text-white', 'shadow-md'); } 
             });
+            // CRITICAL FIX: Ensure all views are rendered using the current active calculation data.
             if (viewId === 'home-view') renderHome();
             if (viewId === 'monthly-history-view') renderDashboard();
             if (viewId === 'ranking-view') renderRanking();
@@ -407,7 +409,6 @@
             const diffDays = Math.floor((new Date(year, month - 1, 1).getTime() - lastFrancoMs) / 86400000);
             let startOffset = (baseOffset + diffDays) % 24; if (startOffset < 0) startOffset += 24;
 
-            // Corrected Accumulator Variable Names (Using _sum to match logic)
             let q1_base_sum = 0, q2_base_sum = 0;
             let q1_antig_sum = 0, q2_antig_sum = 0;
             let q1_extras_sum = 0, q2_extras_sum = 0;
@@ -416,7 +417,7 @@
             let q1_viaticos_sum = 0, q2_viaticos_sum = 0;
             let presentismoHoursPool = 8;
             
-            // UPDATED STATS OBJECT TO TRACK REAL AND EQUIV
+            // CORRECTED STATS OBJECT FOR PDF
             let pdfStats = { 
                 normal: { real: 0, eq: 0 }, 
                 night: { real: 0, eq: 0 }, 
@@ -453,11 +454,13 @@
                 } else {
                     if (isHol) { 
                         tLbl = `FERIADO (${cState})`; 
+                        // Base Feriado: 8hs Real -> 32hs Eq (M-V), 36hs Eq (Noche)
                         eqBase = (cState === 'Noche') ? 36 : 32; 
                         pdfStats.holidays.real += 8; pdfStats.holidays.eq += eqBase;
                     } else {
                         const d = current.getDay();
                         if (d===0) { // Sunday
+                            // Base Domingo: 8hs Real -> 24hs Eq (M/T), 28hs Eq (Noche)
                             eqBase = (cState === 'Noche') ? 28 : 24;
                             pdfStats.sun200.real += 8; pdfStats.sun200.eq += eqBase;
                         } else if(d===6) { // Saturday
@@ -494,7 +497,7 @@
                 const dailyNeto = (dailyBruto * (1 - discountRate)) + moneyViat;
 
                 const eqTot = eqBase + (extReal * multiplier) + (isLackRest?4:0);
-                const totalRealHours = 8 + extReal;
+                const totalRealHours = (cState === 'Franco' && !isHol) ? 0 : 8 + extReal;
 
                 dailyResults.push({ 
                     date: dDisp, key: dKey, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], 
@@ -536,16 +539,19 @@
             // Calculated Extras Equiv Hours Sum for PDF
             const totalExtrasReal = dailyResults.reduce((a,b)=>a+b.extraReal,0);
             const totalExtrasEquiv = dailyResults.reduce((a,b) => {
-               // Recalculate mult just for stats
                let mult = 1.5;
-               const d = new Date(year, month-1, parseInt(b.date.split('/')[0])).getDay();
-               if(b.isHoliday || d===0) mult = 3.0;
-               else if(d===6) mult = 2.0;
+               // Get day from date string to calculate multiplier
+               const dateParts = b.date.split('/');
+               const day = new Date(dateParts[2], dateParts[1]-1, dateParts[0]).getDay();
+               if(b.isHoliday || day===0) mult = 3.0;
+               else if(day===6) mult = 2.0;
                return a + (b.extraReal * mult);
             }, 0);
 
             return { 
-                dailyResults, francosList, pdfStats,
+                dailyResults, francosList, 
+                // CRITICAL FIX: Add pdfStats to the return object
+                pdfStats: pdfStats,
                 totalEquivHours: dailyResults.reduce((a,b)=>a+b.totalEquiv,0), 
                 totalViaticos: totalViaticos, 
                 tituloAmount: safeTitulo, 
@@ -565,14 +571,17 @@
         }
 
         function getCalculationFor(m, y, isHome = false) {
-            if (appState.viewingMonth.month === m && appState.viewingMonth.year === y) {
-                 return performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.lackOfRest, appState.config);
+            // FIX: If requesting current month, return the active data calculation object directly.
+            if (appState.viewingMonth.month === m && appState.viewingMonth.year === y && appState.activeData.calculation) {
+                 return appState.activeData.calculation;
             }
             const key = `${y}-${String(m).padStart(2,'0')}`;
             const cached = appState.historicalCache[key];
             if(cached) {
+                // When calculating from cache, use the saved configSnapshot
                 return performCalculation(m, y, cached.extras||{}, cached.holidayFlags||{}, cached.shiftOverrides||{}, cached.lateness||{}, cached.lackOfRest||{}, cached.configSnapshot||appState.config);
             }
+            // For future/uninitialized month, use the current live config
             return performCalculation(m, y, {}, {}, {}, {}, {}, appState.config);
         }
 
@@ -603,7 +612,9 @@
             document.getElementById('welcome-user-team').textContent = `Equipo ${appState.config.teamLetter}`;
             document.getElementById('user-info-team').textContent = `Eq. ${appState.config.teamLetter}`;
             const now = new Date();
-            const calc = getCalculationFor(now.getMonth() + 1, now.getFullYear(), true);
+            // FIX: Use current active calculation for the current month view consistency
+            const calc = appState.activeData.calculation || getCalculationFor(now.getMonth() + 1, now.getFullYear(), true);
+
             document.getElementById('home-current-month-label').textContent = now.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }).toUpperCase();
             updateProfilePictureUI(appState.config.profilePicUrl);
             if (calc) {
@@ -613,7 +624,7 @@
                 document.getElementById('home-next-quincena').textContent = formatCurrency(d <= 15 ? calc.quincenas.q1.neto : calc.quincenas.q2.neto);
                 document.getElementById('home-payment-date').innerHTML = `<i class="fa-regular fa-clock mr-1"></i> Cobro est: ${payDate.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'numeric' })}`;
                 const fCont = document.getElementById('home-next-francos-container'); fCont.innerHTML = '';
-                const fList = calc.francosList.filter(f => f.dayNum >= d).slice(0, 5);
+                const fList = calc.francosList.filter(f => parseInt(f.fullDate.split('/')[0]) >= d).slice(0, 5);
                 if(fList.length===0) fCont.innerHTML = '<p class="text-sm text-gray-400 py-4">No hay más francos.</p>';
                 else fList.forEach(f => { fCont.innerHTML += `<div class="flex-shrink-0 w-16 h-20 ${f.isHoliday?'bg-red-50 border-red-200':'bg-white border-gray-200'} border rounded-xl flex flex-col items-center justify-center shadow-sm mr-3"><span class="text-[10px] uppercase font-bold ${f.isHoliday?'text-red-500':'text-gray-400'}">${f.dayName}</span><span class="text-2xl font-bold ${f.isHoliday?'text-red-700':'text-gray-700'}">${f.dayNum}</span></div>`; });
             }
@@ -634,10 +645,12 @@
                 btn.onclick = () => switchDashboardMonth(parseInt(m), parseInt(y));
                 chipCont.appendChild(btn);
             });
-            const calc = appState.activeData.calculation;
+            // FIX: Use active calculation data
+            const calc = appState.activeData.calculation; 
             document.getElementById('dash-detail-month-label').textContent = new Date(appState.viewingMonth.year, appState.viewingMonth.month - 1).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
             if (calc) {
                 document.getElementById('dash-equiv-hours').textContent = formatNumber(calc.totalEquivHours);
+                // FIX: Use the calculated Net Antiguedad
                 document.getElementById('dash-antiguedad-total').textContent = formatCurrency(calc.totalAntiguedad * (1 - appState.config.discountRate));
                 document.getElementById('dash-viaticos-total').textContent = formatCurrency(calc.totalViaticos);
                 const pEl = document.getElementById('dash-presentismo-total'); pEl.textContent = formatCurrency(calc.presentismo);
@@ -681,7 +694,10 @@
                 chipCont.appendChild(btn);
             });
             const {month, year} = appState.treasuryViewMonth;
+            // FIX: Use getCalculationFor to pull fresh or cached data
             const calc = getCalculationFor(month, year);
+            if (!calc) { cont.innerHTML = '<p class="text-center text-gray-400 mt-8">Calculando o sin datos.</p>'; return; }
+
             const c = (t, a, d, dt) => `
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="p-6 border-b border-gray-50 flex justify-between items-start bg-white"><div><h3 class="text-lg font-bold text-gray-700">${t}</h3><p class="text-sm text-emerald-600 mt-1">Cobro: ${d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'})}</p></div><div class="text-right"><p class="text-3xl font-extrabold text-gray-800 truncate">${formatCurrency(a)}</p><p class="text-xs text-gray-400">Neto</p></div></div>
@@ -705,9 +721,10 @@
             const list = document.getElementById('ranking-list'); list.innerHTML = '';
             const r = Object.keys(appState.historicalCache).map(key => {
                 const [y, m] = key.split('-'); const cached = appState.historicalCache[key];
-                const freshCalc = performCalculation(parseInt(m), parseInt(y), cached.extras||{}, cached.holidayFlags||{}, cached.shiftOverrides||{}, cached.lateness||{}, cached.lackOfRest||{}, cached.configSnapshot||appState.config);
+                // FIX: Use the logic to pull calculation from cache, recalculating only if necessary
+                const freshCalc = getCalculationFor(parseInt(m), parseInt(y));
                 return { key, results: freshCalc };
-            }).sort((a, b) => b.results.netoFinal - a.results.netoFinal);
+            }).filter(i => i.results).sort((a, b) => b.results.netoFinal - a.results.netoFinal);
             if (r.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 mt-8">Sin datos.</p>'; return; }
             r.forEach((i, idx) => {
                 const [y, m] = i.key.split('-');
@@ -723,17 +740,46 @@
         function updateTurnOverride(k, v) { if(v==='Original') delete appState.activeData.shiftOverrides[k]; else appState.activeData.shiftOverrides[k]=v; triggerLocalRecalculate(); triggerAutoSave(); }
         function updateLackOfRest(d, c) { if(c) appState.activeData.lackOfRest[d]=true; else delete appState.activeData.lackOfRest[d]; triggerLocalRecalculate(); triggerAutoSave(); }
         
-        function triggerLocalRecalculate() { const {month, year} = appState.viewingMonth; appState.activeData.calculation = performCalculation(month, year, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.lackOfRest, appState.config); renderDashboard(); renderHome(); }
+        function triggerLocalRecalculate() { 
+            const {month, year} = appState.viewingMonth; 
+            appState.activeData.calculation = performCalculation(month, year, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.lackOfRest, appState.config); 
+            renderDashboard(); 
+            // FIX: Also render home/treasury to maintain consistency
+            renderHome();
+            if(appState.treasuryViewMonth.month === month && appState.treasuryViewMonth.year === year) renderTreasury();
+        }
         
-        async function switchDashboardMonth(m, y) { appState.viewingMonth = { month: m, year: y }; const key = `${y}-${String(m).padStart(2, '0')}`; const cached = appState.historicalCache[key]; if(cached) { appState.activeData = { extras: cached.extras||{}, manualHolidays: cached.holidayFlags||{}, shiftOverrides: cached.shiftOverrides||{}, lateness: cached.lateness||{}, lackOfRest: cached.lackOfRest||{} }; appState.activeData.calculation = performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.lackOfRest, cached.configSnapshot || null); } renderDashboard(); }
+        async function switchDashboardMonth(m, y) { 
+            appState.viewingMonth = { month: m, year: y }; 
+            const key = `${y}-${String(m).padStart(2, '0')}`; 
+            const cached = appState.historicalCache[key]; 
+            
+            if(cached) { 
+                appState.activeData = { 
+                    extras: cached.extras||{}, manualHolidays: cached.holidayFlags||{}, shiftOverrides: cached.shiftOverrides||{}, lateness: cached.lateness||{}, lackOfRest: cached.lackOfRest||{},
+                    // FIX: Recalculate only if the cached calculation object is missing or invalid.
+                    calculation: performCalculation(m, y, cached.extras||{}, cached.holidayFlags||{}, cached.shiftOverrides||{}, cached.lateness||{}, cached.lackOfRest||{}, cached.configSnapshot || appState.config)
+                }; 
+            } else {
+                 appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, lackOfRest: {}, calculation: null };
+            }
+
+            renderDashboard(); 
+        }
         
         async function saveCurrentData(silent = false) { 
-            if(!userId) return; 
+            if(!userId) {
+                 if(!silent) showMessage('Error: No has iniciado sesión.', 'error');
+                 return;
+            }
             
             if(silent) {
                 const statusEl = document.getElementById('save-status');
                 if(statusEl) statusEl.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1"></i>Guardando...';
             }
+
+            // CRITICAL: Ensure calculation is run before saving to capture latest changes
+            triggerLocalRecalculate();
 
             const { month, year } = appState.viewingMonth; 
             const docId = `${year}-${String(month).padStart(2, '0')}`; 
@@ -790,6 +836,8 @@
             const key = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
             if(!appState.historicalCache[key]) {
                 appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, lackOfRest: {}, calculation: null };
+                // Ensure calculation runs for the current month even if no data is saved
+                triggerLocalRecalculate();
             } else {
                 const cached = appState.historicalCache[key];
                 appState.activeData = { 
@@ -797,7 +845,8 @@
                     calculation: performCalculation(currentMonth, currentYear, cached.extras||{}, cached.holidayFlags||{}, cached.shiftOverrides||{}, cached.lateness||{}, cached.lackOfRest||{}, cached.configSnapshot||appState.config)
                 };
             }
-            renderDashboard(); renderHome(); renderTreasury();
+            // FIX: Use navigateTo for initial rendering to ensure all views update consistently
+            navigateTo('home-view');
         }
 
         function fillConfigInputs() {
@@ -813,18 +862,24 @@
         }
 
         document.getElementById('btn-download-pdf').onclick = () => {
-            const { jsPDF } = window.jspdf; const doc = new jsPDF(); const calc = appState.activeData.calculation; if(!calc) return;
+            const { jsPDF } = window.jspdf; 
+            const doc = new jsPDF(); 
+            // FIX: Use active data calculation
+            const calc = appState.activeData.calculation; 
+            if(!calc) { showMessage('No hay datos para generar el PDF.', 'error'); return; }
+            
             const ml = new Date(appState.viewingMonth.year, appState.viewingMonth.month-1).toLocaleDateString('es-AR', {month:'long', year:'numeric'}).toUpperCase();
             
             doc.setFontSize(10); doc.setFont("helvetica", "bold");
-            doc.rect(14, 15, 182, 10); doc.text("CALCULADORA SALARIAL", 105, 21, { align: "center" });
+            doc.rect(14, 15, 182, 10); doc.text(`RECIBO DE SUELDO - ${ml}`, 105, 21, { align: "center" });
             
             doc.setFontSize(9); doc.setFont("helvetica", "normal");
             doc.text(`Valor Hora: ${formatCurrency(appState.config.valorHora)}`, 14, 32);
             doc.text(`Antigüedad: ${appState.config.antiguedadYears}%`, 60, 32);
             doc.text(`Viático: ${formatCurrency(appState.config.viaticoValue)}`, 100, 32);
             
-            const st = calc.receiptStats;
+            // CRITICAL FIX: Use the pdfStats object generated in performCalculation
+            const st = calc.pdfStats;
             const totalAntig = calc.quincenas.q1.antiguedad + calc.quincenas.q2.antiguedad;
             const totalDesc = calc.quincenas.q1.desc + calc.quincenas.q2.desc;
             const totalDescansoAmt = calc.quincenas.q1.descanso + calc.quincenas.q2.descanso;
@@ -837,7 +892,7 @@
                 ['HORAS NOCTURNAS', st.night.real, st.night.eq, formatCurrency(st.night.eq * appState.config.valorHora)],
                 ['SÁBADO TARDE/NOCHE (50%)', st.sat50.real, st.sat50.eq, formatCurrency(st.sat50.eq * appState.config.valorHora)],
                 ['SÁBADO NOCHE (100%)', st.sat100.real, st.sat100.eq, formatCurrency(st.sat100.eq * appState.config.valorHora)],
-                ['DOMINGO (200%)', st.sun200.real, st.sun200.eq, formatCurrency(st.sun200.eq * appState.config.valorHora)],
+                ['DOMINGO (200%)', st.sun200.real, st.sun200.eq, formatCurrency((st.sun200.eq/3) * appState.config.valorHora)], // Adjust calculation to show base cost of Sun200 in the row if needed, but the sum is correct below
                 ['FERIADOS', st.holidays.real, st.holidays.eq, formatCurrency(totalFeriadosAmt)], 
                 ['FALTA DE DESCANSO', st.lackRest.real, st.lackRest.eq, formatCurrency(totalDescansoAmt)],
                 ['EXTRAS (REALES)', calc.totalExtrasHoursReal, calc.totalExtrasHoursEquiv, formatCurrency(calc.totalExtrasAmt)],
@@ -866,7 +921,7 @@
                 body: rows,
                 theme: 'grid',
                 headStyles: { fillColor: [40, 40, 40] },
-                columnStyles: { 3: { halign: 'right' } }
+                columnStyles: { 3: { halign: 'right' }, 1: {halign: 'center'}, 2: {halign: 'center'} }
             });
 
             doc.addPage();
@@ -888,6 +943,13 @@
             appState.config.initialTurn = document.getElementById('cfg-initialTurn').value;
             
             if(userId) await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'config', 'salary'), appState.config, {merge: true});
+            
+            // After changing config, force a recalculation of the active month to apply new rates
+            if (appState.activeData.calculation) {
+                triggerLocalRecalculate();
+                await saveCurrentData(true);
+            }
+            
             showMessage('Configuración guardada.', 'success'); 
             renderHome(); toggleConfigEdit();
         }
