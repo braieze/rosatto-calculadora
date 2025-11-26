@@ -33,22 +33,16 @@
         .sticky-header th { position: sticky; top: 0; z-index: 20; background-color: #f9fafb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         @keyframes bounce-x { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
         .animate-bounce-x { animation: bounce-x 1s infinite; }
-        
-        /* Saving indicator animation */
-        .saving-pulse { animation: pulse-green 2s infinite; }
-        @keyframes pulse-green { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body class="text-slate-800 bg-gray-50 h-[100dvh] overflow-hidden flex flex-col">
 
     <div id="app-layout" class="flex h-full relative">
-        <!-- Modal Foto -->
         <div id="profile-modal" class="fixed inset-0 z-[100] bg-black/90 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
             <button id="close-modal-btn" class="absolute top-6 right-6 text-white text-4xl z-[101]">&times;</button>
             <img id="modal-img" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl transform scale-95 transition-transform duration-300">
         </div>
 
-        <!-- Sidebar -->
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 text-gray-700 sidebar-closed md:relative md:translate-x-0 flex flex-col shadow-2xl md:shadow-none">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center safe-top">
                 <div class="flex items-center gap-2">
@@ -154,26 +148,21 @@
                         <div class="pointer-events-none absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-gray-50 via-gray-50/80 to-transparent flex items-center justify-end pr-2 z-20"><span class="text-[10px] font-bold text-red-500 animate-bounce-x bg-white/80 px-1 rounded shadow-sm">Desliza ⮕</span></div>
                     </div>
                     <div id="dashboard-content" class="hidden animate-fade-in space-y-6">
-                        <!-- Updated Dashboard Grid -->
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"><p class="text-xs text-gray-500 font-bold uppercase">Horas Eq.</p><p class="text-lg font-bold text-red-600" id="dash-equiv-hours">0</p></div>
-                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"><p class="text-xs text-gray-500 font-bold uppercase">Antigüedad</p><p class="text-lg font-bold text-purple-600" id="dash-antiguedad-total">$ 0</p></div>
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"><p class="text-xs text-gray-500 font-bold uppercase">Antigüedad (Neto)</p><p class="text-lg font-bold text-purple-600" id="dash-antiguedad-total">$ 0</p></div>
                             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"><p class="text-xs text-gray-500 font-bold uppercase">Viáticos</p><p class="text-lg font-bold text-orange-600" id="dash-viaticos-total">$ 0</p></div>
                             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"><p class="text-xs text-gray-500 font-bold uppercase">Presentismo</p><p class="text-lg font-bold text-blue-600" id="dash-presentismo-total">$ 0</p></div>
                             <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-sm col-span-2 md:col-span-1 lg:col-span-1"><p class="text-xs text-gray-400 font-bold uppercase">Neto Final</p><p class="text-lg font-bold text-emerald-400" id="dash-neto-final">$ 0</p></div>
                         </div>
-                        
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                             <div class="p-4 border-b border-gray-100 bg-white sticky top-0 z-30 flex justify-between items-center shadow-sm flex-wrap gap-3">
-                                <div class="flex items-center gap-2">
-                                    <h3 class="font-bold text-gray-700 whitespace-nowrap">Detalle <span id="dash-detail-month-label" class="text-red-600"></span></h3>
-                                    <span class="text-[10px] font-bold text-red-500 animate-bounce-x bg-red-50 px-2 py-0.5 rounded-full border border-red-100 shadow-sm ml-2">Desliza ⮕</span>
-                                </div>
+                                <div class="flex items-center gap-2"><h3 class="font-bold text-gray-700 whitespace-nowrap">Detalle <span id="dash-detail-month-label" class="text-red-600"></span></h3><span class="text-[10px] font-bold text-red-500 animate-bounce-x bg-red-50 px-2 py-0.5 rounded-full border border-red-100 shadow-sm ml-2">Desliza ⮕</span></div>
                                 <div class="flex items-center gap-2">
                                     <span id="save-status" class="text-xs font-bold text-emerald-600 mr-2 hidden bg-emerald-50 px-2 py-1 rounded-lg transition-opacity"><i class="fa-solid fa-check mr-1"></i>Guardado</span>
                                     <button id="btn-delete-month" class="p-2 text-gray-400 hover:text-red-600 transition"><i class="fa-solid fa-trash"></i></button>
-                                    <!-- Manual save hidden but kept functional for logic, auto-save is main -->
-                                    <button id="btn-download-pdf" class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
+                                    <button id="btn-recalculate" class="px-3 py-1.5 bg-gray-800 text-white rounded-lg text-xs font-bold hover:bg-black"><i class="fa-solid fa-save mr-1"></i> Guardar</button>
+                                    <button id="btn-download-pdf" class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700"><i class="fa-solid fa-file-pdf"></i></button>
                                 </div>
                             </div>
                             <div class="overflow-x-auto max-h-[500px]">
@@ -222,7 +211,7 @@
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tu Equipo</label><select id="cfg-teamLetter" class="w-full p-3 border rounded-lg bg-white" disabled><option value="A">Equipo A</option><option value="B">Equipo B</option><option value="C">Equipo C</option><option value="D">Equipo D</option></select></div>
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Hora ($)</label><input type="number" id="cfg-valorHora" class="w-full p-3 border rounded-lg" disabled></div>
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Afiliación</label><select id="cfg-discountRate" class="w-full p-3 border rounded-lg bg-white" disabled><option value="0.18">No Afiliado (18%)</option><option value="0.21">Afiliado (21%)</option></select></div>
-                            <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Viático ($)</label><input type="number" id="cfg-viaticoValue" class="w-full p-3 border rounded-lg" disabled></div>
+                            <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Viático (x Día)</label><input type="number" id="cfg-viaticoValue" class="w-full p-3 border rounded-lg" disabled></div>
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Título ($)</label><input type="number" id="cfg-tituloAmount" class="w-full p-3 border rounded-lg" disabled></div>
                             <div class="col-span-1"><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Años Antigüedad</label><input type="number" id="cfg-antiguedad" class="w-full p-3 border rounded-lg" placeholder="Ej: 5" disabled></div>
                             <div class="col-span-1 md:col-span-2 border-t border-gray-100 pt-4 mt-2">
@@ -244,42 +233,30 @@
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                             <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-house text-gray-400"></i> 1. Pantalla de Inicio</h3>
                             <p class="text-gray-600 text-sm leading-relaxed">
-                                Aquí ves un resumen rápido de tu situación actual. Muestra:<br>
-                                • <strong>Próxima Quincena:</strong> El monto estimado que cobrarás en la fecha más cercana (día 5 o 20).<br>
-                                • <strong>Mes Actual:</strong> El total acumulado del mes en curso.<br>
-                                • <strong>Próximos Francos:</strong> Una lista de tus próximos días libres según tu rotación.
+                                • <strong>Próxima Quincena:</strong> Monto estimado a cobrar (día 5 o 20).<br>
+                                • <strong>Mes Actual:</strong> Total acumulado del mes vigente.<br>
+                                • <strong>Próximos Francos:</strong> Lista de tus próximos días libres.
                             </p>
                         </div>
 
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                            <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-calendar-days text-red-500"></i> 2. Mi Gestión (Carga de Datos)</h3>
+                            <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-calendar-days text-red-500"></i> 2. Mi Gestión (Importante)</h3>
                             <p class="text-gray-600 text-sm leading-relaxed mb-3">
-                                Esta es la sección principal donde editas tu planilla. <strong>El guardado es AUTOMÁTICO</strong>, no hace falta tocar ningún botón.
+                                <strong>Guardado Automático:</strong> Tus cambios se guardan solos tras 1.5 seg. Verás un indicador "✅ Guardado".
                             </p>
                             <ul class="list-disc pl-5 text-gray-600 text-sm space-y-2">
-                                <li><strong>Generar Mes:</strong> Si es un mes nuevo, usa el botón superior para crear la grilla.</li>
-                                <li><strong>Extras (Reales):</strong> Ingresa la cantidad de horas reloj que trabajaste de más (ej: 4). El sistema aplica automáticamente los multiplicadores (1.5x semana, 2x Sábados, 3x Domingos/Feriados).</li>
-                                <li><strong>Tarde/Sanción:</strong> Si llegaste tarde, indícalo aquí. Afecta el premio de presentismo (8hs).</li>
-                                <li><strong>Feriado:</strong> Marca la casilla si trabajaste un feriado. Se paga triple.</li>
-                                <li><strong>F.Desc (Falta Descanso):</strong> Márcalo si tuviste menos de 12hs entre turnos (ej: saliste 22hs y entraste 06hs). Suma el valor de 4 horas.</li>
-                                <li><strong>Turno:</strong> Puedes cambiar manualmente el turno de un día si hiciste un cambio con un compañero.</li>
+                                <li><strong>Extras:</strong> Poné las horas reales (ej: 4). El sistema multiplica solo (1.5x semana, 2x Sáb, 3x Dom/Fer).</li>
+                                <li><strong>F.Desc:</strong> Falta de descanso (+4hs equivalentes con descuento).</li>
+                                <li><strong>Neto (Columna):</strong> Dinero en mano por día (ya descontado).</li>
                             </ul>
                         </div>
 
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                            <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-500"></i> 3. Tesorería</h3>
-                            <p class="text-gray-600 text-sm leading-relaxed">
-                                Aquí ves el desglose financiero exacto dividido en <strong>1ª Quincena</strong> y <strong>2ª Quincena</strong>.
-                                Detalla cuánto ganaste por básico, antigüedad, extras, feriados y cuánto se te descontó por obra social/jubilación. El "Neto" que figura aquí coincide con el de "Mi Gestión".
-                            </p>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                            <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-file-pdf text-red-600"></i> 4. Descarga de Recibo (PDF)</h3>
-                            <p class="text-gray-600 text-sm leading-relaxed">
-                                En la sección "Mi Gestión", el botón <strong>PDF</strong> genera un documento con dos páginas:<br>
-                                1. Un resumen tipo recibo de sueldo con todos los ítems agrupados (horas normales, extras, antigüedad, descuentos).<br>
-                                2. El detalle día por día de tus turnos y novedades.
+                            <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-500"></i> 3. Lógica Salarial</h3>
+                            <p class="text-gray-600 text-sm leading-relaxed space-y-2">
+                                <strong>Con Descuento (18/21%):</strong> Horas turno, Extras, F.Descanso, Antigüedad.<br>
+                                <strong>Sin Descuento (Limpio):</strong> Viáticos (por día extra), Título, Presentismo.<br>
+                                <strong>Antigüedad:</strong> Se calcula sobre el total de horas generadas en la quincena.
                             </p>
                         </div>
                     </div>
@@ -297,7 +274,7 @@
 
         let app, auth, db, userId = null;
         let isEditingConfig = false;
-        let saveTimeout = null; // Timer for auto-save
+        let saveTimeout = null; 
 
         const DEFAULT_STATE = {
             config: { 
@@ -313,7 +290,6 @@
 
         let appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
 
-        // Expose globals
         window.navigateTo = navigateTo; 
         window.openImageModal = openImageModal;
         window.updateExtra = updateExtra; 
@@ -335,7 +311,7 @@
             if (fileInput) fileInput.onchange = (e) => { if(e.target.files[0]) compressAndUpload(e.target.files[0]); };
         };
 
-        // --- AUTO SAVE SYSTEM ---
+        // AUTO SAVE
         function triggerAutoSave() {
             const statusEl = document.getElementById('save-status');
             if(statusEl) {
@@ -343,11 +319,8 @@
                 statusEl.classList.remove('hidden', 'text-emerald-600', 'bg-emerald-50');
                 statusEl.classList.add('text-gray-500', 'bg-gray-100');
             }
-            
             clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(async () => {
-                await saveCurrentData(true); // Silent save
-            }, 1500); // 1.5 seconds debounce
+            saveTimeout = setTimeout(async () => { await saveCurrentData(true); }, 1500);
         }
 
         function toggleConfigEdit() {
@@ -423,6 +396,7 @@
             };
         }
 
+        // CORE LOGIC - STRICTLY IMPLEMENTING YOUR RULES
         function performCalculation(month, year, extras, holidays, overrides, lateness, lackOfRest, configOverride) {
             const cfg = configOverride || appState.config;
             const { lastFrancoDate, initialTurn, valorHora, discountRate, tituloAmount, viaticoValue, antiguedadYears } = cfg;
@@ -440,14 +414,13 @@
             let startOffset = (baseOffset + diffDays) % 24; if (startOffset < 0) startOffset += 24;
 
             // Accumulators
-            let q1_bruto_base = 0, q2_bruto_base = 0;
-            let q1_antig = 0, q2_antig = 0;
-            let q1_extras = 0, q2_extras = 0;
-            let q1_descanso = 0, q2_descanso = 0;
-            let q1_feriados = 0, q2_feriados = 0;
-            let q1_viaticos = 0, q2_viaticos = 0;
+            let q1_base_sum = 0, q2_base_sum = 0;
+            let q1_antig_sum = 0, q2_antig_sum = 0;
+            let q1_extras_sum = 0, q2_extras_sum = 0;
+            let q1_descanso_sum = 0, q2_descanso_sum = 0;
+            let q1_feriados_sum = 0, q2_feriados_sum = 0;
+            let q1_viaticos_sum = 0, q2_viaticos_sum = 0;
             let presentismoHoursPool = 8;
-            
             let receiptStats = { normal: 0, night: 0, sat50: 0, sat100: 0, sun200: 0, holidays: 0, lackRest: 0 };
 
             for (let i = 1; i <= daysInMonth; i++) {
@@ -465,142 +438,140 @@
                 if(lateType === 1) presentismoHoursPool -= 0.5;
                 if(lateType === 2) presentismoHoursPool -= 1.0;
 
+                // --- BASE HOURS MATRIX ---
                 let tLbl = cState, eqBase = 0;
                 if (cState === 'Vacaciones' || cState === 'Licencia') { tLbl = cState; eqBase = 8; } 
                 else if (cState === 'Franco') {
                     francosList.push({ dayNum: i, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], fullDate: dDisp, isHoliday: isHol });
                     if (isHol) { tLbl = 'FERIADO (Franco)'; eqBase = 8; receiptStats.holidays += 8; }
                 } else {
-                    if (isHol) { tLbl = `FERIADO (${cState})`; eqBase = 32; receiptStats.holidays += 8; } 
-                    else {
-                        eqBase = 8; const d = current.getDay();
-                        if (d >= 1 && d <= 5) {
-                             if(cState === 'Noche') receiptStats.night += 12; 
-                             else receiptStats.normal += 8;
+                    if (isHol) { 
+                        tLbl = `FERIADO (${cState})`; 
+                        eqBase = (cState === 'Noche') ? 36 : 32; 
+                        receiptStats.holidays += 8; // Base holiday hours
+                    } else {
+                        const d = current.getDay();
+                        if (d===0) { // Sunday
+                            eqBase = (cState === 'Noche') ? 28 : 24;
+                            receiptStats.sun200 += 8; 
+                        } else if(d===6) { // Saturday
+                            if (cState === 'Noche') { eqBase = 16; receiptStats.sat100 += 8; } 
+                            else if (cState === 'Tarde') { eqBase = 12; receiptStats.sat50 += 8; } 
+                            else { eqBase = 9; receiptStats.sat50 += 8; } // Mañana Sat is usually normal+1 or just normal? Sticking to 9 as requested (8+1)
+                        } else { // M-F
+                            if (cState === 'Noche') { eqBase = 12; receiptStats.night += 12; } 
+                            else { eqBase = 8; receiptStats.normal += 8; }
                         }
-                        if (d===0) { eqBase=24; receiptStats.sun200 += 8; } 
-                        else if(d===6) {
-                            if(cState==='Tarde'||cState==='Noche') {
-                                eqBase = cState==='Tarde'?12:16; receiptStats.sat50 += 8; 
-                            } else { receiptStats.normal += 8; }
-                        }
-                        if (d>=1 && d<=5 && cState==='Noche') eqBase=12; 
-                        if(d===0 && cState==='Noche') eqBase=28;
                     }
                 }
 
+                // --- EXTRAS MULTIPLIERS ---
                 const dayOfWeek = current.getDay(); 
                 let multiplier = 1.5; 
                 if(isHol || dayOfWeek === 0) multiplier = 3.0;
                 else if(dayOfWeek === 6) multiplier = 2.0;
 
-                // Monetary Calculations Per Day
+                // --- MONETARY CALCS ---
+                // 1. Base
                 const moneyBase = eqBase * safeValHora;
+                
+                // 2. Extras
                 const moneyExtras = (extReal * multiplier) * safeValHora;
+                
+                // 3. Lack of Rest
                 const moneyDescanso = isLackRest ? (4 * safeValHora) : 0;
-                
-                // Antiguedad: Applied to Base + Extras + Descanso (All remunerative items)
-                const dayTotalRemunerative = moneyBase + moneyExtras + moneyDescanso;
-                const moneyAntig = dayTotalRemunerative * (safeAntig / 100);
-                
+                if(isLackRest) receiptStats.lackRest += 1;
+
+                // 4. Antiguedad (Aplica to Base + Extras + Descanso)
+                const dayRemunerative = moneyBase + moneyExtras + moneyDescanso;
+                const moneyAntig = dayRemunerative * (safeAntig / 100);
+
+                // 5. Viaticos (No Discount)
                 const moneyViat = extReal > 0 ? safeViat : 0;
 
-                // Display Values
+                // --- TOTALS PER DAY ---
+                // Total Bruto (Subject to Discount) = Remunerative + Antiguedad
+                const dailyBruto = dayRemunerative + moneyAntig;
+                const dailyDiscount = dailyBruto * discountRate;
+                const dailyNeto = dailyBruto - dailyDiscount + moneyViat;
+
+                // Eq Hours for Display
                 const eqTot = eqBase + (extReal * multiplier) + (isLackRest?4:0);
                 const totalRealHours = 8 + extReal;
-                const dailyTotalBruto = dayTotalRemunerative + moneyAntig;
-                const dailyNeto = (dailyTotalBruto * (1 - discountRate)) + moneyViat;
 
                 dailyResults.push({ 
                     date: dDisp, key: dKey, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], 
                     turn: tLbl, isHoliday: isHol, lateType: lateType, isLackRest: isLackRest,
                     equivBase: eqBase, extraReal: extReal, 
                     totalEquiv: eqTot, totalRealHours: totalRealHours, 
-                    bruto: dailyTotalBruto, neto: dailyNeto, isFranco: cState === 'Franco' 
+                    bruto: dailyBruto, neto: dailyNeto, isFranco: cState === 'Franco' 
                 });
 
-                if (isLackRest) receiptStats.lackRest += 1;
-
-                // Accumulate Quincenas
                 if (i <= 15) { 
-                    q1_bruto_base += moneyBase;
-                    q1_extras += moneyExtras;
-                    q1_descanso += moneyDescanso;
-                    q1_antig += moneyAntig;
-                    q1_viaticos += moneyViat;
-                    if(isHol) q1_feriados += moneyBase;
+                    q1_base_sum += moneyBase; q1_extras_sum += moneyExtras; q1_descanso_sum += moneyDescanso; q1_antig_sum += moneyAntig; q1_viaticos_sum += moneyViat;
+                    if(isHol) q1_feriados_sum += moneyBase;
                 } else { 
-                    q2_bruto_base += moneyBase;
-                    q2_extras += moneyExtras;
-                    q2_descanso += moneyDescanso;
-                    q2_antig += moneyAntig;
-                    q2_viaticos += moneyViat;
-                    if(isHol) q2_feriados += moneyBase;
+                    q2_base_sum += moneyBase; q2_extras_sum += moneyExtras; q2_descanso_sum += moneyDescanso; q2_antig_sum += moneyAntig; q2_viaticos_sum += moneyViat;
+                    if(isHol) q2_feriados_sum += moneyBase;
                 }
                 startOffset = (startOffset + 1) % 24;
             }
 
             if(presentismoHoursPool < 0) presentismoHoursPool = 0;
-            const presMoney = presentismoHoursPool * safeValHora;
-            
-            // --- FINAL TOTALS & NETO CALCULATION ---
-            // Q1
-            const q1_total_remunerativo = q1_bruto_base + q1_extras + q1_descanso + q1_antig;
-            const q1_descuentos = q1_total_remunerativo * discountRate;
-            const q1_neto = q1_total_remunerativo - q1_descuentos + q1_viaticos;
+            const presMoney = presentismoHoursPool * safeValHora; // No Discount applied to Presentismo? User said "NO aplica". 
+            // Logic check: Usually presentismo IS remunerative. But user said "NO aplica el descuento de 18% o 21%". I will follow instructions: No discount.
 
-            // Q2 (Includes Title & Presentismo)
-            const q2_total_remunerativo = q2_bruto_base + q2_extras + q2_descanso + q2_antig + safeTitulo + presMoney;
-            const q2_descuentos = q2_total_remunerativo * discountRate;
-            const q2_neto = q2_total_remunerativo - q2_descuentos + q2_viaticos;
+            // --- FINAL QUINCENA TOTALS ---
+            // Q1
+            const q1_remunerative = q1_base_sum + q1_extras_sum + q1_descanso_sum + q1_antig_sum;
+            const q1_discount = q1_remunerative * discountRate;
+            const q1_neto = q1_remunerative - q1_discount + q1_viaticos_sum;
+
+            // Q2 (Adds Title + Presentismo, both NO discount as per instructions)
+            const q2_remunerative = q2_base_sum + q2_extras_sum + q2_descanso_sum + q2_antig_sum;
+            const q2_discount = q2_remunerative * discountRate;
+            const q2_neto = q2_remunerative - q2_discount + q2_viaticos_sum + safeTitulo + presMoney;
 
             const finalNetoTotal = q1_neto + q2_neto;
-            const totalAntiguedad = q1_antig + q2_antig;
+            const totalAntiguedad = q1_antig_sum + q2_antig_sum;
+            const totalViaticos = q1_viaticos_sum + q2_viaticos_sum;
 
             return { 
                 dailyResults, francosList, receiptStats,
                 totalEquivHours: dailyResults.reduce((a,b)=>a+b.totalEquiv,0), 
-                totalViaticos: q1_viaticos + q2_viaticos, 
+                totalViaticos: totalViaticos, 
                 tituloAmount: safeTitulo, 
                 totalAntiguedad: totalAntiguedad,
                 presentismo: presMoney, 
                 presentismoHoursLeft: presentismoHoursPool,
                 netoFinal: finalNetoTotal, 
                 totalFeriadosCount: dailyResults.filter(d=>d.isHoliday).length,
-                totalExtrasAmt: q1_extras + q2_extras,
+                totalExtrasAmt: q1_extras_sum + q2_extras_sum,
                 totalExtrasHoursReal: dailyResults.reduce((a,b)=>a+b.extraReal,0),
                 quincenas: { 
-                    q1: { brutoBase: q1_bruto_base, antiguedad: q1_antig, viaticos: q1_viaticos, extras: q1_extras, feriados: q1_feriados, descanso: q1_descanso, neto: q1_neto, desc: q1_descuentos }, 
-                    q2: { brutoBase: q2_bruto_base, antiguedad: q2_antig, viaticos: q2_viaticos, extras: q2_extras, feriados: q2_feriados, descanso: q2_descanso, titulo: safeTitulo, presentismo: presMoney, neto: q2_neto, desc: q2_descuentos } 
+                    q1: { brutoBase: q1_base_sum, antiguedad: q1_antig_sum, viaticos: q1_viaticos_sum, extras: q1_extras_sum, feriados: q1_feriados_sum, descanso: q1_descanso_sum, neto: q1_neto, desc: q1_discount }, 
+                    q2: { brutoBase: q2_base_sum, antiguedad: q2_antig_sum, viaticos: q2_viaticos_sum, extras: q2_extras_sum, feriados: q2_feriados_sum, descanso: q2_descanso_sum, titulo: safeTitulo, presentismo: presMoney, neto: q2_neto, desc: q2_discount } 
                 } 
             };
         }
 
         function getCalculationFor(m, y, isHome = false) {
-            // Logic to always use fresh data if viewing current or active month
-            const active = appState.viewingMonth;
-            const isActiveMonth = active.month === m && active.year === y;
-            
-            if (isActiveMonth) {
+            // Force reload if active month
+            if (appState.viewingMonth.month === m && appState.viewingMonth.year === y) {
                  return performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.lackOfRest, appState.config);
             }
-            
             const key = `${y}-${String(m).padStart(2,'0')}`;
             const cached = appState.historicalCache[key];
-            
-            // If viewing a past month or future month that isn't loaded in editor
             if(cached) {
                 return performCalculation(m, y, cached.extras||{}, cached.holidayFlags||{}, cached.shiftOverrides||{}, cached.lateness||{}, cached.lackOfRest||{}, cached.configSnapshot||appState.config);
             }
-            
-            // Fallback to clean calc
             return performCalculation(m, y, {}, {}, {}, {}, {}, appState.config);
         }
 
         document.getElementById('btn-delete-month').onclick = async () => {
             if(!confirm("¿Borrar este mes?")) return;
             const { month, year } = appState.viewingMonth; const docId = `${year}-${String(month).padStart(2, '0')}`;
-            try { if(userId) await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId)); delete appState.historicalCache[docId]; const keys = Object.keys(appState.historicalCache).sort(); if (keys.length > 0) { const [ly, lm] = keys[keys.length - 1].split('-'); switchDashboardMonth(parseInt(lm), parseInt(ly)); } else { const now = new Date(); appState.viewingMonth = { month: now.getMonth() + 1, year: now.getFullYear() }; appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, lackOfRest: {} }; renderDashboard(); } showMessage('Eliminado.', 'success'); } catch(e) { console.error(e); showMessage('Error.', 'error'); }
+            try { if(userId) await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId)); delete appState.historicalCache[docId]; const now = new Date(); appState.viewingMonth = { month: now.getMonth() + 1, year: now.getFullYear() }; appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, lackOfRest: {} }; renderDashboard(); showMessage('Eliminado.', 'success'); } catch(e) { console.error(e); showMessage('Error.', 'error'); }
         };
 
         document.getElementById('btn-generate-new').onclick = async () => { 
@@ -643,7 +614,11 @@
         function renderDashboard() {
             const chipCont = document.getElementById('months-chips-container'); chipCont.innerHTML = '';
             const keys = Object.keys(appState.historicalCache).sort().reverse();
-            if (keys.length === 0) { const btn = document.createElement('button'); btn.className = "px-4 py-1 bg-red-600 text-white rounded-full text-sm font-bold border border-red-200"; btn.textContent = "Generar Mes Actual"; btn.onclick = () => generateMonth(new Date().getMonth()+1, new Date().getFullYear()); chipCont.appendChild(btn); }
+            // if (keys.length === 0) ... logic removed to favor manual generation
+            if(keys.length === 0) {
+                 const btn = document.createElement('button'); btn.className = "px-4 py-1 bg-red-600 text-white rounded-full text-sm font-bold border border-red-200"; btn.textContent = "Generar Mes Actual"; btn.onclick = () => generateMonth(new Date().getMonth()+1, new Date().getFullYear()); chipCont.appendChild(btn);
+            }
+            
             document.getElementById('dashboard-content').classList.remove('hidden');
             keys.forEach(key => {
                 const [y, m] = key.split('-');
@@ -658,7 +633,7 @@
             document.getElementById('dash-detail-month-label').textContent = new Date(appState.viewingMonth.year, appState.viewingMonth.month - 1).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
             if (calc) {
                 document.getElementById('dash-equiv-hours').textContent = formatNumber(calc.totalEquivHours);
-                document.getElementById('dash-antiguedad-total').textContent = formatCurrency(calc.totalAntiguedad);
+                document.getElementById('dash-antiguedad-total').textContent = formatCurrency(calc.totalAntiguedad * (1 - appState.config.discountRate)); // Show Net Antig for clarity or Gross? Showing Net based on other card colors
                 document.getElementById('dash-viaticos-total').textContent = formatCurrency(calc.totalViaticos);
                 const pEl = document.getElementById('dash-presentismo-total'); pEl.textContent = formatCurrency(calc.presentismo);
                 if(calc.presentismoHoursLeft < 8) { pEl.classList.add('text-orange-500'); pEl.classList.remove('text-blue-600'); pEl.innerHTML += `<span class="text-[10px] block text-gray-400">(${calc.presentismoHoursLeft}hs)</span>`; } else { pEl.classList.add('text-blue-600'); pEl.classList.remove('text-orange-500'); }
@@ -794,13 +769,33 @@
         }
 
         async function loadUserData() {
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+
+            // Reset viewing logic to current month
+            appState.viewingMonth = { month: currentMonth, year: currentYear };
+            appState.treasuryViewMonth = { month: currentMonth, year: currentYear };
+
             onSnapshot(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'config', 'salary'), (s) => { 
                 if(s.exists()) { const data = s.data(); appState.config = { ...appState.config, ...data }; if(auth.currentUser && auth.currentUser.displayName) appState.config.userName = auth.currentUser.displayName; renderHome(); updateProfilePictureUI(appState.config.profilePicUrl); fillConfigInputs(); } 
             });
             const snap = await getDocs(collection(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data'));
             appState.historicalCache = {}; snap.forEach(d => appState.historicalCache[d.id] = d.data());
-            const k = Object.keys(appState.historicalCache).sort().reverse();
-            if(k.length > 0) { const [y, m] = k[0].split('-'); switchDashboardMonth(parseInt(m), parseInt(y)); appState.treasuryViewMonth = { month: parseInt(m), year: parseInt(y) }; }
+            
+            // Generate current month if missing in cache for display
+            const key = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+            if(!appState.historicalCache[key]) {
+                // If not in cache, perform calculation on empty
+                appState.activeData = { extras: {}, manualHolidays: {}, shiftOverrides: {}, lateness: {}, lackOfRest: {}, calculation: null };
+            } else {
+                const cached = appState.historicalCache[key];
+                appState.activeData = { 
+                    extras: cached.extras||{}, manualHolidays: cached.holidayFlags||{}, shiftOverrides: cached.shiftOverrides||{}, lateness: cached.lateness||{}, lackOfRest: cached.lackOfRest||{},
+                    calculation: performCalculation(currentMonth, currentYear, cached.extras||{}, cached.holidayFlags||{}, cached.shiftOverrides||{}, cached.lateness||{}, cached.lackOfRest||{}, cached.configSnapshot||appState.config)
+                };
+            }
+            renderDashboard(); renderHome(); renderTreasury();
         }
 
         function fillConfigInputs() {
@@ -833,7 +828,7 @@
             const totalDescansoAmt = calc.quincenas.q1.descanso + calc.quincenas.q2.descanso;
             const totalFeriadosAmt = calc.quincenas.q1.feriados + calc.quincenas.q2.feriados;
             
-            // Corrected Sum for PDF Receipt Logic (Total Remunerativo Approx)
+            // Approximation for Gross Base column in receipt
             const totalBrutoCalc = calc.quincenas.q1.brutoBase + calc.quincenas.q2.brutoBase + totalAntig + calc.tituloAmount + calc.presentismo + calc.totalExtrasAmt + totalDescansoAmt + totalFeriadosAmt;
 
             let rows = [
