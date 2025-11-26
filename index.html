@@ -169,7 +169,7 @@
                                 <table class="w-full text-sm text-left">
                                     <thead class="text-xs text-gray-500 uppercase sticky-header">
                                         <tr>
-                                            <th class="px-4 py-3">Fecha</th><th class="px-4 py-3">Turno</th><th class="px-4 py-3 text-center text-emerald-600">Extras (Reales)</th><th class="px-4 py-3 text-center text-red-600">Tarde/Sanción</th><th class="px-4 py-3 text-center">Feriado</th><th class="px-4 py-3 text-center text-orange-500" title="Falta de Descanso">F.Desc</th><th class="px-4 py-3 text-right">H.Real</th><th class="px-4 py-3 text-right font-bold">H.Eq</th><th class="px-4 py-3 text-right">Bruto</th><th class="px-4 py-3 text-right text-emerald-600 font-bold">Neto</th>
+                                            <th class="px-4 py-3">Fecha</th><th class="px-4 py-3">Turno</th><th class="px-4 py-3 text-center text-emerald-600">Extras (Reales)</th><th class="px-4 py-3 text-center text-red-600">Tarde/Sanción</th><th class="px-4 py-3 text-center">Feriado</th><th class="px-4 py-3 text-center text-orange-500" title="Falta de Descanso">F.Desc</th><th class="px-4 py-3 text-right">Hs.Reales</th><th class="px-4 py-3 text-right font-bold">Hs.Equiv</th><th class="px-4 py-3 text-right">Bruto</th><th class="px-4 py-3 text-right text-emerald-600 font-bold">Neto</th>
                                         </tr>
                                     </thead>
                                     <tbody id="daily-detail-tbody" class="divide-y divide-gray-100"></tbody>
@@ -233,30 +233,25 @@
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                             <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-house text-gray-400"></i> 1. Pantalla de Inicio</h3>
                             <p class="text-gray-600 text-sm leading-relaxed">
-                                • <strong>Próxima Quincena:</strong> Monto estimado a cobrar (día 5 o 20).<br>
+                                • <strong>Próxima Quincena:</strong> Monto estimado a cobrar.<br>
                                 • <strong>Mes Actual:</strong> Total acumulado del mes vigente.<br>
                                 • <strong>Próximos Francos:</strong> Lista de tus próximos días libres.
                             </p>
                         </div>
-
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                             <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-calendar-days text-red-500"></i> 2. Mi Gestión (Importante)</h3>
-                            <p class="text-gray-600 text-sm leading-relaxed mb-3">
-                                <strong>Guardado Automático:</strong> Tus cambios se guardan solos tras 1.5 seg. Verás un indicador "✅ Guardado".
-                            </p>
+                            <p class="text-gray-600 text-sm leading-relaxed mb-3"><strong>Guardado Automático:</strong> Tus cambios se guardan solos.</p>
                             <ul class="list-disc pl-5 text-gray-600 text-sm space-y-2">
-                                <li><strong>Extras (Reales):</strong> Ingresa horas reloj. El sistema multiplica (1.5x semana, 2x Sáb, 3x Dom/Fer).</li>
-                                <li><strong>F.Desc:</strong> Falta de descanso (+4hs equivalentes con descuento).</li>
-                                <li><strong>Neto (Columna):</strong> Dinero en mano por día (ya descontado).</li>
+                                <li><strong>Extras (Reales):</strong> Poné las horas reloj (ej: 4). El sistema multiplica solo.</li>
+                                <li><strong>F.Desc:</strong> Falta de descanso (+4hs equivalentes).</li>
+                                <li><strong>Neto (Columna):</strong> Dinero en mano por día.</li>
                             </ul>
                         </div>
-
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                             <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-500"></i> 3. Lógica Salarial</h3>
                             <p class="text-gray-600 text-sm leading-relaxed space-y-2">
-                                <strong>Con Descuento (18/21%):</strong> Horas turno, Extras, F.Descanso, Antigüedad.<br>
-                                <strong>Sin Descuento (Limpio):</strong> Viáticos (por día extra), Título, Presentismo.<br>
-                                <strong>Antigüedad:</strong> Se calcula sobre el total de horas generadas.
+                                <strong>Con Descuento:</strong> Horas, Extras, F.Descanso, Antigüedad.<br>
+                                <strong>Sin Descuento:</strong> Viáticos (por día con extra), Título, Presentismo.<br>
                             </p>
                         </div>
                     </div>
@@ -421,7 +416,16 @@
             let q1_viaticos_sum = 0, q2_viaticos_sum = 0;
             let presentismoHoursPool = 8;
             
-            let receiptStats = { normal: 0, night: 0, sat50: 0, sat100: 0, sun200: 0, holidays: 0, lackRest: 0 };
+            // UPDATED STATS OBJECT TO TRACK REAL AND EQUIV
+            let pdfStats = { 
+                normal: { real: 0, eq: 0 }, 
+                night: { real: 0, eq: 0 }, 
+                sat50: { real: 0, eq: 0 }, 
+                sat100: { real: 0, eq: 0 }, 
+                sun200: { real: 0, eq: 0 }, 
+                holidays: { real: 0, eq: 0 }, 
+                lackRest: { real: 0, eq: 0 } 
+            };
 
             for (let i = 1; i <= daysInMonth; i++) {
                 const current = new Date(year, month - 1, i);
@@ -442,24 +446,27 @@
                 if (cState === 'Vacaciones' || cState === 'Licencia') { tLbl = cState; eqBase = 8; } 
                 else if (cState === 'Franco') {
                     francosList.push({ dayNum: i, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], fullDate: dDisp, isHoliday: isHol });
-                    if (isHol) { tLbl = 'FERIADO (Franco)'; eqBase = 8; receiptStats.holidays += 8; }
+                    if (isHol) { 
+                        tLbl = 'FERIADO (Franco)'; eqBase = 8; 
+                        pdfStats.holidays.real += 8; pdfStats.holidays.eq += 8;
+                    }
                 } else {
                     if (isHol) { 
                         tLbl = `FERIADO (${cState})`; 
                         eqBase = (cState === 'Noche') ? 36 : 32; 
-                        receiptStats.holidays += 8; 
+                        pdfStats.holidays.real += 8; pdfStats.holidays.eq += eqBase;
                     } else {
                         const d = current.getDay();
                         if (d===0) { // Sunday
                             eqBase = (cState === 'Noche') ? 28 : 24;
-                            receiptStats.sun200 += 8; 
+                            pdfStats.sun200.real += 8; pdfStats.sun200.eq += eqBase;
                         } else if(d===6) { // Saturday
-                            if (cState === 'Noche') { eqBase = 16; receiptStats.sat100 += 8; } 
-                            else if (cState === 'Tarde') { eqBase = 12; receiptStats.sat50 += 8; } 
-                            else { eqBase = 9; receiptStats.sat50 += 8; }
+                            if (cState === 'Noche') { eqBase = 16; pdfStats.sat100.real += 8; pdfStats.sat100.eq += 16; } 
+                            else if (cState === 'Tarde') { eqBase = 12; pdfStats.sat50.real += 8; pdfStats.sat50.eq += 12; } 
+                            else { eqBase = 9; pdfStats.sat50.real += 8; pdfStats.sat50.eq += 9; }
                         } else { // M-F
-                            if (cState === 'Noche') { eqBase = 12; receiptStats.night += 12; } 
-                            else { eqBase = 8; receiptStats.normal += 8; }
+                            if (cState === 'Noche') { eqBase = 12; pdfStats.night.real += 8; pdfStats.night.eq += 12; } 
+                            else { eqBase = 8; pdfStats.normal.real += 8; pdfStats.normal.eq += 8; }
                         }
                     }
                 }
@@ -473,9 +480,9 @@
                 const moneyBase = eqBase * safeValHora;
                 const moneyExtras = (extReal * multiplier) * safeValHora;
                 const moneyDescanso = isLackRest ? (4 * safeValHora) : 0;
-                if(isLackRest) receiptStats.lackRest += 1;
+                if(isLackRest) { pdfStats.lackRest.real += 1; pdfStats.lackRest.eq += 4; }
 
-                // Antiguedad applies to (Base + Extras + Rest)
+                // Antiguedad applies to (Base + Extras + Rest) -> WITH DISCOUNT
                 const dayRemunerative = moneyBase + moneyExtras + moneyDescanso;
                 const moneyAntig = dayRemunerative * (safeAntig / 100);
 
@@ -525,9 +532,20 @@
             const finalNetoTotal = q1_neto + q2_neto;
             const totalAntiguedad = q1_antig_sum + q2_antig_sum;
             const totalViaticos = q1_viaticos_sum + q2_viaticos_sum;
+            
+            // Calculated Extras Equiv Hours Sum for PDF
+            const totalExtrasReal = dailyResults.reduce((a,b)=>a+b.extraReal,0);
+            const totalExtrasEquiv = dailyResults.reduce((a,b) => {
+               // Recalculate mult just for stats
+               let mult = 1.5;
+               const d = new Date(year, month-1, parseInt(b.date.split('/')[0])).getDay();
+               if(b.isHoliday || d===0) mult = 3.0;
+               else if(d===6) mult = 2.0;
+               return a + (b.extraReal * mult);
+            }, 0);
 
             return { 
-                dailyResults, francosList, receiptStats,
+                dailyResults, francosList, pdfStats,
                 totalEquivHours: dailyResults.reduce((a,b)=>a+b.totalEquiv,0), 
                 totalViaticos: totalViaticos, 
                 tituloAmount: safeTitulo, 
@@ -537,7 +555,8 @@
                 netoFinal: finalNetoTotal, 
                 totalFeriadosCount: dailyResults.filter(d=>d.isHoliday).length,
                 totalExtrasAmt: q1_extras_sum + q2_extras_sum,
-                totalExtrasHoursReal: dailyResults.reduce((a,b)=>a+b.extraReal,0),
+                totalExtrasHoursReal: totalExtrasReal,
+                totalExtrasHoursEquiv: totalExtrasEquiv,
                 quincenas: { 
                     q1: { brutoBase: q1_base_sum, antiguedad: q1_antig_sum, viaticos: q1_viaticos_sum, extras: q1_extras_sum, feriados: q1_feriados_sum, descanso: q1_descanso_sum, neto: q1_neto, desc: q1_discount }, 
                     q2: { brutoBase: q2_base_sum, antiguedad: q2_antig_sum, viaticos: q2_viaticos_sum, extras: q2_extras_sum, feriados: q2_feriados_sum, descanso: q2_descanso_sum, titulo: safeTitulo, presentismo: presMoney, neto: q2_neto, desc: q2_discount } 
@@ -813,36 +832,47 @@
             const totalBrutoCalc = calc.quincenas.q1.brutoBase + calc.quincenas.q2.brutoBase + totalAntig + calc.totalExtrasAmt + totalDescansoAmt;
 
             let rows = [
-                ['HORAS NORMALES', st.normal, formatCurrency(st.normal * appState.config.valorHora)],
-                ['HORAS NOCTURNAS', st.night, formatCurrency(st.night * appState.config.valorHora)],
-                ['SÁBADO TARDE/NOCHE (50%)', st.sat50, formatCurrency(st.sat50 * appState.config.valorHora)],
-                ['SÁBADO NOCHE (100%)', st.sat100, formatCurrency(st.sat100 * appState.config.valorHora)],
-                ['DOMINGO (200%)', st.sun200, formatCurrency(st.sun200 * appState.config.valorHora)],
-                ['FERIADOS', st.holidays, formatCurrency(totalFeriadosAmt)], 
-                ['FALTA DE DESCANSO', st.lackRest, formatCurrency(totalDescansoAmt)],
-                ['EXTRAS (REALES)', calc.totalExtrasHoursReal, formatCurrency(calc.totalExtrasAmt)],
-                ['ANTIGÜEDAD', `${appState.config.antiguedadYears}%`, formatCurrency(totalAntig)],
-                ['VIÁTICOS', '-', formatCurrency(calc.totalViaticos)],
-                ['TÍTULO', '-', formatCurrency(calc.tituloAmount)],
-                ['PRESENTISMO', '-', formatCurrency(calc.presentismo)],
-                ['TOTAL BRUTO (Remunerativo)', '-', formatCurrency(totalBrutoCalc)],
-                ['DESCUENTOS', `${appState.config.discountRate * 100}%`, `-${formatCurrency(totalDesc)}`],
-                ['TOTAL NETO', '-', formatCurrency(calc.netoFinal)]
+                // REMUNERATIVOS
+                ['HORAS NORMALES', st.normal.real, st.normal.eq, formatCurrency(st.normal.eq * appState.config.valorHora)],
+                ['HORAS NOCTURNAS', st.night.real, st.night.eq, formatCurrency(st.night.eq * appState.config.valorHora)],
+                ['SÁBADO TARDE/NOCHE (50%)', st.sat50.real, st.sat50.eq, formatCurrency(st.sat50.eq * appState.config.valorHora)],
+                ['SÁBADO NOCHE (100%)', st.sat100.real, st.sat100.eq, formatCurrency(st.sat100.eq * appState.config.valorHora)],
+                ['DOMINGO (200%)', st.sun200.real, st.sun200.eq, formatCurrency(st.sun200.eq * appState.config.valorHora)],
+                ['FERIADOS', st.holidays.real, st.holidays.eq, formatCurrency(totalFeriadosAmt)], 
+                ['FALTA DE DESCANSO', st.lackRest.real, st.lackRest.eq, formatCurrency(totalDescansoAmt)],
+                ['EXTRAS (REALES)', calc.totalExtrasHoursReal, calc.totalExtrasHoursEquiv, formatCurrency(calc.totalExtrasAmt)],
+                ['ANTIGÜEDAD', `${appState.config.antiguedadYears}%`, '-', formatCurrency(totalAntig)],
+                
+                // SEPARADOR BRUTO
+                ['', '', '', ''],
+                [{content: 'TOTAL BRUTO (REMUNERATIVO)', styles: {fontStyle: 'bold', fillColor: [240, 240, 240]}}, '-', '-', {content: formatCurrency(totalBrutoCalc), styles: {fontStyle: 'bold'}}],
+                ['DESCUENTOS', `${appState.config.discountRate * 100}%`, '-', `-${formatCurrency(totalDesc)}`],
+                
+                // SEPARADOR NO REMUNERATIVO
+                ['', '', '', ''],
+                [{content: 'NO REMUNERATIVOS (SIN DESCUENTOS)', styles: {fontStyle: 'bold', fillColor: [240, 240, 240]}}, '', '', ''],
+                ['VIÁTICOS', '-', '-', formatCurrency(calc.totalViaticos)],
+                ['TÍTULO', '-', '-', formatCurrency(calc.tituloAmount)],
+                ['PRESENTISMO', '-', '-', formatCurrency(calc.presentismo)],
+                
+                // FINAL
+                ['', '', '', ''],
+                [{content: 'TOTAL NETO', styles: {fontStyle: 'bold', fillColor: [220, 38, 38], textColor: 255}}, '-', '-', {content: formatCurrency(calc.netoFinal), styles: {fontStyle: 'bold', fillColor: [220, 38, 38], textColor: 255}}]
             ];
 
             doc.autoTable({
                 startY: 40,
-                head: [['CONCEPTO', 'UNIDADES / HS', 'SUBTOTAL']],
+                head: [['CONCEPTO', 'UNID. REAL', 'HS. EQUIV', 'SUBTOTAL']],
                 body: rows,
                 theme: 'grid',
                 headStyles: { fillColor: [40, 40, 40] },
-                columnStyles: { 2: { halign: 'right' } }
+                columnStyles: { 3: { halign: 'right' } }
             });
 
             doc.addPage();
             doc.text(`Detalle Diario - ${ml}`, 14, 15);
             const dd = calc.dailyResults.map(d => [d.date, d.turn, d.extraReal>0?d.extraReal:'-', d.lateType>0? (d.lateType===1?'>5m':'>1h') : '', d.isHoliday?'Sí':'', d.isLackRest?'Sí':'', formatNumber(d.totalRealHours), formatNumber(d.totalEquiv), formatCurrency(d.bruto), formatCurrency(d.neto)]);
-            doc.autoTable({ startY: 20, head: [['FECHA', 'TURNO', 'EXTRAS', 'TARDE', 'FER.', 'DESC.', 'H.REAL', 'H.EQ', 'BRUTO', 'NETO']], body: dd, theme: 'striped', headStyles: { fillColor: [40, 40, 40] }, styles: { fontSize: 8, cellPadding: 2 } });
+            doc.autoTable({ startY: 20, head: [['FECHA', 'TURNO', 'EXTRAS', 'TARDE', 'FER.', 'DESC.', 'H.REAL', 'H.EQ', 'BRUTO', 'NETO']], body: dd, theme: 'striped', headStyles: { fillColor: [40, 40, 40] }, styles: { fontSize: 7, cellPadding: 1.5 } });
             doc.save(`Recibo_${ml}.pdf`);
         };
         
