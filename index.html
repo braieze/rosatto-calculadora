@@ -245,6 +245,44 @@
                             </ol>
                         </div>
 
+                        <!-- Section: Detailed Functionalities -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                            <h3 class="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-circle-info text-blue-500"></i> Funcionalidades Detalladas</h3>
+                            
+                            <div class="space-y-4">
+                                <div class="border-b border-gray-100 pb-3">
+                                    <h4 class="font-bold text-sm text-red-600 mb-1"><i class="fa-solid fa-house mr-2"></i>Inicio</h4>
+                                    <p class="text-xs text-gray-600 leading-relaxed">Es tu panel de control principal. Aquí verás una tarjeta con la <strong>proyección de cobro para tu próxima quincena</strong> y otra con el acumulado del <strong>mes actual</strong>. También muestra tus próximos francos calculados automáticamente, para que organices tu semana sin consultar calendarios.</p>
+                                </div>
+
+                                <div class="border-b border-gray-100 pb-3">
+                                    <h4 class="font-bold text-sm text-red-600 mb-1"><i class="fa-solid fa-calendar-days mr-2"></i>Mi Gestión</h4>
+                                    <p class="text-xs text-gray-600 leading-relaxed">El corazón de la app. Es una grilla mensual inteligente. Podés:</p>
+                                    <ul class="list-disc pl-5 text-xs text-gray-500 mt-1 space-y-1">
+                                        <li>Cargar <strong>horas extra reales</strong> (el sistema detecta si es al 50%, 100% o 200% y multiplica solo).</li>
+                                        <li>Marcar <strong>llegadas tarde</strong> (impactan automáticamente en el presentismo).</li>
+                                        <li>Indicar si trabajaste un feriado (casilla <strong>Feriado</strong>) o si no tuviste tus 12hs de descanso (casilla <strong>F.Desc</strong>).</li>
+                                        <li>Cambiar un turno manualmente si te lo modificaron (usando el selector "Auto/Mañana/Tarde/Noche").</li>
+                                    </ul>
+                                </div>
+
+                                <div class="border-b border-gray-100 pb-3">
+                                    <h4 class="font-bold text-sm text-red-600 mb-1"><i class="fa-solid fa-wallet mr-2"></i>Tesorería</h4>
+                                    <p class="text-xs text-gray-600 leading-relaxed">Aquí ves el dinero real. El sistema separa tu sueldo en <strong>1ra y 2da Quincena</strong>. Desglosa ítem por ítem: cuánto ganaste por básico, cuánto por antigüedad, cuánto por extras, viáticos y título. Es ideal para controlar que tu recibo de sueldo oficial esté correcto.</p>
+                                </div>
+
+                                <div class="border-b border-gray-100 pb-3">
+                                    <h4 class="font-bold text-sm text-red-600 mb-1"><i class="fa-solid fa-trophy mr-2"></i>Ranking</h4>
+                                    <p class="text-xs text-gray-600 leading-relaxed">Un historial competitivo de tus propios sueldos. Ordena tus meses de mayor a menor ingreso neto, mostrándote en qué mes hiciste más diferencia económica y por qué (ej: "30hs Extras").</p>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-bold text-sm text-red-600 mb-1"><i class="fa-solid fa-gear mr-2"></i>Configuración</h4>
+                                    <p class="text-xs text-gray-600 leading-relaxed">Donde personalizas la calculadora. Es vital mantener actualizados el <strong>Valor Hora</strong> y la fecha de <strong>Último Franco</strong>. Si cambias de equipo o de turno, ajústalo aquí para que todo el sistema se recalibre.</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Section: How to install as App -->
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                             <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-mobile-screen text-purple-500"></i> Instalar como App</h3>
@@ -258,16 +296,6 @@
                                 <h4 class="font-bold text-sm text-gray-700 mb-1"><i class="fa-brands fa-apple text-gray-800"></i> En iOS (iPhone/Safari)</h4>
                                 <p class="text-xs text-gray-500">1. Toca el botón "Compartir" (cuadrado con flecha).<br>2. Desliza hacia abajo y elige "Agregar a Inicio".</p>
                             </div>
-                        </div>
-
-                        <!-- Section: General Usage -->
-                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                            <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-circle-info text-blue-500"></i> Funcionalidades</h3>
-                            <ul class="text-sm text-gray-600 space-y-2">
-                                <li><strong>Mi Gestión:</strong> Carga tus extras reales. El sistema multiplica automáticamente (x1.5, x2 o x3) según el día.</li>
-                                <li><strong>Tesorería:</strong> Ve el desglose exacto de lo que cobrarás en cada quincena.</li>
-                                <li><strong>PDF:</strong> Descarga un recibo detallado con todos los ítems legales desglosados.</li>
-                            </ul>
                         </div>
                     </div>
                 </div>
@@ -422,12 +450,13 @@
             const diffDays = Math.floor((new Date(year, month - 1, 1).getTime() - lastFrancoMs) / 86400000);
             let startOffset = (baseOffset + diffDays) % 24; if (startOffset < 0) startOffset += 24;
 
+            // CORRECTED VARIABLE NAMES HERE
             let q1_bruto_base = 0, q2_bruto_base = 0;
-            let q1_antig = 0, q2_antig = 0;
-            let q1_extras = 0, q2_extras = 0;
-            let q1_descanso = 0, q2_descanso = 0;
-            let q1_feriados = 0, q2_feriados = 0;
-            let q1_viaticos = 0, q2_viaticos = 0;
+            let q1_antig_sum = 0, q2_antig_sum = 0;
+            let q1_extras_sum = 0, q2_extras_sum = 0;
+            let q1_descanso_sum = 0, q2_descanso_sum = 0;
+            let q1_feriados_sum = 0, q2_feriados_sum = 0;
+            let q1_viaticos_sum = 0, q2_viaticos_sum = 0;
             let presentismoHoursPool = 8;
             
             // Counters for PDF detailed view (Real / Equiv)
