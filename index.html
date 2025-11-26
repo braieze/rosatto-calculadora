@@ -150,7 +150,7 @@
                     <div id="dashboard-content" class="hidden animate-fade-in space-y-6">
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"><p class="text-xs text-gray-500 font-bold uppercase">Horas Eq.</p><p class="text-lg font-bold text-red-600" id="dash-equiv-hours">0</p></div>
-                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"><p class="text-xs text-gray-500 font-bold uppercase">Antigüedad</p><p class="text-lg font-bold text-purple-600" id="dash-antiguedad-total">$ 0</p></div>
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"><p class="text-xs text-gray-500 font-bold uppercase">Antigüedad (Neto)</p><p class="text-lg font-bold text-purple-600" id="dash-antiguedad-total">$ 0</p></div>
                             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"><p class="text-xs text-gray-500 font-bold uppercase">Viáticos</p><p class="text-lg font-bold text-orange-600" id="dash-viaticos-total">$ 0</p></div>
                             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"><p class="text-xs text-gray-500 font-bold uppercase">Presentismo</p><p class="text-lg font-bold text-blue-600" id="dash-presentismo-total">$ 0</p></div>
                             <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-sm col-span-2 md:col-span-1 lg:col-span-1"><p class="text-xs text-gray-400 font-bold uppercase">Neto Final</p><p class="text-lg font-bold text-emerald-400" id="dash-neto-final">$ 0</p></div>
@@ -228,29 +228,35 @@
 
                 <div id="help-view" class="view-section hidden max-w-3xl mx-auto pb-20">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-circle-question text-blue-500 mr-2"></i> Manual de Ayuda</h2>
+                    
                     <div class="space-y-6">
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                             <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-house text-gray-400"></i> 1. Pantalla de Inicio</h3>
                             <p class="text-gray-600 text-sm leading-relaxed">
-                                • <strong>Próxima Quincena:</strong> Monto estimado a cobrar.<br>
+                                • <strong>Próxima Quincena:</strong> Monto estimado a cobrar (día 5 o 20).<br>
                                 • <strong>Mes Actual:</strong> Total acumulado del mes vigente.<br>
                                 • <strong>Próximos Francos:</strong> Lista de tus próximos días libres.
                             </p>
                         </div>
+
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                             <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-calendar-days text-red-500"></i> 2. Mi Gestión (Importante)</h3>
-                            <p class="text-gray-600 text-sm leading-relaxed mb-3"><strong>Guardado Automático:</strong> Tus cambios se guardan solos.</p>
+                            <p class="text-gray-600 text-sm leading-relaxed mb-3">
+                                <strong>Guardado Automático:</strong> Tus cambios se guardan solos tras 1.5 seg. Verás un indicador "✅ Guardado".
+                            </p>
                             <ul class="list-disc pl-5 text-gray-600 text-sm space-y-2">
-                                <li><strong>Extras (Reales):</strong> Poné las horas reloj (ej: 4). El sistema multiplica solo.</li>
-                                <li><strong>F.Desc:</strong> Falta de descanso (+4hs equivalentes).</li>
-                                <li><strong>Neto (Columna):</strong> Dinero en mano por día.</li>
+                                <li><strong>Extras (Reales):</strong> Ingresa horas reloj. El sistema multiplica (1.5x semana, 2x Sáb, 3x Dom/Fer).</li>
+                                <li><strong>F.Desc:</strong> Falta de descanso (+4hs equivalentes con descuento).</li>
+                                <li><strong>Neto (Columna):</strong> Dinero en mano por día (ya descontado).</li>
                             </ul>
                         </div>
+
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                             <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-wallet text-emerald-500"></i> 3. Lógica Salarial</h3>
                             <p class="text-gray-600 text-sm leading-relaxed space-y-2">
-                                <strong>Con Descuento:</strong> Horas, Extras, F.Descanso, Antigüedad.<br>
-                                <strong>Sin Descuento:</strong> Viáticos (por día con extra), Título, Presentismo.<br>
+                                <strong>Con Descuento (18/21%):</strong> Horas turno, Extras, F.Descanso, Antigüedad.<br>
+                                <strong>Sin Descuento (Limpio):</strong> Viáticos (por día extra), Título, Presentismo.<br>
+                                <strong>Antigüedad:</strong> Se calcula sobre el total de horas generadas.
                             </p>
                         </div>
                     </div>
@@ -389,7 +395,7 @@
             };
         }
 
-        // --- CORE MATH ENGINE (EXACT RULES) ---
+        // --- CORE MATH ENGINE (CORRECTED VARIABLES) ---
         function performCalculation(month, year, extras, holidays, overrides, lateness, lackOfRest, configOverride) {
             const cfg = configOverride || appState.config;
             const { lastFrancoDate, initialTurn, valorHora, discountRate, tituloAmount, viaticoValue, antiguedadYears } = cfg;
@@ -406,12 +412,13 @@
             const diffDays = Math.floor((new Date(year, month - 1, 1).getTime() - lastFrancoMs) / 86400000);
             let startOffset = (baseOffset + diffDays) % 24; if (startOffset < 0) startOffset += 24;
 
-            let q1_bruto_base = 0, q2_bruto_base = 0;
-            let q1_antig = 0, q2_antig = 0;
-            let q1_extras = 0, q2_extras = 0;
-            let q1_descanso = 0, q2_descanso = 0;
-            let q1_feriados = 0, q2_feriados = 0;
-            let q1_viaticos = 0, q2_viaticos = 0;
+            // Corrected Accumulator Variable Names (Using _sum to match logic)
+            let q1_base_sum = 0, q2_base_sum = 0;
+            let q1_antig_sum = 0, q2_antig_sum = 0;
+            let q1_extras_sum = 0, q2_extras_sum = 0;
+            let q1_descanso_sum = 0, q2_descanso_sum = 0;
+            let q1_feriados_sum = 0, q2_feriados_sum = 0;
+            let q1_viaticos_sum = 0, q2_viaticos_sum = 0;
             let presentismoHoursPool = 8;
             
             let receiptStats = { normal: 0, night: 0, sat50: 0, sat100: 0, sun200: 0, holidays: 0, lackRest: 0 };
@@ -431,7 +438,6 @@
                 if(lateType === 1) presentismoHoursPool -= 0.5;
                 if(lateType === 2) presentismoHoursPool -= 1.0;
 
-                // --- SHIFT VALUE MATRIX ---
                 let tLbl = cState, eqBase = 0;
                 if (cState === 'Vacaciones' || cState === 'Licencia') { tLbl = cState; eqBase = 8; } 
                 else if (cState === 'Franco') {
@@ -458,30 +464,28 @@
                     }
                 }
 
-                // --- OVERTIME MULTIPLIERS ---
                 const dayOfWeek = current.getDay(); 
                 let multiplier = 1.5; 
                 if(isHol || dayOfWeek === 0) multiplier = 3.0; // Sun/Hol x3
                 else if(dayOfWeek === 6) multiplier = 2.0; // Sat x2
 
-                // --- MONETARY ---
+                // --- MONETARY CALCS ---
                 const moneyBase = eqBase * safeValHora;
                 const moneyExtras = (extReal * multiplier) * safeValHora;
                 const moneyDescanso = isLackRest ? (4 * safeValHora) : 0;
                 if(isLackRest) receiptStats.lackRest += 1;
 
-                // Antiguedad: Applied to (Base + Extras + Rest) -> WITH DISCOUNT
+                // Antiguedad applies to (Base + Extras + Rest)
                 const dayRemunerative = moneyBase + moneyExtras + moneyDescanso;
                 const moneyAntig = dayRemunerative * (safeAntig / 100);
 
-                // Viaticos: Applied if Extras > 0 -> NO DISCOUNT
+                // Viaticos: Per day with extras (NO DISCOUNT)
                 const moneyViat = extReal > 0 ? safeViat : 0;
 
                 // Daily Totals for Table
                 const dailyBruto = dayRemunerative + moneyAntig;
-                const dailyNeto = (dailyBruto * (1 - discountRate)) + moneyViat; // + Presentismo logic separate
+                const dailyNeto = (dailyBruto * (1 - discountRate)) + moneyViat;
 
-                // Display Values
                 const eqTot = eqBase + (extReal * multiplier) + (isLackRest?4:0);
                 const totalRealHours = 8 + extReal;
 
@@ -493,52 +497,55 @@
                     bruto: dailyBruto, neto: dailyNeto, isFranco: cState === 'Franco' 
                 });
 
-                // Quincena Accumulation
+                // Accumulate Quincenas
                 if (i <= 15) { 
-                    q1_bruto_base += moneyBase; q1_extras_sum += moneyExtras; q1_descanso_sum += moneyDescanso; q1_antig_sum += moneyAntig; q1_viaticos_sum += moneyViat;
+                    q1_base_sum += moneyBase; q1_extras_sum += moneyExtras; q1_descanso_sum += moneyDescanso; q1_antig_sum += moneyAntig; q1_viaticos_sum += moneyViat;
                     if(isHol) q1_feriados_sum += moneyBase;
                 } else { 
-                    q2_bruto_base += moneyBase; q2_extras_sum += moneyExtras; q2_descanso_sum += moneyDescanso; q2_antig_sum += moneyAntig; q2_viaticos_sum += moneyViat;
+                    q2_base_sum += moneyBase; q2_extras_sum += moneyExtras; q2_descanso_sum += moneyDescanso; q2_antig_sum += moneyAntig; q2_viaticos_sum += moneyViat;
                     if(isHol) q2_feriados_sum += moneyBase;
                 }
                 startOffset = (startOffset + 1) % 24;
             }
 
             if(presentismoHoursPool < 0) presentismoHoursPool = 0;
-            const presMoney = presentismoHoursPool * safeValHora; // NO DISCOUNT applied to Presentismo as per instruction
+            const presMoney = presentismoHoursPool * safeValHora; // No Discount for Presentismo
 
             // --- FINAL TOTALS ---
-            // Q1 (Remunerative + Viaticos)
-            const q1_remunerative = q1_bruto_base + q1_extras_sum + q1_descanso_sum + q1_antig_sum;
+            // Q1
+            const q1_remunerative = q1_base_sum + q1_extras_sum + q1_descanso_sum + q1_antig_sum;
             const q1_discount = q1_remunerative * discountRate;
             const q1_neto = q1_remunerative - q1_discount + q1_viaticos_sum;
 
-            // Q2 (Remunerative + Viaticos + Title + Presentismo)
-            const q2_remunerative = q2_bruto_base + q2_extras_sum + q2_descanso_sum + q2_antig_sum;
+            // Q2
+            const q2_remunerative = q2_base_sum + q2_extras_sum + q2_descanso_sum + q2_antig_sum;
             const q2_discount = q2_remunerative * discountRate;
             const q2_neto = q2_remunerative - q2_discount + q2_viaticos_sum + safeTitulo + presMoney;
+
+            const finalNetoTotal = q1_neto + q2_neto;
+            const totalAntiguedad = q1_antig_sum + q2_antig_sum;
+            const totalViaticos = q1_viaticos_sum + q2_viaticos_sum;
 
             return { 
                 dailyResults, francosList, receiptStats,
                 totalEquivHours: dailyResults.reduce((a,b)=>a+b.totalEquiv,0), 
-                totalViaticos: q1_viaticos_sum + q2_viaticos_sum, 
+                totalViaticos: totalViaticos, 
                 tituloAmount: safeTitulo, 
-                totalAntiguedad: q1_antig_sum + q2_antig_sum,
+                totalAntiguedad: totalAntiguedad,
                 presentismo: presMoney, 
                 presentismoHoursLeft: presentismoHoursPool,
-                netoFinal: q1_neto + q2_neto, 
+                netoFinal: finalNetoTotal, 
                 totalFeriadosCount: dailyResults.filter(d=>d.isHoliday).length,
                 totalExtrasAmt: q1_extras_sum + q2_extras_sum,
                 totalExtrasHoursReal: dailyResults.reduce((a,b)=>a+b.extraReal,0),
                 quincenas: { 
-                    q1: { brutoBase: q1_bruto_base, antiguedad: q1_antig_sum, viaticos: q1_viaticos_sum, extras: q1_extras_sum, feriados: q1_feriados_sum, descanso: q1_descanso_sum, neto: q1_neto, desc: q1_discount }, 
-                    q2: { brutoBase: q2_bruto_base, antiguedad: q2_antig_sum, viaticos: q2_viaticos_sum, extras: q2_extras_sum, feriados: q2_feriados_sum, descanso: q2_descanso_sum, titulo: safeTitulo, presentismo: presMoney, neto: q2_neto, desc: q2_discount } 
+                    q1: { brutoBase: q1_base_sum, antiguedad: q1_antig_sum, viaticos: q1_viaticos_sum, extras: q1_extras_sum, feriados: q1_feriados_sum, descanso: q1_descanso_sum, neto: q1_neto, desc: q1_discount }, 
+                    q2: { brutoBase: q2_base_sum, antiguedad: q2_antig_sum, viaticos: q2_viaticos_sum, extras: q2_extras_sum, feriados: q2_feriados_sum, descanso: q2_descanso_sum, titulo: safeTitulo, presentismo: presMoney, neto: q2_neto, desc: q2_discount } 
                 } 
             };
         }
 
         function getCalculationFor(m, y, isHome = false) {
-            // Force fresh calc if current month
             if (appState.viewingMonth.month === m && appState.viewingMonth.year === y) {
                  return performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.lackOfRest, appState.config);
             }
