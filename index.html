@@ -390,8 +390,12 @@
             const diffDays = Math.floor((new Date(year, month - 1, 1).getTime() - lastFrancoMs) / 86400000);
             let startOffset = (baseOffset + diffDays) % 24; if (startOffset < 0) startOffset += 24;
 
-            let q1_bruto = 0, q2_bruto = 0, q1_viaticos = 0, q2_viaticos = 0;
-            let q1_antig = 0, q2_antig = 0, q1_fer = 0, q2_fer = 0, q1_extras = 0, q2_extras = 0, q1_descanso = 0, q2_descanso = 0;
+            let q1_bruto_base = 0, q2_bruto_base = 0;
+            let q1_antig = 0, q2_antig = 0;
+            let q1_extras = 0, q2_extras = 0;
+            let q1_descanso = 0, q2_descanso = 0;
+            let q1_feriados = 0, q2_feriados = 0;
+            let q1_viaticos = 0, q2_viaticos = 0;
             let presentismoHoursPool = 8;
             
             let receiptStats = { normal: 0, night: 0, sat50: 0, sat100: 0, sun200: 0, holidays: 0, lackRest: 0 };
@@ -421,17 +425,14 @@
                     else {
                         eqBase = 8; const d = current.getDay();
                         if (d >= 1 && d <= 5) {
-                             if(cState === 'Noche') receiptStats.night += 12; // Night M-F is 12
+                             if(cState === 'Noche') receiptStats.night += 12; 
                              else receiptStats.normal += 8;
                         }
                         if (d===0) { eqBase=24; receiptStats.sun200 += 8; } 
                         else if(d===6) {
                             if(cState==='Tarde'||cState==='Noche') {
-                                eqBase = cState==='Tarde'?12:16;
-                                receiptStats.sat50 += 8; 
-                            } else {
-                                receiptStats.normal += 8; 
-                            }
+                                eqBase = cState==='Tarde'?12:16; receiptStats.sat50 += 8; 
+                            } else { receiptStats.normal += 8; }
                         }
                         if (d>=1 && d<=5 && cState==='Noche') eqBase=12; 
                         if(d===0 && cState==='Noche') eqBase=28;
@@ -443,37 +444,48 @@
                 if(isHol || dayOfWeek === 0) multiplier = 3.0;
                 else if(dayOfWeek === 6) multiplier = 2.0;
 
-                const eqAddedByExtras = extReal * multiplier; 
-                let eqTot = eqBase + eqAddedByExtras;
+                // Calculations Per Day
+                const moneyBase = eqBase * safeValHora;
+                const moneyExtras = (extReal * multiplier) * safeValHora;
+                const moneyDescanso = isLackRest ? (4 * safeValHora) : 0;
                 
-                if(isLackRest) {
-                    eqTot += 4;
-                    receiptStats.lackRest += 1; 
-                }
+                // Antiguedad: Applied to Base + Extras + Descanso
+                const dayTotalForAntig = moneyBase + moneyExtras + moneyDescanso;
+                const moneyAntig = dayTotalForAntig * (safeAntig / 100);
+                
+                const moneyViat = extReal > 0 ? safeViat : 0;
 
-                const dBruto = eqTot * safeValHora; 
-                const dAntig = dBruto * (safeAntig / 100);
-                const dViat = extReal > 0 ? safeViat : 0;
+                // Store for Table Display
+                // "Total Equiv" is purely for display of hours power, not money directly here
+                const eqTot = eqBase + (extReal * multiplier) + (isLackRest?4:0);
                 const totalRealHours = 8 + extReal;
+                const dailyTotalBruto = dayTotalForAntig + moneyAntig;
 
                 dailyResults.push({ 
                     date: dDisp, key: dKey, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], 
                     turn: tLbl, isHoliday: isHol, lateType: lateType, isLackRest: isLackRest,
                     equivBase: eqBase, extraReal: extReal, 
                     totalEquiv: eqTot, totalRealHours: totalRealHours, 
-                    bruto: dBruto + dAntig, isFranco: cState === 'Franco' 
+                    bruto: dailyTotalBruto, isFranco: cState === 'Franco' 
                 });
 
-                const extrasMoney = eqAddedByExtras * safeValHora;
-                const restMoney = isLackRest ? (4 * safeValHora) : 0;
-                const feriadoMoney = isHol ? (eqBase * safeValHora) : 0; 
+                if (isLackRest) receiptStats.lackRest += 1;
 
+                // Accumulate Quincenas
                 if (i <= 15) { 
-                    q1_bruto += dBruto; q1_viaticos += dViat; q1_antig += dAntig;
-                    q1_extras += extrasMoney; q1_descanso += restMoney; q1_fer += feriadoMoney;
+                    q1_bruto_base += moneyBase;
+                    q1_extras += moneyExtras;
+                    q1_descanso += moneyDescanso;
+                    q1_antig += moneyAntig;
+                    q1_viaticos += moneyViat;
+                    if(isHol) q1_feriados += moneyBase;
                 } else { 
-                    q2_bruto += dBruto; q2_viaticos += dViat; q2_antig += dAntig;
-                    q2_extras += extrasMoney; q2_descanso += restMoney; q2_fer += feriadoMoney;
+                    q2_bruto_base += moneyBase;
+                    q2_extras += moneyExtras;
+                    q2_descanso += moneyDescanso;
+                    q2_antig += moneyAntig;
+                    q2_viaticos += moneyViat;
+                    if(isHol) q2_feriados += moneyBase;
                 }
                 startOffset = (startOffset + 1) % 24;
             }
@@ -481,12 +493,18 @@
             if(presentismoHoursPool < 0) presentismoHoursPool = 0;
             const presMoney = presentismoHoursPool * safeValHora;
             
-            // Updated Totals Logic: Antigüedad is added to Bruto before Discount
-            const q1_final_bruto = q1_bruto + q1_antig;
-            const q1_neto = q1_final_bruto * (1 - discountRate) + q1_viaticos;
+            // --- FINAL TOTALS ---
+            // Q1
+            const q1_total_remunerativo = q1_bruto_base + q1_extras + q1_descanso + q1_antig;
+            const q1_descuentos = q1_total_remunerativo * discountRate;
+            const q1_neto = q1_total_remunerativo - q1_descuentos + q1_viaticos;
 
-            const q2_final_bruto = q2_bruto + q2_antig + safeTitulo + presMoney;
-            const q2_neto = q2_final_bruto * (1 - discountRate) + q2_viaticos;
+            // Q2 (Includes Title & Presentismo)
+            const q2_total_remunerativo = q2_bruto_base + q2_extras + q2_descanso + q2_antig + safeTitulo + presMoney;
+            const q2_descuentos = q2_total_remunerativo * discountRate;
+            const q2_neto = q2_total_remunerativo - q2_descuentos + q2_viaticos;
+
+            const finalNetoTotal = q1_neto + q2_neto;
 
             return { 
                 dailyResults, francosList, receiptStats,
@@ -495,19 +513,18 @@
                 tituloAmount: safeTitulo, 
                 presentismo: presMoney, 
                 presentismoHoursLeft: presentismoHoursPool,
-                netoFinal: q1_neto + q2_neto, 
+                netoFinal: finalNetoTotal, 
                 totalFeriadosCount: dailyResults.filter(d=>d.isHoliday).length,
                 totalExtrasAmt: q1_extras + q2_extras,
                 totalExtrasHoursReal: dailyResults.reduce((a,b)=>a+b.extraReal,0),
                 quincenas: { 
-                    q1: { brutoBase: q1_bruto, antiguedad: q1_antig, viaticos: q1_viaticos, extras: q1_extras, feriados: q1_fer, descanso: q1_descanso, neto: q1_neto, desc: q1_final_bruto*discountRate }, 
-                    q2: { brutoBase: q2_bruto, antiguedad: q2_antig, viaticos: q2_viaticos, extras: q2_extras, feriados: q2_fer, descanso: q2_descanso, titulo: safeTitulo, presentismo: presMoney, neto: q2_neto, desc: q2_final_bruto*discountRate } 
+                    q1: { brutoBase: q1_bruto_base, antiguedad: q1_antig, viaticos: q1_viaticos, extras: q1_extras, feriados: q1_feriados, descanso: q1_descanso, neto: q1_neto, desc: q1_descuentos }, 
+                    q2: { brutoBase: q2_bruto_base, antiguedad: q2_antig, viaticos: q2_viaticos, extras: q2_extras, feriados: q2_feriados, descanso: q2_descanso, titulo: safeTitulo, presentismo: presMoney, neto: q2_neto, desc: q2_descuentos } 
                 } 
             };
         }
 
         function getCalculationFor(m, y, isHome = false) {
-            // FIX FOR ISSUE 1: Force use of activeData if viewing current month on Home
             if (isHome && appState.viewingMonth.month === m && appState.viewingMonth.year === y) {
                  return performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.lackOfRest, appState.config);
             }
@@ -516,7 +533,6 @@
             }
             const key = `${y}-${String(m).padStart(2,'0')}`;
             const cached = appState.historicalCache[key];
-            // If Home view and no cache, return clean projection
             return performCalculation(m, y, cached?.extras||{}, cached?.holidayFlags||{}, cached?.shiftOverrides||{}, cached?.lateness||{}, cached?.lackOfRest||{}, cached?.configSnapshot||appState.config);
         }
 
@@ -652,9 +668,8 @@
             if (r.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 mt-8">Sin datos.</p>'; return; }
             r.forEach((i, idx) => {
                 const [y, m] = i.key.split('-');
-                const feriadosCount = i.results.totalFeriadosCount || 0;
                 const extrasCount = i.results.totalExtrasHoursReal || 0;
-                list.innerHTML += `<div class="p-4 rounded-xl border ${idx===0?'border-yellow-400':idx===1?'border-gray-300':idx===2?'border-orange-300':'border-gray-100'} bg-white shadow-sm flex justify-between items-center gap-4"><div><div class="text-2xl font-bold text-center w-8 float-left mr-2">${idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':idx+1}</div><h4 class="font-bold text-gray-800 capitalize">${new Date(y, m-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'})}</h4><p class="text-[10px] text-gray-400 font-medium ml-10">${feriadosCount} Feriados • ${extrasCount}hs Extras</p></div><div class="text-right"><p class="text-xl font-extrabold text-emerald-600">${formatCurrency(i.results.netoFinal)}</p></div></div>`;
+                list.innerHTML += `<div class="p-4 rounded-xl border ${idx===0?'border-yellow-400':idx===1?'border-gray-300':idx===2?'border-orange-300':'border-gray-100'} bg-white shadow-sm flex justify-between items-center gap-4"><div><div class="text-2xl font-bold text-center w-8 float-left mr-2">${idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':idx+1}</div><h4 class="font-bold text-gray-800 capitalize">${new Date(y, m-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'})}</h4><p class="text-[10px] text-gray-400 font-medium ml-10">${extrasCount}hs Extras</p></div><div class="text-right"><p class="text-xl font-extrabold text-emerald-600">${formatCurrency(i.results.netoFinal)}</p></div></div>`;
             });
         }
 
@@ -666,7 +681,7 @@
         
         function triggerLocalRecalculate() { const {month, year} = appState.viewingMonth; appState.activeData.calculation = performCalculation(month, year, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.lackOfRest, appState.config); renderDashboard(); renderHome(); }
         
-        async function switchDashboardMonth(m, y) { appState.viewingMonth = { month: m, year: y }; const key = `${y}-${String(m).padStart(2, '0')}`; const cached = appState.historicalCache[key]; if(cached) { appState.activeData = { extras: cached.extras||{}, manualHolidays: cached.holidayFlags||{}, shiftOverrides: cached.shiftOverrides||{}, lateness: cached.lateness||{}, lackOfRest: cached.lackOfRest||{} }; appState.activeData.calculation = performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.lackOfRest, cached.configSnapshot || null); } renderDashboard(); const now = new Date(); if(m===now.getMonth()+1 && y===now.getFullYear()) renderHome(); }
+        async function switchDashboardMonth(m, y) { appState.viewingMonth = { month: m, year: y }; const key = `${y}-${String(m).padStart(2, '0')}`; const cached = appState.historicalCache[key]; if(cached) { appState.activeData = { extras: cached.extras||{}, manualHolidays: cached.holidayFlags||{}, shiftOverrides: cached.shiftOverrides||{}, lateness: cached.lateness||{}, lackOfRest: cached.lackOfRest||{} }; appState.activeData.calculation = performCalculation(m, y, appState.activeData.extras, appState.activeData.manualHolidays, appState.activeData.shiftOverrides, appState.activeData.lateness, appState.activeData.lackOfRest, cached.configSnapshot || null); } renderDashboard(); }
         
         async function saveCurrentData() { if(!userId) return; const { month, year } = appState.viewingMonth; const docId = `${year}-${String(month).padStart(2, '0')}`; const data = { extras: appState.activeData.extras, holidayFlags: appState.activeData.manualHolidays, shiftOverrides: appState.activeData.shiftOverrides, lateness: appState.activeData.lateness, lackOfRest: appState.activeData.lackOfRest, results: appState.activeData.calculation, configSnapshot: { ...appState.config } }; appState.historicalCache[docId] = data; await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'data', docId), data); renderDashboard(); }
         
@@ -726,15 +741,19 @@
             const st = calc.receiptStats;
             const totalAntig = calc.quincenas.q1.antiguedad + calc.quincenas.q2.antiguedad;
             const totalDesc = calc.quincenas.q1.desc + calc.quincenas.q2.desc;
-            const totalBrutoCalc = calc.quincenas.q1.brutoBase + calc.quincenas.q2.brutoBase + totalAntig + calc.tituloAmount + calc.presentismo + calc.totalExtrasAmt + (st.lackRest*4*appState.config.valorHora);
+            const totalDescansoAmt = calc.quincenas.q1.descanso + calc.quincenas.q2.descanso;
+            const totalFeriadosAmt = calc.quincenas.q1.feriados + calc.quincenas.q2.feriados;
+            
+            // Corrected Sum for PDF Receipt Logic (Total Remunerativo Approx)
+            const totalBrutoCalc = calc.quincenas.q1.brutoBase + calc.quincenas.q2.brutoBase + totalAntig + calc.tituloAmount + calc.presentismo + calc.totalExtrasAmt + totalDescansoAmt + totalFeriadosAmt;
 
             let rows = [
                 ['HORAS NORMALES', st.normal, formatCurrency(st.normal * appState.config.valorHora)],
                 ['HORAS NOCTURNAS', st.night, formatCurrency(st.night * appState.config.valorHora)],
                 ['SÁBADO TARDE/NOCHE (50%)', st.sat50, formatCurrency(st.sat50 * appState.config.valorHora)],
                 ['DOMINGO (200%)', st.sun200, formatCurrency(st.sun200 * appState.config.valorHora)],
-                ['FERIADOS', st.holidays, formatCurrency(st.holidays * appState.config.valorHora)],
-                ['FALTA DE DESCANSO', st.lackRest, formatCurrency(st.lackRest * 4 * appState.config.valorHora)],
+                ['FERIADOS', st.holidays, formatCurrency(totalFeriadosAmt)], // Use calculated value
+                ['FALTA DE DESCANSO', st.lackRest, formatCurrency(totalDescansoAmt)],
                 ['EXTRAS (REALES)', calc.totalExtrasHoursReal, formatCurrency(calc.totalExtrasAmt)],
                 ['ANTIGÜEDAD', `${appState.config.antiguedadYears}%`, formatCurrency(totalAntig)],
                 ['VIÁTICOS', '-', formatCurrency(calc.totalViaticos)],
