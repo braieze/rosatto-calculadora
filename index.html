@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- Metadatos para PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Calculadora">
@@ -46,13 +45,11 @@
 <body class="text-slate-800 bg-gray-50 h-[100dvh] overflow-hidden flex flex-col">
 
     <div id="app-layout" class="flex h-full relative">
-        <!-- Modal Foto -->
         <div id="profile-modal" class="fixed inset-0 z-[100] bg-black/90 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
             <button id="close-modal-btn" class="absolute top-6 right-6 text-white text-4xl z-[101]">&times;</button>
             <img id="modal-img" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl transform scale-95 transition-transform duration-300">
         </div>
 
-        <!-- Modal Instrucciones iOS -->
         <div id="ios-install-modal" class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm hidden flex items-end md:items-center justify-center p-0 md:p-4 transition-opacity duration-300">
             <div class="bg-white w-full md:w-[400px] rounded-t-2xl md:rounded-3xl p-6 relative animate-slide-up shadow-2xl">
                 <button onclick="document.getElementById('ios-install-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition"><i class="fa-solid fa-times"></i></button>
@@ -82,7 +79,6 @@
             </div>
         </div>
 
-        <!-- Sidebar -->
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 text-gray-700 sidebar-closed md:relative md:translate-x-0 flex flex-col shadow-2xl md:shadow-none">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center safe-top">
                 <div class="flex items-center gap-2">
@@ -293,7 +289,6 @@
                     <h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-circle-question text-blue-500 mr-2"></i> Centro de Ayuda</h2>
                     
                     <div class="space-y-6">
-                        <!-- Section: How to use first time -->
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                             <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-star text-yellow-500"></i> Primeros Pasos</h3>
                             <p class="text-gray-600 text-sm mb-3">¡Bienvenido! Para que la calculadora funcione a la perfección, seguí estos pasos la primera vez:</p>
@@ -306,7 +301,6 @@
                             </ol>
                         </div>
 
-                        <!-- Section: Detailed Functionalities -->
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                             <h3 class="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2"><i class="fa-solid fa-circle-info text-blue-500"></i> Funcionalidades Detalladas</h3>
                             
@@ -344,7 +338,6 @@
                             </div>
                         </div>
 
-                        <!-- Section: How to install as App -->
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                             <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-mobile-screen text-purple-500"></i> Instalar como App</h3>
                             <p class="text-xs text-gray-600 mb-2">Si no ves el botón en el inicio, podés hacerlo manualmente:</p>
@@ -1011,12 +1004,25 @@
             appState.config.lastFrancoDate = document.getElementById('cfg-lastFrancoDate').value;
             appState.config.initialTurn = document.getElementById('cfg-initialTurn').value;
             
+            // 1. Guardar en Configuración Global
             if(userId) await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'users', userId, 'config', 'salary'), appState.config, {merge: true});
-            showMessage('Configuración guardada.', 'success'); 
             
-            // FIX: Forzar recálculo del mes actual con la nueva configuración
+            // 2. CORRECCIÓN CRÍTICA: Actualizar la snapshot del mes ACTUAL que se está viendo
+            const { month, year } = appState.viewingMonth;
+            const docId = `${year}-${String(month).padStart(2, '0')}`;
+            
+            // Si el mes existe en el caché histórico (es decir, ya fue generado), actualizamos su foto de configuración
+            if (appState.historicalCache[docId]) {
+                appState.historicalCache[docId].configSnapshot = { ...appState.config };
+            }
+
+            // 3. Forzar el recálculo en memoria del mes activo con la NUEVA config
             triggerLocalRecalculate();
+
+            // 4. Forzar el guardado del mes específico (sobrescribiendo la snapshot vieja en Firebase)
+            await saveCurrentData();
             
+            showMessage('Configuración guardada y aplicada al mes actual.', 'success'); 
             renderHome(); toggleConfigEdit();
         }
     </script>
