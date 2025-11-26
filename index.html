@@ -50,31 +50,44 @@
             <img id="modal-img" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl transform scale-95 transition-transform duration-300">
         </div>
 
-        <div id="ios-install-modal" class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm hidden flex items-end md:items-center justify-center p-0 md:p-4 transition-opacity duration-300">
+        <!-- Modal de Instalación (Genérico para iOS y Android Manual) -->
+        <div id="install-instruction-modal" class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm hidden flex items-end md:items-center justify-center p-0 md:p-4 transition-opacity duration-300">
             <div class="bg-white w-full md:w-[400px] rounded-t-2xl md:rounded-3xl p-6 relative animate-slide-up shadow-2xl">
-                <button onclick="document.getElementById('ios-install-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition"><i class="fa-solid fa-times"></i></button>
+                <button onclick="document.getElementById('install-instruction-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition"><i class="fa-solid fa-times"></i></button>
                 <div class="text-center mb-6 pt-2">
                     <div class="w-16 h-16 bg-gradient-to-tr from-gray-100 to-gray-200 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-inner">
-                        <i class="fa-brands fa-apple text-3xl text-gray-700"></i>
+                        <i id="install-icon" class="fa-solid fa-mobile-screen text-3xl text-gray-700"></i>
                     </div>
-                    <h3 class="font-bold text-xl text-gray-800">Instalar en iPhone</h3>
-                    <p class="text-sm text-gray-500 mt-2 px-4">iOS requiere instalación manual. Seguí estos 2 pasos:</p>
+                    <h3 id="install-title" class="font-bold text-xl text-gray-800">Instalar Aplicación</h3>
+                    <p class="text-sm text-gray-500 mt-2 px-4">Para un acceso más rápido, instálala manualmente:</p>
                 </div>
-                <div class="space-y-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                
+                <!-- Instrucciones iOS -->
+                <div id="ios-instructions" class="space-y-4 bg-gray-50 p-4 rounded-xl border border-gray-100 hidden">
                     <div class="flex items-start gap-4 text-left">
                         <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</div>
-                        <p class="text-sm text-gray-700">Tocá el botón <strong class="text-blue-600"><i class="fa-solid fa-arrow-up-from-bracket mx-1"></i> Compartir</strong> en la barra inferior de Safari.</p>
+                        <p class="text-sm text-gray-700">Tocá el botón <strong class="text-blue-600"><i class="fa-solid fa-arrow-up-from-bracket mx-1"></i> Compartir</strong> en Safari.</p>
                     </div>
                     <div class="flex items-start gap-4 text-left">
                         <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</div>
-                        <p class="text-sm text-gray-700">Deslizá hacia abajo y elegí <strong class="text-gray-800 bg-gray-200 px-1 rounded text-xs"><i class="fa-regular fa-square-plus mr-1"></i> Agregar a Inicio</strong>.</p>
+                        <p class="text-sm text-gray-700">Elegí <strong class="text-gray-800 bg-gray-200 px-1 rounded text-xs"><i class="fa-regular fa-square-plus mr-1"></i> Agregar a Inicio</strong>.</p>
                     </div>
                 </div>
-                <div class="mt-6">
-                    <button onclick="document.getElementById('ios-install-modal').classList.add('hidden')" class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold text-sm hover:bg-black transition">Entendido</button>
+
+                <!-- Instrucciones Android -->
+                <div id="android-instructions" class="space-y-4 bg-gray-50 p-4 rounded-xl border border-gray-100 hidden">
+                    <div class="flex items-start gap-4 text-left">
+                        <div class="w-6 h-6 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</div>
+                        <p class="text-sm text-gray-700">Tocá los tres puntos <strong class="text-gray-600"><i class="fa-solid fa-ellipsis-vertical mx-1"></i></strong> del navegador.</p>
+                    </div>
+                    <div class="flex items-start gap-4 text-left">
+                        <div class="w-6 h-6 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</div>
+                        <p class="text-sm text-gray-700">Seleccioná <strong class="text-gray-800 bg-gray-200 px-1 rounded text-xs"><i class="fa-solid fa-mobile-screen mr-1"></i> Instalar aplicación</strong>.</p>
+                    </div>
                 </div>
-                <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 translate-y-full md:hidden">
-                    <div class="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-white"></div>
+
+                <div class="mt-6">
+                    <button onclick="document.getElementById('install-instruction-modal').classList.add('hidden')" class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold text-sm hover:bg-black transition">Entendido</button>
                 </div>
             </div>
         </div>
@@ -158,19 +171,20 @@
                         </div>
                     </div>
 
-                    <div id="pwa-install-card" class="hidden mb-8 bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden border border-gray-700 transform transition-all hover:scale-[1.01]">
+                    <!-- PWA Card Visible por defecto -->
+                    <div id="pwa-install-card" class="mb-8 bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden border border-gray-700 transform transition-all hover:scale-[1.01]">
                         <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-sm shrink-0">
                                     <i class="fa-solid fa-mobile-screen text-2xl text-white"></i>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-base mb-0.5">Instalar en el celular</h3>
+                                    <h3 class="font-bold text-base mb-0.5">Instalar aplicación</h3>
                                     <p class="text-gray-300 text-xs">Agregá la App a tu inicio para entrar más rápido.</p>
                                 </div>
                             </div>
                             <button id="btn-pwa-install" class="bg-white text-gray-900 px-6 py-2.5 rounded-xl font-extrabold text-sm shadow-md hover:bg-gray-100 transition active:scale-95 whitespace-nowrap w-full sm:w-auto">
-                                Poner como aplicación
+                                Instalar Ahora
                             </button>
                         </div>
                         <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white opacity-5 rounded-full pointer-events-none"></div>
@@ -295,8 +309,7 @@
                             <ol class="list-decimal pl-5 text-gray-600 text-sm space-y-2">
                                 <li>Ve a la pestaña <strong>Configuración</strong>.</li>
                                 <li>Ingresa tu <strong>Valor Hora</strong> actual.</li>
-                                <li>Selecciona tu <strong>Equipo</strong> y % de <strong>Afiliación</strong>.</li>
-                                <li>Carga la fecha de tu <strong>Último Franco (Día 2)</strong> para que el sistema calcule tu rotación.</li>
+                                <li>Selecciona tu <strong>Equipo</strong>. El sistema cargará automáticamente tu fecha de franco y turno, pero puedes ajustarlo si es necesario.</li>
                                 <li>Presiona el botón rojo <strong>GUARDAR Y APLICAR</strong>.</li>
                             </ol>
                         </div>
@@ -316,39 +329,10 @@
                                     <ul class="list-disc pl-5 text-xs text-gray-500 mt-1 space-y-1">
                                         <li>Cargar <strong>horas extra reales</strong> (el sistema detecta si es al 50%, 100% o 200% y multiplica solo).</li>
                                         <li>Marcar <strong>llegadas tarde</strong> (impactan automáticamente en el presentismo).</li>
+                                        <li><strong>Franco Trabajado:</strong> Selecciona esta opción en el turno si trabajas en tu día de descanso (Se paga el día + 8hs).</li>
                                         <li>Indicar si trabajaste un feriado (casilla <strong>Feriado</strong>) o si no tuviste tus 12hs de descanso (casilla <strong>F.Desc</strong>).</li>
-                                        <li>Cambiar un turno manualmente si te lo modificaron (usando el selector "Auto/Mañana/Tarde/Noche").</li>
                                     </ul>
                                 </div>
-
-                                <div class="border-b border-gray-100 pb-3">
-                                    <h4 class="font-bold text-sm text-red-600 mb-1"><i class="fa-solid fa-wallet mr-2"></i>Tesorería</h4>
-                                    <p class="text-xs text-gray-600 leading-relaxed">Aquí ves el dinero real. El sistema separa tu sueldo en <strong>1ra y 2da Quincena</strong>. Desglosa ítem por ítem: cuánto ganaste por básico, cuánto por antigüedad, cuánto por extras, viáticos y título. Es ideal para controlar que tu recibo de sueldo oficial esté correcto.</p>
-                                </div>
-
-                                <div class="border-b border-gray-100 pb-3">
-                                    <h4 class="font-bold text-sm text-red-600 mb-1"><i class="fa-solid fa-trophy mr-2"></i>Ranking</h4>
-                                    <p class="text-xs text-gray-600 leading-relaxed">Un historial competitivo de tus propios sueldos. Ordena tus meses de mayor a menor ingreso neto, mostrándote en qué mes hiciste más diferencia económica y por qué (ej: "30hs Extras").</p>
-                                </div>
-
-                                <div>
-                                    <h4 class="font-bold text-sm text-red-600 mb-1"><i class="fa-solid fa-gear mr-2"></i>Configuración</h4>
-                                    <p class="text-xs text-gray-600 leading-relaxed">Donde personalizas la calculadora. Es vital mantener actualizados el <strong>Valor Hora</strong> y la fecha de <strong>Último Franco</strong>. Si cambias de equipo o de turno, ajústalo aquí para que todo el sistema se recalibre.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                            <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-mobile-screen text-purple-500"></i> Instalar como App</h3>
-                            <p class="text-xs text-gray-600 mb-2">Si no ves el botón en el inicio, podés hacerlo manualmente:</p>
-                            <div class="mb-4">
-                                <h4 class="font-bold text-sm text-gray-700 mb-1"><i class="fa-brands fa-android text-green-600"></i> En Android (Chrome)</h4>
-                                <p class="text-xs text-gray-500">1. Toca los tres puntos (⋮) arriba a la derecha.<br>2. Selecciona "Instalar aplicación" o "Agregar a la pantalla principal".</p>
-                            </div>
-                            
-                            <div>
-                                <h4 class="font-bold text-sm text-gray-700 mb-1"><i class="fa-brands fa-apple text-gray-800"></i> En iOS (iPhone/Safari)</h4>
-                                <p class="text-xs text-gray-500">1. Toca el botón "Compartir" (cuadrado con flecha).<br>2. Desliza hacia abajo y elige "Agregar a Inicio".</p>
                             </div>
                         </div>
                     </div>
@@ -367,15 +351,21 @@
         let app, auth, db, userId = null;
         let isEditingConfig = false;
         let saveTimeout = null; 
-        
-        // Variable para PWA Android
         let deferredPrompt;
+
+        // Configuración preestablecida de equipos
+        const TEAM_PRESETS = {
+            'A': { date: '2025-11-26', turn: 'Noche' },
+            'B': { date: '2025-11-22', turn: 'Tarde' },
+            'C': { date: '2025-11-24', turn: 'Mañana' },
+            'D': { date: '2025-11-28', turn: 'Tarde' }
+        };
 
         const DEFAULT_STATE = {
             config: { 
                 userName: 'Usuario', profilePicUrl: '', teamLetter: 'A', valorHora: 0, discountRate: 0.18, 
                 tituloAmount: 0, viaticoValue: 0, antiguedadYears: 0, presentismoAmount: 0, 
-                lastFrancoDate: new Date().toISOString().split('T')[0], initialTurn: 'Mañana' 
+                lastFrancoDate: '2025-11-26', initialTurn: 'Noche' 
             },
             viewingMonth: { month: new Date().getMonth() + 1, year: new Date().getFullYear() },
             treasuryViewMonth: { month: new Date().getMonth() + 1, year: new Date().getFullYear() },
@@ -399,40 +389,67 @@
             initPWA();
             const d = new Date();
             document.getElementById('header-current-date').textContent = `${d.getDate()} ${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][d.getMonth()]}`;
-            document.getElementById('btn-sidebar-login').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
+            
+            // Login con selector de cuentas
+            document.getElementById('btn-sidebar-login').onclick = () => {
+                const provider = new GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
+                signInWithPopup(auth, provider);
+            };
+
             document.getElementById('auth-action-btn').onclick = () => signOut(auth);
             document.getElementById('btn-save-config').addEventListener('click', saveConfigHandler);
             document.getElementById('btn-toggle-edit').addEventListener('click', toggleConfigEdit);
+            
+            // Listener para cambio de equipo
+            document.getElementById('cfg-teamLetter').addEventListener('change', (e) => {
+                const preset = TEAM_PRESETS[e.target.value];
+                if(preset) {
+                    document.getElementById('cfg-lastFrancoDate').value = preset.date;
+                    document.getElementById('cfg-initialTurn').value = preset.turn;
+                }
+            });
+
             const fileInput = document.getElementById('cfg-profilePicture');
             if (fileInput) fileInput.onchange = (e) => { if(e.target.files[0]) compressAndUpload(e.target.files[0]); };
         };
 
         function initPWA() {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            if (isStandalone) return;
+            if (isStandalone) {
+                document.getElementById('pwa-install-card').classList.add('hidden');
+                return;
+            }
 
-            const installCard = document.getElementById('pwa-install-card');
             const installBtn = document.getElementById('btn-pwa-install');
-
+            
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
-                installCard.classList.remove('hidden');
-                installBtn.onclick = async () => {
-                    if (deferredPrompt) {
-                        deferredPrompt.prompt();
-                        const { outcome } = await deferredPrompt.userChoice;
-                        deferredPrompt = null;
-                        if(outcome === 'accepted') installCard.classList.add('hidden');
-                    }
-                };
             });
 
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            if (isIOS && !isStandalone) {
-                installCard.classList.remove('hidden');
-                installBtn.onclick = () => { document.getElementById('ios-install-modal').classList.remove('hidden'); }
-            }
+            installBtn.onclick = async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if(outcome === 'accepted') {
+                        deferredPrompt = null;
+                        document.getElementById('pwa-install-card').classList.add('hidden');
+                    }
+                } else {
+                    // Si no hay evento (ej: Android ya lo rechazó o iOS), mostrar modal manual
+                    const modal = document.getElementById('install-instruction-modal');
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                    
+                    document.getElementById('ios-instructions').classList.toggle('hidden', !isIOS);
+                    document.getElementById('android-instructions').classList.toggle('hidden', isIOS);
+                    
+                    document.getElementById('install-icon').className = isIOS ? "fa-brands fa-apple text-3xl text-gray-700" : "fa-brands fa-android text-3xl text-green-600";
+                    document.getElementById('install-title').textContent = isIOS ? "Instalar en iPhone" : "Instalar en Android";
+                    
+                    modal.classList.remove('hidden');
+                }
+            };
         }
 
         function triggerAutoSave() {
@@ -552,7 +569,8 @@
                 sun200: { real: 0, equiv: 0 },
                 holidays: { real: 0, equiv: 0 },
                 lackRest: { count: 0, equiv: 0 },
-                extras: { real: 0, equiv: 0 }
+                extras: { real: 0, equiv: 0 },
+                francoTrab: { real: 0, equiv: 0 }
             };
 
             for (let i = 1; i <= daysInMonth; i++) {
@@ -580,6 +598,14 @@
                         tLbl = 'FERIADO (Franco)'; eqBase = 8; 
                         receiptStats.holidays.real += 8; receiptStats.holidays.equiv += 8;
                     }
+                } else if (cState === 'Franco Trab.') {
+                    // Lógica Nueva: Franco Trabajado
+                    // Valor del Día + 8. Asumimos Día base 8hs + 8hs bono = 16hs equiv.
+                    tLbl = 'FRANCO TRAB.';
+                    shiftRealHours = 8;
+                    eqBase = 16; 
+                    receiptStats.francoTrab.real += 8; 
+                    receiptStats.francoTrab.equiv += 16;
                 } else {
                     if (isHol) { 
                         tLbl = `FERIADO (${cState})`; 
@@ -622,19 +648,18 @@
                 if(isLackRest) { receiptStats.lackRest.count += 1; receiptStats.lackRest.equiv += 4; }
 
                 // Antiguedad: Aplica sobre Base + Extras + Descanso
-                // Formula: (MontoEquivalentes) * (Antig/100) -> SUJETO A DESCUENTO
                 const dayRemunerative = moneyBase + moneyExtras + moneyDescanso;
                 const moneyAntig = dayRemunerative * (safeAntig / 100);
                 
-                // Viatico: NO DESCUENTO
-                const moneyViat = extReal > 0 ? safeViat : 0;
+                // Viatico: NO DESCUENTO. Si trabaja franco, también cuenta viático si es presencial.
+                const moneyViat = (extReal > 0 || cState === 'Franco Trab.') ? safeViat : 0;
 
                 // Total Diario
-                const dailyBruto = dayRemunerative + moneyAntig; // Todo esto lleva descuento
+                const dailyBruto = dayRemunerative + moneyAntig; 
                 const dailyNeto = (dailyBruto * (1 - discountRate)) + moneyViat; 
 
                 const eqTot = eqBase + (extReal * multiplier) + (isLackRest?4:0);
-                const totalRealHours = 8 + extReal;
+                const totalRealHours = (cState === 'Franco' ? 0 : 8) + extReal;
 
                 dailyResults.push({ 
                     date: dDisp, key: dKey, dayName: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][current.getDay()], 
@@ -655,7 +680,7 @@
             }
 
             if(presentismoHoursPool < 0) presentismoHoursPool = 0;
-            const presMoney = presentismoHoursPool * safeValHora; // Presentismo NO DESCUENTO
+            const presMoney = presentismoHoursPool * safeValHora; 
 
             const q1_remunerative = q1_bruto_base + q1_extras_sum + q1_descanso_sum + q1_antig_sum;
             const q1_discount = q1_remunerative * discountRate;
@@ -782,9 +807,10 @@
                     if(d.isHoliday) tr.className="bg-red-50/50";
                     let sel = appState.activeData.shiftOverrides[d.key] || 'Original';
                     let lateSel = d.lateType;
+                    // Nueva opción: Franco Trab.
                     tr.innerHTML = `
                         <td class="px-4 py-3 text-gray-700 whitespace-nowrap font-medium">${d.date.split('/')[0]} <span class="text-xs text-gray-400">${d.dayName}</span></td>
-                        <td class="px-4 py-3"><select class="table-select bg-transparent border-none text-xs font-bold ${d.isFranco?'text-yellow-600':'text-red-600'}" onchange="window.updateTurnOverride('${d.key}', this.value)"><option value="Original" ${sel==='Original'?'selected':''}>Auto</option><option value="Mañana" ${sel==='Mañana'?'selected':''}>Mañana</option><option value="Tarde" ${sel==='Tarde'?'selected':''}>Tarde</option><option value="Noche" ${sel==='Noche'?'selected':''}>Noche</option><option value="Franco" ${sel==='Franco'?'selected':''}>Franco</option><option value="Licencia" ${sel==='Licencia'?'selected':''}>Licencia</option><option value="Vacaciones" ${sel==='Vacaciones'?'selected':''}>Vacaciones</option></select><div class="text-[10px] text-gray-400">${d.turn}</div></td>
+                        <td class="px-4 py-3"><select class="table-select bg-transparent border-none text-xs font-bold ${d.isFranco?'text-yellow-600':(sel==='Franco Trab.'?'text-emerald-600':'text-red-600')}" onchange="window.updateTurnOverride('${d.key}', this.value)"><option value="Original" ${sel==='Original'?'selected':''}>Auto</option><option value="Mañana" ${sel==='Mañana'?'selected':''}>Mañana</option><option value="Tarde" ${sel==='Tarde'?'selected':''}>Tarde</option><option value="Noche" ${sel==='Noche'?'selected':''}>Noche</option><option value="Franco" ${sel==='Franco'?'selected':''}>Franco</option><option value="Franco Trab." ${sel==='Franco Trab.'?'selected':''}>Franco Trab.</option><option value="Licencia" ${sel==='Licencia'?'selected':''}>Licencia</option><option value="Vacaciones" ${sel==='Vacaciones'?'selected':''}>Vacaciones</option></select><div class="text-[10px] text-gray-400">${d.turn}</div></td>
                         <td class="px-4 py-3 text-center"><input type="number" value="${d.extraReal||''}" class="w-14 text-center border rounded py-1 text-xs font-bold text-emerald-600" placeholder="-" step="0.5" min="0" onchange="window.updateExtra('${d.date}', this.value)"></td>
                         <td class="px-4 py-3 text-center"><select class="border rounded text-[10px] py-1 px-1 ${lateSel>0?'text-red-600 bg-red-50 font-bold':''}" onchange="window.updateLateness('${d.date}', this.value)"><option value="0" ${lateSel===0?'selected':''}>Puntual</option><option value="1" ${lateSel===1?'selected':''}>Tarde (>5m)</option><option value="2" ${lateSel===2?'selected':''}>Tarde (>1h)</option></select></td>
                         <td class="px-4 py-3 text-center"><input type="checkbox" class="w-4 h-4 text-red-600 rounded focus:ring-red-500" ${d.isHoliday?'checked':''} onchange="window.updateHoliday('${d.date}', this.checked)"></td>
@@ -951,6 +977,7 @@
                 ['SÁBADO NOCHE (100%)', st.sat100.real, st.sat100.equiv, formatCurrency(st.sat100.equiv * appState.config.valorHora)],
                 ['DOMINGO (200%)', st.sun200.real, st.sun200.equiv, formatCurrency(st.sun200.equiv * appState.config.valorHora)],
                 ['FERIADOS', st.holidays.real, st.holidays.equiv, formatCurrency(st.holidays.equiv * appState.config.valorHora)], 
+                ['FRANCO TRABAJADO', st.francoTrab.real, st.francoTrab.equiv, formatCurrency(st.francoTrab.equiv * appState.config.valorHora)],
                 ['FALTA DE DESCANSO', st.lackRest.count, st.lackRest.equiv, formatCurrency(st.lackRest.equiv * appState.config.valorHora)],
                 ['EXTRAS (REALES)', calc.totalExtrasHoursReal, calc.totalExtrasAmt/appState.config.valorHora, formatCurrency(calc.totalExtrasAmt)],
                 ['ANTIGÜEDAD', `${appState.config.antiguedadYears}%`, '-', formatCurrency(calc.totalAntiguedad)],
