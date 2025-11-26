@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Metadatos para PWA (Progressive Web App) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Calculadora">
+    <meta name="mobile-web-app-capable" content="yes">
+    
     <title>Calculadora Salarial</title>
     
     <link rel="icon" type="image/png" href="logo.png">
@@ -33,6 +38,10 @@
         .sticky-header th { position: sticky; top: 0; z-index: 20; background-color: #f9fafb; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         @keyframes bounce-x { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
         .animate-bounce-x { animation: bounce-x 1s infinite; }
+        
+        /* Animación para el modal de iOS */
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
     </style>
 </head>
 <body class="text-slate-800 bg-gray-50 h-[100dvh] overflow-hidden flex flex-col">
@@ -42,6 +51,37 @@
         <div id="profile-modal" class="fixed inset-0 z-[100] bg-black/90 hidden flex items-center justify-center p-4 transition-opacity duration-300 opacity-0">
             <button id="close-modal-btn" class="absolute top-6 right-6 text-white text-4xl z-[101]">&times;</button>
             <img id="modal-img" src="" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl transform scale-95 transition-transform duration-300">
+        </div>
+
+        <!-- Modal Instrucciones iOS (Nuevo) -->
+        <div id="ios-install-modal" class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm hidden flex items-end md:items-center justify-center p-0 md:p-4 transition-opacity duration-300">
+            <div class="bg-white w-full md:w-[400px] rounded-t-2xl md:rounded-3xl p-6 relative animate-slide-up shadow-2xl">
+                <button onclick="document.getElementById('ios-install-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition"><i class="fa-solid fa-times"></i></button>
+                <div class="text-center mb-6 pt-2">
+                    <div class="w-16 h-16 bg-gradient-to-tr from-gray-100 to-gray-200 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-inner">
+                        <i class="fa-brands fa-apple text-3xl text-gray-700"></i>
+                    </div>
+                    <h3 class="font-bold text-xl text-gray-800">Instalar en iPhone</h3>
+                    <p class="text-sm text-gray-500 mt-2 px-4">iOS requiere instalación manual. Seguí estos 2 pasos:</p>
+                </div>
+                <div class="space-y-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div class="flex items-start gap-4 text-left">
+                        <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</div>
+                        <p class="text-sm text-gray-700">Tocá el botón <strong class="text-blue-600"><i class="fa-solid fa-arrow-up-from-bracket mx-1"></i> Compartir</strong> en la barra inferior de Safari.</p>
+                    </div>
+                    <div class="flex items-start gap-4 text-left">
+                        <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</div>
+                        <p class="text-sm text-gray-700">Deslizá hacia abajo y elegí <strong class="text-gray-800 bg-gray-200 px-1 rounded text-xs"><i class="fa-regular fa-square-plus mr-1"></i> Agregar a Inicio</strong>.</p>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <button onclick="document.getElementById('ios-install-modal').classList.add('hidden')" class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold text-sm hover:bg-black transition">Entendido</button>
+                </div>
+                <!-- Triángulo indicador para el botón compartir en móvil -->
+                <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 translate-y-full md:hidden">
+                    <div class="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-white"></div>
+                </div>
+            </div>
         </div>
 
         <!-- Sidebar -->
@@ -120,6 +160,29 @@
                             <p id="header-current-date" class="text-2xl font-bold text-gray-700">...</p>
                         </div>
                     </div>
+
+                    <!-- NUEVA FUNCIONALIDAD: BOTÓN PWA DE INSTALACIÓN -->
+                    <div id="pwa-install-card" class="hidden mb-8 bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden border border-gray-700 transform transition-all hover:scale-[1.01]">
+                        <div class="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-sm shrink-0">
+                                    <i class="fa-solid fa-mobile-screen text-2xl text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-base mb-0.5">Instalar en el celular</h3>
+                                    <p class="text-gray-300 text-xs">Agregá la App a tu inicio para entrar más rápido.</p>
+                                </div>
+                            </div>
+                            <button id="btn-pwa-install" class="bg-white text-gray-900 px-6 py-2.5 rounded-xl font-extrabold text-sm shadow-md hover:bg-gray-100 transition active:scale-95 whitespace-nowrap w-full sm:w-auto">
+                                Poner como aplicación
+                            </button>
+                        </div>
+                        <!-- Círculos decorativos -->
+                        <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white opacity-5 rounded-full pointer-events-none"></div>
+                        <div class="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 bg-red-500 opacity-10 rounded-full pointer-events-none"></div>
+                    </div>
+                    <!-- FIN NUEVA FUNCIONALIDAD -->
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group hover:shadow-md transition-all">
                             <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-money-bill-wave text-6xl text-emerald-600"></i></div>
@@ -286,7 +349,7 @@
                         <!-- Section: How to install as App -->
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                             <h3 class="font-bold text-lg text-gray-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-mobile-screen text-purple-500"></i> Instalar como App</h3>
-                            
+                            <p class="text-xs text-gray-600 mb-2">Si no ves el botón en el inicio, podés hacerlo manualmente:</p>
                             <div class="mb-4">
                                 <h4 class="font-bold text-sm text-gray-700 mb-1"><i class="fa-brands fa-android text-green-600"></i> En Android (Chrome)</h4>
                                 <p class="text-xs text-gray-500">1. Toca los tres puntos (⋮) arriba a la derecha.<br>2. Selecciona "Instalar aplicación" o "Agregar a la pantalla principal".</p>
@@ -313,6 +376,9 @@
         let app, auth, db, userId = null;
         let isEditingConfig = false;
         let saveTimeout = null; 
+        
+        // Variable para PWA Android
+        let deferredPrompt;
 
         const DEFAULT_STATE = {
             config: { 
@@ -339,6 +405,7 @@
         window.onload = () => {
             initFirebaseSystem();
             setupUI();
+            initPWA(); // INICIALIZAR LÓGICA DE INSTALACIÓN
             const d = new Date();
             document.getElementById('header-current-date').textContent = `${d.getDate()} ${['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][d.getMonth()]}`;
             document.getElementById('btn-sidebar-login').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
@@ -348,6 +415,56 @@
             const fileInput = document.getElementById('cfg-profilePicture');
             if (fileInput) fileInput.onchange = (e) => { if(e.target.files[0]) compressAndUpload(e.target.files[0]); };
         };
+
+        // --- FUNCIONALIDAD PWA (INSTALAR APP) ---
+        function initPWA() {
+            // Verificar si la app ya está instalada (Standalone Mode)
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            
+            if (isStandalone) {
+                console.log('App ya instalada.');
+                return; // Si ya está instalada, no hacemos nada (el botón sigue oculto)
+            }
+
+            const installCard = document.getElementById('pwa-install-card');
+            const installBtn = document.getElementById('btn-pwa-install');
+
+            // 1. Lógica para ANDROID / CHROME (Capturar evento beforeinstallprompt)
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Prevenir que Chrome muestre el prompt automáticamente (queremos mostrarlo al click)
+                e.preventDefault();
+                // Guardar el evento para dispararlo después
+                deferredPrompt = e;
+                // Mostrar nuestro botón personalizado
+                installCard.classList.remove('hidden');
+                
+                installBtn.onclick = async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt(); // Mostrar diálogo nativo
+                        const { outcome } = await deferredPrompt.userChoice;
+                        console.log(`Usuario respondió: ${outcome}`);
+                        deferredPrompt = null;
+                        // Si aceptó, ocultamos el botón
+                        if(outcome === 'accepted') {
+                            installCard.classList.add('hidden');
+                        }
+                    }
+                };
+            });
+
+            // 2. Lógica para iOS (iPhone/iPad)
+            // Detectar si es dispositivo iOS y navegador Safari/Chrome iOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            
+            // Solo mostrar si es iOS y NO estamos en standalone
+            if (isIOS && !isStandalone) {
+                installCard.classList.remove('hidden'); // Mostrar tarjeta
+                installBtn.onclick = () => {
+                    // En iOS no podemos forzar la instalación, mostramos modal con instrucciones
+                    document.getElementById('ios-install-modal').classList.remove('hidden');
+                }
+            }
+        }
 
         function triggerAutoSave() {
             const statusEl = document.getElementById('save-status');
@@ -450,7 +567,6 @@
             const diffDays = Math.floor((new Date(year, month - 1, 1).getTime() - lastFrancoMs) / 86400000);
             let startOffset = (baseOffset + diffDays) % 24; if (startOffset < 0) startOffset += 24;
 
-            // CORRECTED VARIABLE NAMES HERE
             let q1_bruto_base = 0, q2_bruto_base = 0;
             let q1_antig_sum = 0, q2_antig_sum = 0;
             let q1_extras_sum = 0, q2_extras_sum = 0;
@@ -459,12 +575,11 @@
             let q1_viaticos_sum = 0, q2_viaticos_sum = 0;
             let presentismoHoursPool = 8;
             
-            // Counters for PDF detailed view (Real / Equiv)
             let receiptStats = { 
                 normal: { real: 0, equiv: 0 },
                 night: { real: 0, equiv: 0 },
-                sat50: { real: 0, equiv: 0 }, // Sat Morn/Afternoon
-                sat100: { real: 0, equiv: 0 }, // Sat Night
+                sat50: { real: 0, equiv: 0 },
+                sat100: { real: 0, equiv: 0 },
                 sun200: { real: 0, equiv: 0 },
                 holidays: { real: 0, equiv: 0 },
                 lackRest: { count: 0, equiv: 0 },
@@ -486,9 +601,8 @@
                 if(lateType === 1) presentismoHoursPool -= 0.5;
                 if(lateType === 2) presentismoHoursPool -= 1.0;
 
-                // --- SHIFT VALUE MATRIX ---
                 let tLbl = cState, eqBase = 0;
-                let shiftRealHours = 8; // Default
+                let shiftRealHours = 8;
 
                 if (cState === 'Vacaciones' || cState === 'Licencia') { tLbl = cState; eqBase = 8; receiptStats.normal.real += 8; receiptStats.normal.equiv += 8; } 
                 else if (cState === 'Franco') {
@@ -513,7 +627,7 @@
                             } else if (cState === 'Tarde') { 
                                 eqBase = 12; receiptStats.sat50.real += 8; receiptStats.sat50.equiv += 12; 
                             } else { 
-                                eqBase = 9; receiptStats.sat50.real += 8; receiptStats.sat50.equiv += 9; // Mañana Sat 
+                                eqBase = 9; receiptStats.sat50.real += 8; receiptStats.sat50.equiv += 9; 
                             }
                         } else { // M-F
                             if (cState === 'Noche') { 
@@ -525,33 +639,25 @@
                     }
                 }
 
-                // --- OVERTIME MULTIPLIERS ---
                 const dayOfWeek = current.getDay(); 
                 let multiplier = 1.5; 
-                if(isHol || dayOfWeek === 0) multiplier = 3.0; // Sun/Hol x3
-                else if(dayOfWeek === 6) multiplier = 2.0; // Sat x2
+                if(isHol || dayOfWeek === 0) multiplier = 3.0;
+                else if(dayOfWeek === 6) multiplier = 2.0;
 
-                // --- MONETARY ---
                 const moneyBase = eqBase * safeValHora;
                 const moneyExtras = (extReal * multiplier) * safeValHora;
                 const moneyDescanso = isLackRest ? (4 * safeValHora) : 0;
                 
-                // Receipt Stats for Extras & Rest
                 if(extReal > 0) { receiptStats.extras.real += extReal; receiptStats.extras.equiv += (extReal * multiplier); }
                 if(isLackRest) { receiptStats.lackRest.count += 1; receiptStats.lackRest.equiv += 4; }
 
-                // Antiguedad: Applied to (Base + Extras + Rest) -> WITH DISCOUNT
                 const dayRemunerative = moneyBase + moneyExtras + moneyDescanso;
                 const moneyAntig = dayRemunerative * (safeAntig / 100);
+                const moneyViat = extReal > 0 ? safeViat : 0;
 
-                // Viaticos: Applied if Extras > 0 -> NO DISCOUNT
-                const moneyViat = extReal > 0 ? safeViat : 0; // Per day with extras
-
-                // Daily Totals for Table
                 const dailyBruto = dayRemunerative + moneyAntig;
-                const dailyNeto = (dailyBruto * (1 - discountRate)) + moneyViat; // Presentismo added at end
+                const dailyNeto = (dailyBruto * (1 - discountRate)) + moneyViat; 
 
-                // Display Values
                 const eqTot = eqBase + (extReal * multiplier) + (isLackRest?4:0);
                 const totalRealHours = 8 + extReal;
 
@@ -563,7 +669,6 @@
                     bruto: dailyBruto, neto: dailyNeto, isFranco: cState === 'Franco' 
                 });
 
-                // Quincena Accumulation
                 if (i <= 15) { 
                     q1_bruto_base += moneyBase; q1_extras_sum += moneyExtras; q1_descanso_sum += moneyDescanso; q1_antig_sum += moneyAntig; q1_viaticos_sum += moneyViat;
                     if(isHol) q1_feriados_sum += moneyBase;
@@ -577,18 +682,15 @@
             if(presentismoHoursPool < 0) presentismoHoursPool = 0;
             const presMoney = presentismoHoursPool * safeValHora; 
 
-            // --- FINAL TOTALS ---
-            // Q1 (Remunerative + Viaticos)
             const q1_remunerative = q1_bruto_base + q1_extras_sum + q1_descanso_sum + q1_antig_sum;
             const q1_discount = q1_remunerative * discountRate;
             const q1_neto = q1_remunerative - q1_discount + q1_viaticos_sum;
 
-            // Q2 (Remunerative + Viaticos + Title + Presentismo)
             const q2_remunerative = q2_bruto_base + q2_extras_sum + q2_descanso_sum + q2_antig_sum;
             const q2_discount = q2_remunerative * discountRate;
             const q2_neto = q2_remunerative - q2_discount + q2_viaticos_sum + safeTitulo + presMoney;
 
-            const totalBrutoSinDescuento = (q1_remunerative + q2_remunerative); // Total Subject to Discount
+            const totalBrutoSinDescuento = (q1_remunerative + q2_remunerative);
             const totalNoRemunerativo = q1_viaticos_sum + q2_viaticos_sum + safeTitulo + presMoney;
             const totalDescuento = (q1_discount + q2_discount);
             
