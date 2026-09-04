@@ -19,11 +19,3 @@ Desarrollada inicialmente para el personal de **Papelera Rosato S.A.**, esta her
 * **Frontend:** HTML5, Tailwind CSS (vía CDN), Vanilla JavaScript (ES Modules).
 * **Backend / BaaS:** Firebase Authentication, Cloud Firestore.
 * **Librerías Externas:** FontAwesome (Iconos), jsPDF & jsPDF-AutoTable (Generación de reportes).
-
-## 🚀 Uso e Instalación
-
-Dado que la aplicación está construida con Vanilla JS y módulos nativos, no requiere un proceso de *build* complejo (como Node.js o Webpack). 
-
-1. Clona este repositorio:
-   ```bash
-   git clone [https://github.com/tu-usuario/calculadora-6x2.git](https://github.com/tu-usuario/calculadora-6x2.git)
