@@ -1,21 +1,29 @@
-# 🏭 Portal del Empleado - Calculadora Salarial 6x2
+<div align="center">
+  <img src="./portal-empleado-portada.gif" alt="Demo Portal del Empleado" width="800" />
+</div>
 
-Una aplicación web progresiva (PWA) diseñada para gestionar la rotación de turnos y calcular proyecciones salariales exactas para empleados bajo el esquema de trabajo 6x2 (6 días de trabajo, 2 de descanso). 
+<br />
 
-Desarrollada inicialmente para el personal de **Papelera Rosato S.A.**, esta herramienta automatiza la complejidad de la liquidación de sueldos industriales, brindando transparencia y control financiero al trabajador.
+# 🏭 Portal del Empleado - Calculadora Salarial PWA
 
-## ✨ Características Principales
+**[ HERRAMIENTA OPERATIVA EN PRODUCCIÓN | B2B INDUSTRIAL ]**
 
-* **🔄 Motor de Rotación 6x2:** Calcula automáticamente el ciclo continuo de turnos (Mañana, Tarde, Noche) y francos basándose en una fecha de inicio configurada por el usuario.
-* **💰 Proyección Salarial Quincenal:** Estima el salario bruto y neto dividido en 1ra y 2da quincena, aplicando descuentos sindicales, viáticos, bonos por título y premios por presentismo.
-* **⏱️ Gestión de Variables Diarias:** Permite imputar horas extras (diferenciando días normales y feriados), ausencias, llegadas tarde (con su respectiva lógica de penalización) y días feriados trabajados/no trabajados.
-* **📊 Tesorería y Ranking:** Mantiene un historial de los meses calculados y genera un ranking personal de los períodos con mayores ingresos.
-* **📄 Exportación PDF:** Genera comprobantes de liquidación detallados con la librería `jsPDF`, ideales para control personal o reclamos.
-* **☁️ Sincronización en la Nube:** Autenticación mediante Google y almacenamiento de configuraciones e historial de meses utilizando Firebase Firestore. Incluye un "Modo Invitado" de uso efímero.
-* **📸 Optimización de Imágenes:** Compresión automática de fotos de perfil mediante Canvas API y codificación Base64, almacenadas directamente en la base de datos para evitar costos de Storage.
+🔗 **Ver en vivo:** [Visitar la aplicación activa](https://calculadora-salarial-6x2.vercel.app/)
 
-## 🛠️ Tecnologías Utilizadas
+Aplicación Web Progresiva (PWA) diseñada para resolver la complejidad administrativa y financiera del esquema de turnos rotativos continuos (6x2) en el sector industrial. Desarrollada inicialmente para el personal de **Papelera Rosato S.A.**, la plataforma automatiza la liquidación de sueldos, elimina la fricción del cálculo manual y transparenta las proyecciones salariales para el trabajador.
 
-* **Frontend:** HTML5, Tailwind CSS (vía CDN), Vanilla JavaScript (ES Modules).
-* **Backend / BaaS:** Firebase Authentication, Cloud Firestore.
-* **Librerías Externas:** FontAwesome (Iconos), jsPDF & jsPDF-AutoTable (Generación de reportes).
+## 🚀 Arquitectura y Lógica de Negocio
+
+* **Motor de Rotación Algorítmica (6x2):** Calcula automáticamente el ciclo de turnos (Mañana, Tarde, Noche) y francos en un calendario infinito, basándose en un "seed" o fecha de inicio configurada por el usuario.
+* **Proyección Financiera Quincenal:** Motor lógico que estima el salario bruto y neto dividiendo los períodos en 1ra y 2da quincena. Aplica deducciones sindicales, cálculo de viáticos, bonos por título y métricas de presentismo.
+* **Gestión de Variables Críticas:** Interfaz para la imputación precisa de horas extras (diferenciando valoraciones de días normales vs. feriados), ausencias, y penalizaciones por llegadas tarde.
+* **Sincronización Cloud & Modo Efímero:** Autenticación fluida mediante Google y persistencia de datos en Firebase Firestore. Incluye un "Modo Invitado" para simulaciones rápidas sin registro.
+* **Generación de Reportes:** Exportación del historial financiero a documentos PDF detallados utilizando `jsPDF`, generando comprobantes listos para el control personal o auditoría.
+* **Optimización de Storage:** Compresión algorítmica de fotos de perfil mediante Canvas API y codificación Base64 en el cliente, almacenando las imágenes directamente en la base de datos para minimizar costos de infraestructura.
+
+## 🛠️ Stack Tecnológico
+
+* **Frontend:** Vanilla JavaScript (ES Modules), HTML5 semántico.
+* **Diseño UI/UX:** Tailwind CSS (Sistema de diseño responsivo y optimizado para PWA).
+* **Backend as a Service (BaaS):** Firebase (Authentication, Cloud Firestore).
+* **Procesamiento Documental:** `jsPDF` & `jsPDF-AutoTable` (Generación de reportes PDF del lado del cliente).
